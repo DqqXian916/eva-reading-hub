@@ -39,7 +39,7 @@ defineEmits(['select', 'add', 'toggle'])
 
       <div class="list-container">
         <div class="list-header">
-          {{ canEdit ? '📋 学员库管理' : '👤 请选择你的名字' }}
+          {{ canEdit ? '📋 学员库管理' : '👤 请选择当前学员' }}
         </div>
         <div class="list">
           <div 
