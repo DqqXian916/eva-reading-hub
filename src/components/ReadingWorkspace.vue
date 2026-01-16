@@ -33,7 +33,7 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
     <div class="content-container">
       <article class="article-col">
         <div class="article-header">
-          <div class="student-tag">READING MATERIAL 🌟</div>
+          <div class="student-tag">READING MATERIAL（阅读文章） 🌟</div>
           <h1 class="article-title">{{ activeReading.title }}</h1>
         </div>
         <div class="article-text">
