@@ -26,7 +26,7 @@ const form = reactive({
   question: '', 
   options: ['', '', '', ''], 
   answer_index: 0, 
-  category: '语法', 
+  category: '', 
   explanation: '' 
 })
 
@@ -39,6 +39,13 @@ const filteredQuizzes = computed(() => {
 const currentIndex = computed(() => {
   if (!selectedQuiz.value) return -1
   return filteredQuizzes.value.findIndex(q => q.id === selectedQuiz.value.id)
+})
+
+const allCategories = computed(() => {
+  const defaults = ['语法', '词汇', '真题', '阅读']
+  if (!props.quizzes) return defaults
+  const existing = props.quizzes.map(q => q.category).filter(Boolean)
+  return [...new Set([...defaults, ...existing])].sort()
 })
 
 const goToPrev = () => {
@@ -68,13 +75,6 @@ const handleKeyDown = (e) => {
 onMounted(() => window.addEventListener('keydown', handleKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', handleKeyDown))
 
-const allCategories = computed(() => {
-  const defaults = ['语法', '词汇', '真题', '阅读']
-  if (!props.quizzes) return defaults
-  const existing = props.quizzes.map(q => q.category).filter(Boolean)
-  return [...new Set([...defaults, ...existing])]
-})
-
 watch(selectedQuiz, () => {
   userAnswer.value = null
   isChecked.value = false
@@ -88,7 +88,7 @@ const openQuiz = (q) => {
 const startAdd = () => {
   isAdding.value = true
   selectedQuiz.value = null
-  Object.assign(form, { id: null, question: '', options: ['', '', '', ''], answer_index: 0, category: '语法', explanation: '' })
+  Object.assign(form, { id: null, question: '', options: ['', '', '', ''], answer_index: 0, category: '', explanation: '' })
 }
 
 const startEdit = () => {
@@ -134,7 +134,7 @@ const handleDelete = (id) => {
         <div class="panel-content">
           <div class="filter-bar">
             <select v-model="filterType" class="cat-select">
-              <option value="all">📖 全部</option>
+              <option value="all">📖 全部展示</option>
               <option v-for="cat in allCategories" :key="cat" :value="cat">{{ cat }}</option>
             </select>
             <button v-if="canEdit" class="add-mini-btn" @click="startAdd">＋</button>
@@ -173,9 +173,21 @@ const handleDelete = (id) => {
 
           <div class="editor-content-flex">
             <div class="editor-left-col">
-              <div class="compact-field">
+              <div class="compact-field category-field">
                 <label>所属分类</label>
-                <input v-model="form.category" class="compact-input" placeholder="输入或选择分类">
+                <div class="datalist-wrapper">
+                  <input 
+                    v-model="form.category" 
+                    class="compact-input datalist-input" 
+                    list="category-data" 
+                    placeholder="选择或输入..."
+                    @focus="$event.target.select()"
+                    @mousedown="form.category = ''" 
+                  >
+                  <datalist id="category-data">
+                    <option v-for="cat in allCategories" :key="cat" :value="cat" />
+                  </datalist>
+                </div>
               </div>
               <div class="compact-field fill-flex">
                 <label>题干内容 (英文)</label>
@@ -263,145 +275,172 @@ const handleDelete = (id) => {
 </template>
 
 <style scoped>
-.quiz-module-layout { display: flex; width: 100%; height: 100vh; background: #f8fafc; overflow: hidden; }
-
-/* --- 侧边栏面板优化 --- */
-.quiz-list-panel { 
-  width: 260px; 
-  background: white; 
-  border-right: 1px solid #e2e8f0; 
-  display: flex; 
-  flex-direction: column; 
-  position: relative; 
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-  z-index: 5; 
+/* --- 全局盒模型 --- */
+.quiz-module-layout * {
+  box-sizing: border-box;
 }
 
-.quiz-list-panel.is-collapsed { 
-  width: 0; 
+/* --- 修复双箭头逻辑 --- */
+.datalist-input {
+  /* 移除原生外观 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  cursor: pointer;
+  /* 使用自定义箭头 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 35px;
 }
 
-.side-toggle-pill { 
-  position: absolute; 
-  right: -12px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  width: 24px; 
-  height: 48px; 
-  background: #334155; 
-  border: none; 
-  border-radius: 12px; 
-  cursor: pointer; 
-  z-index: 10; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-  color: white;
-  padding: 0;
-  transition: all 0.2s;
+/* 彻底隐藏 Chrome 和 Edge 的默认下拉图标 */
+.datalist-input::-webkit-calendar-picker-indicator {
+  display: none !important;
 }
 
-.side-toggle-pill:hover {
-  background: #48bb78;
+/* 针对部分浏览器的兼容处理，防止点击箭头不弹出 */
+.datalist-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
-.panel-inner-container {
-  width: 260px;
-  height: 100%;
+/* --- 布局对齐 --- */
+.category-field {
+  width: 100%;
+  max-width: 240px; /* 限制分类选框宽度，避免变丑 */
+}
+
+.editor-content-flex {
   display: flex;
-  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  flex: 1;
   overflow: hidden;
 }
 
-.panel-header { padding: 20px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
-.header-title { font-weight: 800; color: #1e293b; }
-.filter-bar { padding: 10px; display: flex; gap: 5px; white-space: nowrap; }
+.editor-left-col {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
+.editor-right-col {
+  flex: 1;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compact-field.fill-flex {
+  flex: 1; /* 让题干占据所有垂直空间 */
+}
+
+.compact-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.compact-input {
+  height: 42px;
+  padding: 0 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.compact-input:focus {
+  border-color: #48bb78;
+}
+
+.compact-area {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+}
+
+/* --- 基础 UI 结构 --- */
+.quiz-module-layout { display: flex; width: 100%; height: 100vh; background: #f8fafc; overflow: hidden; }
+.quiz-list-panel { width: 260px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; position: relative; transition: width 0.4s; z-index: 5; }
+.quiz-list-panel.is-collapsed { width: 0; }
+.side-toggle-pill { position: absolute; right: -12px; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: #334155; border: none; border-radius: 12px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+.panel-inner-container { width: 260px; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.panel-header { padding: 18px; border-bottom: 1px solid #f1f5f9; }
+.header-title { font-weight: 800; color: #1e293b; }
+.filter-bar { padding: 10px; display: flex; gap: 5px; }
 .cat-select { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; outline: none; }
 .add-mini-btn { background: #48bb78; color: white; border: none; width: 34px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.scroll-list { flex: 1; overflow-y: auto; padding: 10px; }
-.quiz-item { padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
-.quiz-item:hover { background: #f8fafc; }
+.scroll-list { flex: 1; overflow-y: auto; padding: 8px; }
+.quiz-item { padding: 10px; border-radius: 10px; border: 1px solid #f1f5f9; margin-bottom: 8px; cursor: pointer; }
 .quiz-item.active { border-color: #48bb78; background: #f0fff4; }
 .item-cat { font-size: 10px; color: #48bb78; font-weight: bold; }
 .item-title { font-size: 12px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* --- 主内容区 --- */
 .quiz-main-space { flex: 1; display: flex; flex-direction: column; position: relative; background: #fbfcfe; }
-.main-toolbar { padding: 12px 25px; background: white; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; z-index: 4; }
-.nav-btn, .tool-btn { padding: 6px 15px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; }
-.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.nav-indicator { font-size: 13px; font-weight: 800; color: #94a3b8; margin: 0 10px; }
+.main-toolbar { padding: 10px 24px; background: white; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+.nav-btn, .tool-btn { padding: 5px 14px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 12px; font-weight: 600; }
+.nav-btn:disabled { opacity: 0.3; }
+.nav-indicator { font-size: 12px; font-weight: 800; color: #94a3b8; margin: 0 8px; }
 
-/* --- 编辑按钮样式修复 --- */
-.quiz-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.edit-btn-pill { 
-  background: #f1f5f9; 
-  color: #64748b; 
-  border: none; 
-  padding: 6px 14px; 
-  border-radius: 20px; 
-  font-size: 12px; 
-  font-weight: 600; 
-  cursor: pointer; 
-  transition: 0.2s;
-}
-.edit-btn-pill:hover { 
-  background: #e2e8f0; 
-  color: #1e293b; 
-}
-.quiz-tag { background: #f0fff4; color: #27ae60; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid #dcfce7; }
-
-/* 管理员录入框样式 */
 .quiz-editor-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.1); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.editor-container-compact { width: 100%; max-width: 900px; background: white; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column; max-height: 95vh; overflow: hidden; }
-.editor-header-slim { padding: 18px 25px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; }
-.editor-tag { background: #48bb78; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-.close-btn-slim { background: none; border: none; color: white; font-size: 28px; cursor: pointer; opacity: 0.7; }
-.editor-content-flex { display: flex; gap: 25px; padding: 25px 25px 15px; flex: 1; overflow: hidden; }
-.editor-left-col { flex: 1.2; display: flex; flex-direction: column; gap: 15px; }
-.editor-right-col { flex: 1; background: #f8fafc; padding: 20px; border-radius: 18px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; }
-.compact-field { display: flex; flex-direction: column; gap: 6px; }
-.compact-field label { font-size: 12px; font-weight: 700; color: #94a3b8; }
-.compact-input { padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none; transition: 0.2s; }
-.compact-area { flex: 1; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; resize: none; outline: none; line-height: 1.5; }
-.options-compact-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; overflow-y: auto; }
-.opt-edit-pill { display: flex; align-items: center; background: white; border: 2px solid #e2e8f0; padding: 8px 12px; border-radius: 14px; transition: 0.2s; }
+.editor-container-compact { width: 100%; max-width: 880px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.12); display: flex; flex-direction: column; max-height: 92vh; overflow: hidden; }
+.editor-header-slim { padding: 14px 20px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; }
+.editor-tag { background: #48bb78; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+.close-btn-slim { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+
+.options-compact-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.opt-edit-pill { display: flex; align-items: center; background: white; border: 2px solid #e2e8f0; padding: 6px 12px; border-radius: 12px; }
 .opt-edit-pill.is-answer { border-color: #48bb78; background: #f0fff4; }
-.pill-radio-hit { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.is-answer .inner-dot { width: 10px; height: 10px; border-radius: 50%; background: #48bb78; }
-.pill-input { flex: 1; border: none; background: transparent; font-size: 14px; font-weight: 600; outline: none; }
-.editor-bottom-section { padding: 0 25px 15px; }
-.compact-area-small { width: 100%; height: 60px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; resize: none; outline: none; }
+.pill-radio-hit { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.is-answer .inner-dot { width: 8px; height: 8px; border-radius: 50%; background: #48bb78; }
+.pill-input { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; outline: none; }
+.pill-letter { font-size: 11px; color: #94a3b8; font-weight: 800; }
 
-.editor-footer-slim { padding: 15px 25px 25px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-.text-del-btn { background: transparent; border: none; color: #ef4444; font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: 0.2s; }
-.text-del-btn:hover { background: #fef2f2; }
-.footer-btns { display: flex; gap: 12px; }
-.secondary-btn { background: white; border: 1px solid #e2e8f0; color: #64748b; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-.primary-confirm-btn { background: #48bb78; color: white; border: none; padding: 10px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2); }
+.editor-bottom-section { padding: 0 20px 14px; }
+.compact-area-small { width: 100%; height: 50px; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px; resize: none; outline: none; }
 
-/* 学员端题目区 */
-.quiz-viewer { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden; transform: translateY(-20px); }
-.quiz-card-fancy { width: 100%; max-width: 680px; max-height: 85vh; background: white; padding: 30px; border-radius: 32px; box-shadow: 0 12px 40px rgba(30, 41, 59, 0.08); border: 1px solid #edf2f7; display: flex; flex-direction: column; }
-.quiz-question-display { font-size: 21px; font-weight: 800; line-height: 1.35; color: #0f172a; margin-top: 10px; }
-.quiz-scroll-body { flex: 1; overflow-y: auto; padding-right: 4px; }
-.opt-box-fancy { display: flex; align-items: center; width: 100%; padding: 14px 18px; border-radius: 14px; border: 2px solid #f1f5f9; background: white; margin-bottom: 8px; cursor: pointer; transition: 0.15s; text-align: left; }
-.opt-box-fancy:hover:not(.is-dimmed) { border-color: #48bb78; transform: translateX(2px); }
-.opt-letter { width: 28px; height: 28px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-right: 12px; flex-shrink: 0; font-size: 13px; }
-.opt-content { font-size: 15px; font-weight: 600; color: #334155; flex: 1; }
+.editor-footer-slim { padding: 14px 20px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+.text-del-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
+.primary-confirm-btn { background: #48bb78; color: white; border: none; padding: 8px 24px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+.secondary-btn { background: white; border: 1px solid #e2e8f0; padding: 8px 18px; border-radius: 10px; cursor: pointer; font-size: 12px; margin-right: 8px; }
+
+.quiz-viewer { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.quiz-card-fancy { width: 100%; max-width: 650px; background: white; padding: 25px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.quiz-question-display { font-size: 19px; font-weight: 800; margin-top: 10px; line-height: 1.4; }
+.quiz-header-actions { display: flex; justify-content: space-between; align-items: center; }
+.edit-btn-pill { background: #f1f5f9; border: none; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.quiz-tag { background: #f0fff4; color: #27ae60; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+
+.opt-box-fancy { display: flex; align-items: center; width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid #f1f5f9; background: white; margin-bottom: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+.opt-box-fancy:hover:not(.is-dimmed) { border-color: #48bb78; transform: translateX(3px); }
+.opt-letter { width: 26px; height: 26px; background: #f1f5f9; border-radius: 5px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-weight: 900; font-size: 12px; }
+.opt-content { font-size: 14px; font-weight: 600; color: #334155; }
 .is-correct { border-color: #48bb78 !important; background: #f0fff4 !important; }
 .is-wrong { border-color: #f56565 !important; background: #fff5f5 !important; }
 .is-dimmed { opacity: 0.4; }
 
-.feedback-inline-box { margin-top: 15px; background: #f8fafc; border-radius: 16px; padding: 18px; border: 1px solid #f1f5f9; animation: slideUp 0.3s ease-out; }
-.result-badge-pill { display: inline-block; padding: 3px 12px; border-radius: 100px; font-size: 12px; font-weight: 800; margin-bottom: 8px; color: white; }
-.result-badge-pill.success { background: #48bb78; }
-.result-badge-pill.error { background: #f56565; }
-.explanation-text { font-size: 14px; color: #475569; line-height: 1.6; }
-
-@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.feedback-inline-box { margin-top: 15px; background: #f8fafc; padding: 16px; border-radius: 14px; border: 1px solid #f1f5f9; }
 .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #cbd5e1; }
-.empty-icon { font-size: 60px; margin-bottom: 10px; opacity: 0.5; }
 </style>
