@@ -13,7 +13,7 @@ defineProps({
   canEdit: Boolean
 })
 
-defineEmits(['select', 'add', 'toggle'])
+defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
 </script>
 
 <template>
@@ -50,6 +50,12 @@ defineEmits(['select', 'add', 'toggle'])
           >
             <span class="user-avatar">{{ currentStudent?.id === s.id ? '⭐' : '👤' }}</span>
             <span class="user-name">{{ s.name }}</span>
+            <span 
+              v-if="canEdit" 
+              class="delete-student-btn" 
+              @click.stop="$emit('deleteStudent', s)"
+              title="删除学员"
+            >🗑️</span>
           </div>
         </div>
       </div>
@@ -216,4 +222,27 @@ defineEmits(['select', 'add', 'toggle'])
 
 .mini-bulb { font-size: 18px; filter: grayscale(1); opacity: 0.5; }
 .mini-add { cursor: pointer; font-size: 14px; color: #27ae60; }
+
+.item {
+  position: relative; /* 方便删除按钮定位 */
+}
+
+.delete-student-btn {
+  margin-left: auto; /* 推到最右侧 */
+  opacity: 0; /* 默认隐藏 */
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.item:hover .delete-student-btn {
+  opacity: 0.6;
+}
+
+.delete-student-btn:hover {
+  opacity: 1 !important;
+  background: rgba(231, 76, 60, 0.2); /* 淡淡的红底 */
+  transform: scale(1.2);
+}
 </style>

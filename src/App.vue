@@ -116,6 +116,57 @@ const handleDeleteReading = async (reading) => {
   }
 }
 
+const handleDeleteStudent = async (student) => {
+  // 1. 二次确认
+  const msg = `确定要删除学员 ${student.name} 吗？\n这将同时删除该学员的所有阅读记录和题目，不可恢复！`;
+  if (!confirm(msg)) return;
+
+  try {
+    isLoading.value = true;
+    // 2. 从 Supabase 删除数据
+    const { error } = await supabase
+      .from('students')
+      .delete()
+      .eq('id', student.id);
+    if (error) throw error;
+    alert("✅ 学员记录已清除");
+    // 3. 处理后续逻辑：重置当前选中，刷新列表
+    if (currentStudent.value?.id === student.id) {
+      currentStudent.value = null;
+    }
+    await fetchStudents();
+    
+  } catch (e) {
+    alert("❌ 删除失败：" + e.message);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+// App.vue 逻辑部分
+const handleAddNewStudent = async () => {
+  const name = prompt("请输入新学员的姓名：")
+  
+  if (name && name.trim()) {
+    try {
+      isLoading.value = true
+      const { error } = await supabase
+        .from('students')
+        .insert([{ name: name.trim() }])
+      
+      if (error) throw error
+      
+      alert("✅ 学员添加成功！")
+      await fetchStudents() // 添加成功后刷新列表
+    } catch (e) {
+      alert("❌ 添加失败：" + e.message)
+    } finally {
+      isLoading.value = false
+    }
+  }
+}
+
 const fetchStudents = async () => {
   const { data } = await supabase.from('students').select('*').order('name')
   students.value = data || []
@@ -227,7 +278,7 @@ const handleSaveReading = async (formData) => {
 
     <div class="main-body">
       <Sidebar :students="students" :currentStudent="currentStudent" :collapsed="sidebarCollapsed"
-        :canEdit="isAdminMode" @select="(s) => { currentStudent = s; }" @add="fetchStudents"
+        :canEdit="isAdminMode" @select="(s) => { currentStudent = s; }" @add="handleAddNewStudent" @deleteStudent="handleDeleteStudent"
         @toggle="sidebarCollapsed = !sidebarCollapsed" />
 
       <div class="module-view" v-if="currentStudent">
