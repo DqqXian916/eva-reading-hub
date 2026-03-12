@@ -8,7 +8,8 @@ import ReadingList from './components/ReadingList.vue'
 import EditForm from './components/EditForm.vue'
 import ReadingWorkspace from './components/ReadingWorkspace.vue'
 import QuizModule from './components/QuizModule.vue'
-import ClozeModule from './components/ClozeModule.vue'
+import VocabTestModule from './components/VocabTestModule.vue'
+
 
 // --- 状态管理 ---
 const activeModule = ref('reading')
@@ -20,6 +21,7 @@ const activeReading = ref(null)    // 当前选中的文章详情
 const editingReading = ref(null)   // 正在编辑的文章对象
 const confirmBtn = ref(null) // 定义按钮引用
 const studentClozeQuizzes = ref([])
+const studentVocabTests = ref([]) // 存储词汇评估记录
 
 const sidebarCollapsed = ref(false)
 const listPanelCollapsed = ref(false)
@@ -77,6 +79,8 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchQuizzes(newStudent.id)
   } else if (newModule === 'cloze') {
     await fetchClozeQuizzes(newStudent.id) // 新增：切换到填空模块时加载数据
+  } else if (newModule === 'vocab-test') { 
+    await fetchVocabTests(newStudent.id) // 新增：词汇评估模块数据加载
   }
 })
 
@@ -100,6 +104,17 @@ const fetchClozeQuizzes = async (studentId) => {
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
   studentClozeQuizzes.value = data || []
+  isLoading.value = false
+}
+
+// 获取词汇评估历史记录
+const fetchVocabTests = async (studentId) => {
+  isLoading.value = true
+  const { data } = await supabase.from('vocab_tests') 
+    .select('*')
+    .eq('student_id', studentId)
+    .order('created_at', { ascending: false })
+  studentVocabTests.value = data || []
   isLoading.value = false
 }
 
@@ -254,6 +269,23 @@ const saveClozeQuiz = async (clozeData) => {
   }
 }
 
+// 保存评估结果
+const saveVocabTest = async (testData) => {
+  try {
+    const { error } = await supabase.from('vocab_tests').insert([{
+      student_id: currentStudent.value.id,
+      score: testData.score,
+      level: testData.level,
+      details: testData.details // 记录勾选了哪些词
+    }])
+    if (error) throw error
+    alert("🚀 词汇量评估结果已存档")
+    await fetchVocabTests(currentStudent.value.id)
+  } catch (e) {
+    alert("❌ 保存失败：" + e.message)
+  }
+}
+
 const deleteQuiz = async (id) => {
   if (confirm('确认删除此题？')) {
     const { error } = await supabase.from('quizzes').delete().eq('id', id)
@@ -306,6 +338,8 @@ const handleSaveReading = async (formData) => {
         <span class="brand-name">EVA ENGLISH</span>
       </div>
       <nav class="nav-center">
+        <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
+          @click="activeModule = 'vocab-test'">📊 词汇评估</button>
         <button :class="['module-tab', { active: activeModule === 'vocabulary' }]"
           @click="activeModule = 'vocabulary'">🗂️ 单词复习</button>
         <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
@@ -364,6 +398,15 @@ const handleSaveReading = async (formData) => {
             :canEdit="isAdminMode" 
             @save="saveClozeQuiz"
             @delete="deleteClozeQuiz" 
+          />
+        </template>
+
+        <template v-else-if="activeModule === 'vocab-test'">
+          <VocabTestModule 
+            :student="currentStudent" 
+            :records="studentVocabTests" 
+            :canEdit="isAdminMode"
+            @save="saveVocabTest" 
           />
         </template>
 
@@ -497,6 +540,7 @@ body {
   flex: 1;
   height: 100%;
   overflow: hidden;
+  overflow-y: auto; /* 允许纵向滚动 */
 }
 
 /* 阅读模块专用布局 */
