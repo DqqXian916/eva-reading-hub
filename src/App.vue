@@ -8,6 +8,7 @@ import ReadingList from './components/ReadingList.vue'
 import EditForm from './components/EditForm.vue'
 import ReadingWorkspace from './components/ReadingWorkspace.vue'
 import QuizModule from './components/QuizModule.vue'
+import ClozeModule from './components/ClozeModule.vue'
 
 // --- 状态管理 ---
 const activeModule = ref('reading')
@@ -18,6 +19,7 @@ const readings = ref([])
 const activeReading = ref(null)    // 当前选中的文章详情
 const editingReading = ref(null)   // 正在编辑的文章对象
 const confirmBtn = ref(null) // 定义按钮引用
+const studentClozeQuizzes = ref([])
 
 const sidebarCollapsed = ref(false)
 const listPanelCollapsed = ref(false)
@@ -68,13 +70,13 @@ const verifyPassword = () => {
 // 1. 监听切换（学员或模块改变时重置状态并加载数据）
 watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   if (!newStudent) return
-  // 切换时重置视图状态
   if (newModule === 'reading') {
     viewMode.value = 'list'
     await fetchReadings(newStudent.id)
-  }
-  if (newModule === 'quiz') {
+  } else if (newModule === 'quiz') {
     await fetchQuizzes(newStudent.id)
+  } else if (newModule === 'cloze') {
+    await fetchClozeQuizzes(newStudent.id) // 新增：切换到填空模块时加载数据
   }
 })
 
@@ -86,6 +88,18 @@ const fetchReadings = async (studentId) => {
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
   readings.value = data || []
+  isLoading.value = false
+}
+
+
+// --- 短文填空数据获取 ---
+const fetchClozeQuizzes = async (studentId) => {
+  isLoading.value = true
+  const { data } = await supabase.from('cloze_quizzes') // 假设你的表名为 cloze_quizzes
+    .select('*')
+    .eq('student_id', studentId)
+    .order('created_at', { ascending: false })
+  studentClozeQuizzes.value = data || []
   isLoading.value = false
 }
 
@@ -212,6 +226,34 @@ const saveQuiz = async (quizData) => {
   }
 }
 
+// --- 短文填空存取逻辑 ---
+const saveClozeQuiz = async (clozeData) => {
+  try {
+    let res;
+    const payload = {
+      cloze_text: clozeData.cloze_text, // 包含 {{1}} 占位符的短文
+      answers: clozeData.answers,       // 存储正确答案的数组或对象
+      category: clozeData.category,
+      explanation: clozeData.explanation
+    }
+
+    if (clozeData.id) {
+      res = await supabase.from('cloze_quizzes').update(payload).eq('id', clozeData.id)
+    } else {
+      res = await supabase.from('cloze_quizzes').insert([{
+        ...payload,
+        student_id: currentStudent.value.id
+      }])
+    }
+
+    if (res.error) throw res.error
+    alert("✅ 短文填空保存成功")
+    await fetchClozeQuizzes(currentStudent.value.id)
+  } catch (e) {
+    alert(e.message)
+  }
+}
+
 const deleteQuiz = async (id) => {
   if (confirm('确认删除此题？')) {
     const { error } = await supabase.from('quizzes').delete().eq('id', id)
@@ -270,6 +312,8 @@ const handleSaveReading = async (formData) => {
           单选训练</button>
         <button :class="['module-tab', { active: activeModule === 'reading' }]" @click="activeModule = 'reading'">📖
           阅读训练</button>
+        <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
+          短文填空</button>
       </nav>
       <div class="nav-right">
         <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
@@ -311,6 +355,16 @@ const handleSaveReading = async (formData) => {
         <template v-else-if="activeModule === 'quiz'">
           <QuizModule :student="currentStudent" :quizzes="studentQuizzes" :canEdit="isAdminMode" @save="saveQuiz"
             @delete="deleteQuiz" />
+        </template>
+
+        <template v-else-if="activeModule === 'cloze'">
+          <ClozeModule 
+            :student="currentStudent" 
+            :quizzes="studentClozeQuizzes" 
+            :canEdit="isAdminMode" 
+            @save="saveClozeQuiz"
+            @delete="deleteClozeQuiz" 
+          />
         </template>
 
         <template v-else>

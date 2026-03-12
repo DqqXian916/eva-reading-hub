@@ -10,24 +10,24 @@ const props = defineProps({
 const emit = defineEmits(['save', 'delete'])
 
 // --- 状态管理 ---
-const selectedQuiz = ref(null) 
-const isAdding = ref(false)     
-const listCollapsed = ref(false) 
-const isFullScreen = ref(false)  
-const filterType = ref('all') 
+const selectedQuiz = ref(null)
+const isAdding = ref(false)
+const listCollapsed = ref(false)
+const isFullScreen = ref(false)
+const filterType = ref('all')
 
 // --- 答题交互状态 ---
 const userAnswer = ref(null)
-const isChecked = ref(false) 
+const isChecked = ref(false)
 
 // --- 录入表单数据 ---
-const form = reactive({ 
-  id: null, 
-  question: '', 
-  options: ['', '', '', ''], 
-  answer_index: 0, 
-  category: '', 
-  explanation: '' 
+const form = reactive({
+  id: null,
+  question: '',
+  options: ['', '', '', ''],
+  answer_index: 0,
+  category: '',
+  explanation: ''
 })
 
 // --- 逻辑处理 ---
@@ -61,13 +61,13 @@ const goToNext = () => {
 }
 
 const handleSelect = (idx) => {
-  if (isChecked.value) return 
+  if (isChecked.value) return
   userAnswer.value = idx
   isChecked.value = true
 }
 
 const handleKeyDown = (e) => {
-  if (isAdding.value) return 
+  if (isAdding.value) return
   if (e.key === 'ArrowLeft') goToPrev()
   if (e.key === 'ArrowRight') goToNext()
 }
@@ -80,9 +80,9 @@ watch(selectedQuiz, () => {
   isChecked.value = false
 })
 
-const openQuiz = (q) => { 
+const openQuiz = (q) => {
   selectedQuiz.value = q
-  isAdding.value = false 
+  isAdding.value = false
 }
 
 const startAdd = () => {
@@ -95,11 +95,11 @@ const startEdit = () => {
   if (!selectedQuiz.value) return
   isAdding.value = true
   Object.assign(form, {
-    id: selectedQuiz.value.id, 
-    question: selectedQuiz.value.question, 
+    id: selectedQuiz.value.id,
+    question: selectedQuiz.value.question,
     options: [...selectedQuiz.value.options],
-    answer_index: selectedQuiz.value.answer_index, 
-    category: selectedQuiz.value.category, 
+    answer_index: selectedQuiz.value.answer_index,
+    category: selectedQuiz.value.category,
     explanation: selectedQuiz.value.explanation
   })
 }
@@ -120,7 +120,7 @@ const handleDelete = (id) => {
 
 <template>
   <div :class="['quiz-module-layout', { 'full-screen-mode': isFullScreen }]">
-    
+
     <aside v-if="!isFullScreen" :class="['quiz-list-panel', { 'is-collapsed': listCollapsed }]">
       <button class="side-toggle-pill" @click="listCollapsed = !listCollapsed">
         <span>{{ listCollapsed ? '❯' : '❮' }}</span>
@@ -140,7 +140,7 @@ const handleDelete = (id) => {
             <button v-if="canEdit" class="add-mini-btn" @click="startAdd">＋</button>
           </div>
           <div class="scroll-list">
-            <div v-for="(q, index) in filteredQuizzes" :key="q.id" 
+            <div v-for="(q, index) in filteredQuizzes" :key="q.id"
               :class="['quiz-item', { active: selectedQuiz?.id === q.id }]" @click="openQuiz(q)">
               <span class="item-cat">N.{{ index + 1 }} · {{ q.category }}</span>
               <div class="item-title">{{ q.question }}</div>
@@ -176,14 +176,8 @@ const handleDelete = (id) => {
               <div class="compact-field category-field">
                 <label>所属分类</label>
                 <div class="datalist-wrapper">
-                  <input 
-                    v-model="form.category" 
-                    class="compact-input datalist-input" 
-                    list="category-data" 
-                    placeholder="选择或输入..."
-                    @focus="$event.target.select()"
-                    @mousedown="form.category = ''" 
-                  >
+                  <input v-model="form.category" class="compact-input datalist-input" list="category-data"
+                    placeholder="选择或输入..." @focus="$event.target.select()" @mousedown="form.category = ''">
                   <datalist id="category-data">
                     <option v-for="cat in allCategories" :key="cat" :value="cat" />
                   </datalist>
@@ -198,13 +192,14 @@ const handleDelete = (id) => {
             <div class="editor-right-col">
               <label class="col-label">选项与答案设置</label>
               <div class="options-compact-stack">
-                <div v-for="(opt, idx) in form.options" :key="idx" 
-                     :class="['opt-edit-pill', { 'is-answer': form.answer_index === idx }]">
+                <div v-for="(opt, idx) in form.options" :key="idx"
+                  :class="['opt-edit-pill', { 'is-answer': form.answer_index === idx }]">
                   <div class="pill-radio-hit" @click="form.answer_index = idx">
                     <div class="inner-dot"></div>
                   </div>
-                  <input v-model="form.options[idx]" class="pill-input" :placeholder="'选项 '+String.fromCharCode(65+idx)">
-                  <span class="pill-letter">{{ String.fromCharCode(65+idx) }}</span>
+                  <input v-model="form.options[idx]" class="pill-input"
+                    :placeholder="'选项 ' + String.fromCharCode(65 + idx)">
+                  <span class="pill-letter">{{ String.fromCharCode(65 + idx) }}</span>
                 </div>
               </div>
             </div>
@@ -237,12 +232,11 @@ const handleDelete = (id) => {
 
           <div class="quiz-scroll-body">
             <div class="quiz-options-container">
-              <button v-for="(opt, idx) in selectedQuiz.options" :key="idx"
-                :class="['opt-box-fancy', {
-                  'is-correct': isChecked && idx === selectedQuiz.answer_index,
-                  'is-wrong': isChecked && userAnswer === idx && idx !== selectedQuiz.answer_index,
-                  'is-dimmed': isChecked && idx !== selectedQuiz.answer_index && userAnswer !== idx
-                }]" @click="handleSelect(idx)">
+              <button v-for="(opt, idx) in selectedQuiz.options" :key="idx" :class="['opt-box-fancy', {
+                'is-correct': isChecked && idx === selectedQuiz.answer_index,
+                'is-wrong': isChecked && userAnswer === idx && idx !== selectedQuiz.answer_index,
+                'is-dimmed': isChecked && idx !== selectedQuiz.answer_index && userAnswer !== idx
+              }]" @click="handleSelect(idx)">
                 <span class="opt-letter">{{ String.fromCharCode(65 + idx) }}</span>
                 <span class="opt-content">{{ opt }}</span>
                 <div class="status-indicator" v-if="isChecked">
@@ -286,7 +280,7 @@ const handleDelete = (id) => {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  
+
   cursor: pointer;
   /* 使用自定义箭头 */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
@@ -310,7 +304,8 @@ const handleDelete = (id) => {
 /* --- 布局对齐 --- */
 .category-field {
   width: 100%;
-  max-width: 240px; /* 限制分类选框宽度，避免变丑 */
+  max-width: 240px;
+  /* 限制分类选框宽度，避免变丑 */
 }
 
 .editor-content-flex {
@@ -319,6 +314,14 @@ const handleDelete = (id) => {
   padding: 24px;
   flex: 1;
   overflow: hidden;
+}
+
+/* 修改此处的样式 */
+.panel-content {
+  flex: 1;           /* 占据 header 之外的所有空间 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;  /* 关键：防止内容撑开父容器 */
 }
 
 .editor-left-col {
@@ -345,7 +348,8 @@ const handleDelete = (id) => {
 }
 
 .compact-field.fill-flex {
-  flex: 1; /* 让题干占据所有垂直空间 */
+  flex: 1;
+  /* 让题干占据所有垂直空间 */
 }
 
 .compact-field label {
@@ -382,65 +386,445 @@ const handleDelete = (id) => {
 }
 
 /* --- 基础 UI 结构 --- */
-.quiz-module-layout { display: flex; width: 100%; height: 100vh; background: #f8fafc; overflow: hidden; }
-.quiz-list-panel { width: 260px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; position: relative; transition: width 0.4s; z-index: 5; }
-.quiz-list-panel.is-collapsed { width: 0; }
-.side-toggle-pill { position: absolute; right: -12px; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: #334155; border: none; border-radius: 12px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
-.panel-inner-container { width: 260px; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-.panel-header { padding: 18px; border-bottom: 1px solid #f1f5f9; }
-.header-title { font-weight: 800; color: #1e293b; }
-.filter-bar { padding: 10px; display: flex; gap: 5px; }
-.cat-select { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; outline: none; }
-.add-mini-btn { background: #48bb78; color: white; border: none; width: 34px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.scroll-list { flex: 1; overflow-y: auto; padding: 8px; }
-.quiz-item { padding: 10px; border-radius: 10px; border: 1px solid #f1f5f9; margin-bottom: 8px; cursor: pointer; }
-.quiz-item.active { border-color: #48bb78; background: #f0fff4; }
-.item-cat { font-size: 10px; color: #48bb78; font-weight: bold; }
-.item-title { font-size: 12px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quiz-module-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: #f8fafc;
+  overflow: hidden;
+}
 
-.quiz-main-space { flex: 1; display: flex; flex-direction: column; position: relative; background: #fbfcfe; }
-.main-toolbar { padding: 10px 24px; background: white; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-.nav-btn, .tool-btn { padding: 5px 14px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 12px; font-weight: 600; }
-.nav-btn:disabled { opacity: 0.3; }
-.nav-indicator { font-size: 12px; font-weight: 800; color: #94a3b8; margin: 0 8px; }
+.quiz-list-panel {
+  width: 260px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: width 0.4s;
+  z-index: 5;
+}
 
-.quiz-editor-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.1); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.editor-container-compact { width: 100%; max-width: 880px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.12); display: flex; flex-direction: column; max-height: 92vh; overflow: hidden; }
-.editor-header-slim { padding: 14px 20px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: center; }
-.editor-tag { background: #48bb78; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-.close-btn-slim { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+.quiz-list-panel.is-collapsed {
+  width: 0;
+}
 
-.options-compact-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.opt-edit-pill { display: flex; align-items: center; background: white; border: 2px solid #e2e8f0; padding: 6px 12px; border-radius: 12px; }
-.opt-edit-pill.is-answer { border-color: #48bb78; background: #f0fff4; }
-.pill-radio-hit { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #cbd5e1; margin-right: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.is-answer .inner-dot { width: 8px; height: 8px; border-radius: 50%; background: #48bb78; }
-.pill-input { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; outline: none; }
-.pill-letter { font-size: 11px; color: #94a3b8; font-weight: 800; }
+.side-toggle-pill {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  background: #334155;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-.editor-bottom-section { padding: 0 20px 14px; }
-.compact-area-small { width: 100%; height: 50px; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px; resize: none; outline: none; }
+.panel-inner-container {
+  width: 260px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-.editor-footer-slim { padding: 14px 20px 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-.text-del-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
-.primary-confirm-btn { background: #48bb78; color: white; border: none; padding: 8px 24px; border-radius: 10px; font-weight: 800; cursor: pointer; }
-.secondary-btn { background: white; border: 1px solid #e2e8f0; padding: 8px 18px; border-radius: 10px; cursor: pointer; font-size: 12px; margin-right: 8px; }
+.panel-header {
+  padding: 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
 
-.quiz-viewer { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.quiz-card-fancy { width: 100%; max-width: 650px; background: white; padding: 25px; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-.quiz-question-display { font-size: 19px; font-weight: 800; margin-top: 10px; line-height: 1.4; }
-.quiz-header-actions { display: flex; justify-content: space-between; align-items: center; }
-.edit-btn-pill { background: #f1f5f9; border: none; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; }
-.quiz-tag { background: #f0fff4; color: #27ae60; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+.header-title {
+  font-weight: 800;
+  color: #1e293b;
+}
 
-.opt-box-fancy { display: flex; align-items: center; width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid #f1f5f9; background: white; margin-bottom: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
-.opt-box-fancy:hover:not(.is-dimmed) { border-color: #48bb78; transform: translateX(3px); }
-.opt-letter { width: 26px; height: 26px; background: #f1f5f9; border-radius: 5px; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-weight: 900; font-size: 12px; }
-.opt-content { font-size: 14px; font-weight: 600; color: #334155; }
-.is-correct { border-color: #48bb78 !important; background: #f0fff4 !important; }
-.is-wrong { border-color: #f56565 !important; background: #fff5f5 !important; }
-.is-dimmed { opacity: 0.4; }
+.filter-bar {
+  padding: 10px;
+  display: flex;
+  gap: 5px;
+}
 
-.feedback-inline-box { margin-top: 15px; background: #f8fafc; padding: 16px; border-radius: 14px; border: 1px solid #f1f5f9; }
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #cbd5e1; }
+.cat-select {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  outline: none;
+}
+
+.add-mini-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  width: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* 美化左侧列表滚动条 */
+.scroll-list::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-list::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+.scroll-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quiz-item {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 8px;
+  cursor: pointer;
+  overflow-y: auto;
+}
+
+.quiz-item.active {
+  border-color: #48bb78;
+  background: #f0fff4;
+}
+
+.item-cat {
+  font-size: 10px;
+  color: #48bb78;
+  font-weight: bold;
+}
+
+.item-title {
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-main-space {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #fbfcfe;
+}
+
+.main-toolbar {
+  padding: 10px 24px;
+  background: white;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-btn,
+.tool-btn {
+  padding: 5px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+}
+
+.nav-indicator {
+  font-size: 12px;
+  font-weight: 800;
+  color: #94a3b8;
+  margin: 0 8px;
+}
+
+.quiz-editor-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.editor-container-compact {
+  width: 100%;
+  max-width: 880px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  overflow: hidden;
+}
+
+.editor-header-slim {
+  padding: 14px 20px;
+  background: #1e293b;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editor-tag {
+  background: #48bb78;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.close-btn-slim {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.options-compact-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.opt-edit-pill {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+.opt-edit-pill.is-answer {
+  border-color: #48bb78;
+  background: #f0fff4;
+}
+
+.pill-radio-hit {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  margin-right: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.is-answer .inner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #48bb78;
+}
+
+.pill-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+}
+
+.pill-letter {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 800;
+}
+
+.editor-bottom-section {
+  padding: 0 20px 14px;
+}
+
+.compact-area-small {
+  width: 100%;
+  height: 50px;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+}
+
+.editor-footer-slim {
+  padding: 14px 20px 20px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text-del-btn {
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.primary-confirm-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.quiz-viewer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.quiz-card-fancy {
+  width: 100%;
+  max-width: 650px;
+  background: white;
+  padding: 25px;
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.quiz-question-display {
+  font-size: 19px;
+  font-weight: 800;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+.quiz-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-btn-pill {
+  background: #f1f5f9;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quiz-tag {
+  background: #f0fff4;
+  color: #27ae60;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.opt-box-fancy {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #f1f5f9;
+  background: white;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.opt-box-fancy:hover:not(.is-dimmed) {
+  border-color: #48bb78;
+  transform: translateX(3px);
+}
+
+.opt-letter {
+  width: 26px;
+  height: 26px;
+  background: #f1f5f9;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.opt-content {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.is-correct {
+  border-color: #48bb78 !important;
+  background: #f0fff4 !important;
+}
+
+.is-wrong {
+  border-color: #f56565 !important;
+  background: #fff5f5 !important;
+}
+
+.is-dimmed {
+  opacity: 0.4;
+}
+
+.feedback-inline-box {
+  margin-top: 15px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+}
 </style>
