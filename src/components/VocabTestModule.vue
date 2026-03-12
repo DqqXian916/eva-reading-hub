@@ -10,7 +10,7 @@
         </div>
         <div class="header-content">
           <h3>⚡ 英语词汇深度评估</h3>
-          <p class="subtitle">勾选你【确定认识】的单词。涵盖基础至母语级别的 5 个维度。</p>
+          <p class="subtitle">勾选你【确定认识】的单词。</p>
         </div>
       </div>
 
