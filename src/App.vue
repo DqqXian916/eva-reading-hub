@@ -8,6 +8,7 @@ import ReadingList from './components/ReadingList.vue'
 import EditForm from './components/EditForm.vue'
 import ReadingWorkspace from './components/ReadingWorkspace.vue'
 import QuizModule from './components/QuizModule.vue'
+import ClozeModule from './components/ClozeModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 
 
