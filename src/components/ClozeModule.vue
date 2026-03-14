@@ -525,14 +525,14 @@ const isUserCorrect = (n) => {
 }
 
 .card-foot {
-    padding: 10px;
+    padding: 5px;
     border-top: 1px solid #f8fafc;
 }
 
 /* 修正了之前过大的 padding */
 .btn-primary {
     width: 100%;
-    padding: 16px;
+    padding: 10px;
     background: #1e293b;
     color: #fff;
     border: none;

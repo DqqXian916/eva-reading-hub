@@ -91,6 +91,28 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
   padding: 20px 15px;
   width: 220px;
   box-sizing: border-box;
+  /* --- 新增/修改 学员列表不滚动--- */
+  height: 100%;           /* 占据父级全部高度 */
+  flex-direction: column;
+  display: flex;          /* 开启 Flex 布局 */
+}
+
+.list-container {
+  flex: 1;                /* 自动撑满剩余高度 */
+  overflow-y: auto;       /* 只有这里产生滚动条 */
+  min-height: 0;          /* 这是一个 CSS 小技巧，防止 Flex 子元素溢出父级 */
+  
+  /* 美化滚动条（可选） */
+  padding-right: 4px;     /* 给右侧留点空间，避免滚动条盖住删除按钮 */
+}
+
+/* 针对 Webkit 的滚动条美化 */
+.list-container::-webkit-scrollbar {
+  width: 4px;
+}
+.list-container::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 10px;
 }
 
 /* Logo 样式 */
@@ -245,4 +267,5 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
   background: rgba(231, 76, 60, 0.2); /* 淡淡的红底 */
   transform: scale(1.2);
 }
+
 </style>
