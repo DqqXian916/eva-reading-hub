@@ -83,10 +83,15 @@ const isUserCorrect = (n) => {
             <div class="sidebar-inner-content">
                 <div class="sidebar-header">
                     <div class="header-content">
-                        <span class="title-icon">📖</span>
-                        <h3>练习题库</h3>
+                        <div class="icon-wrapper">📖</div>
+                        <div class="title-text">
+                            <h3>练习题库</h3>
+                            <span class="sub-title">Quiz Library</span>
+                        </div>
                     </div>
-                    <button v-if="canEdit" class="add-btn" @click="startAdd">＋</button>
+                    <button v-if="canEdit" class="add-btn" @click="startAdd">
+                        <span class="plus-icon">＋</span>
+                    </button>
                 </div>
 
                 <div class="sidebar-list scroll-y">
@@ -576,27 +581,49 @@ const isUserCorrect = (n) => {
 }
 
 .sidebar-header {
-    padding: 30px 20px;
+    padding: 32px 20px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: linear-gradient(to bottom, #ffffff, #fcfdfe);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .header-content h3 {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 800;
     margin: 0;
-    color: #1a1a1a;
+    color: #1e293b;
+    letter-spacing: 0.5px;
 }
 
 .add-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     border: none;
-    background: #111;
-    color: #fff;
+    background: #1e293b; /* 深色主题 */
+    color: #ffffff;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+    overflow: hidden;
+}
+
+.add-btn .plus-icon {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1;
+    transition: transform 0.4s;
 }
 
 .scroll-y::-webkit-scrollbar {
@@ -622,6 +649,51 @@ const isUserCorrect = (n) => {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* 悬停动效：背景变色、旋转、阴影增强 */
+.add-btn:hover {
+    background: #22c55e; /* 悬停变为充满生机的绿色 */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+}
+
+.add-btn:hover .plus-icon {
+    transform: rotate(90deg);
+}
+
+/* 点击时的波纹感缩放 */
+.add-btn:active {
+    transform: translateY(0) scale(0.92);
+}
+
+/* 装饰性光晕 */
+.add-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: 0.6s;
+}
+
+.add-btn:hover::after {
+    left: 100%;
+}
+
+.icon-wrapper {
+    font-size: 20px;
+    background: #f1f5f9;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 /* --- 管理员编辑器专用样式 (仅影响 isAdding 状态) --- */
@@ -905,13 +977,48 @@ const isUserCorrect = (n) => {
     animation: float 3s ease-in-out infinite;
 }
 
-.t1 { top: -5px; left: -75px; animation-delay: 0s !important; }
-.t2 { top: 20px; right: -60px; animation-delay: 0.5s !important; }
-.t3 { bottom: -20px; left: -50px; animation-delay: 1s !important; }
+.t1 {
+    top: -5px;
+    left: -75px;
+    animation-delay: 0s !important;
+}
+
+.t2 {
+    top: 20px;
+    right: -60px;
+    animation-delay: 0.5s !important;
+}
+
+.title-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.t3 {
+    bottom: -20px;
+    left: -50px;
+    animation-delay: 1s !important;
+}
+
+.sub-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0); }
-    50% { transform: translateY(-15px) rotate(10deg); }
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(10deg);
+    }
 }
 
 .empty-text h3 {
