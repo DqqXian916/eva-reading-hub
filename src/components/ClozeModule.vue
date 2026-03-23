@@ -15,6 +15,7 @@ const isChecked = ref(false)
 const listCollapsed = ref(false)
 const userAnswers = reactive({})
 const inputRefs = ref([])
+const configInputRefs = ref([]) // 用于引用管理员端的输入框
 
 const form = reactive({
     id: null,
@@ -52,16 +53,35 @@ const focusInput = (index) => {
     }
 }
 
+const scrollToAnswer = (n) => {
+    const target = configInputRefs.value[n - 1]
+    if (target) {
+        // 1. 平滑滚动到视野中心
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // 2. 自动聚焦
+        target.focus()
+        // 3. 触发瞬间高亮动画（通过增加临时 class）
+        const parent = target.closest('.config-row')
+        parent?.classList.add('highlight-flash')
+        setTimeout(() => parent?.classList.remove('highlight-flash'), 1000)
+    }
+}
+
 onMounted(() => {
-    window.dispatchEvent(new CustomEvent('init-view'))
     window.addEventListener('focus-gap', (e) => focusInput(e.detail - 1))
+    window.addEventListener('scroll-to-ans', (e) => scrollToAnswer(e.detail))
+    window.dispatchEvent(new CustomEvent('init-view'))
 })
 
+// 修改 renderedText 的事件派发逻辑
 const renderedText = computed(() => {
     const text = isAdding.value ? form.cloze_text : (selectedQuiz.value?.cloze_text || '')
     if (!text) return '<p class="empty-hint">等待内容录入...</p>'
+    
     return text.replace(/\{\{(\d+)\}\}/g, (match, p1) => {
-        return `<span class="gap-pill" onclick="window.dispatchEvent(new CustomEvent('focus-gap', {detail: ${p1}}))">(${p1})</span>`
+        // 如果是编辑模式，派发 scroll-to-ans；如果是练习模式，派发 focus-gap
+        const eventName = isAdding.value ? 'scroll-to-ans' : 'focus-gap'
+        return `<span class="gap-pill" onclick="window.dispatchEvent(new CustomEvent('${eventName}', {detail: ${p1}}))">(${p1})</span>`
     })
 })
 
@@ -171,33 +191,37 @@ const isUserCorrect = (n) => {
             </div>
 
             <div v-else-if="isAdding" class="editor-layout animate-in">
-                <div class="editor-top-bar">
-                    <div class="editor-info">
-                        <h2>{{ form.id ? '编辑题目' : '新建题目' }}</h2>
-                        <div class="editor-tag">{{ (form.cloze_text.match(/\{\{(\d+)\}\}/g) || []).length }} Gaps
-                            Detected</div>
-                    </div>
-                    <div class="editor-actions">
-                        <button class="btn-cancel" @click="isAdding = false">取消返回</button>
-                        <button class="btn-save" @click="emit('save', { ...form }); isAdding = false">保存题目</button>
-                    </div>
-                </div>
+    <div class="editor-top-bar">...</div> 
 
-                <div class="editor-split-container">
-                    <div class="editor-pane edit-area card-base">
-                        <div class="pane-label">文章录入 (Markdown)</div>
-                        <textarea v-model="form.cloze_text" placeholder="录入文章，用 {{1}} 表示第1个空格..."
-                            class="fancy-textarea"></textarea>
-                    </div>
-
-                    <div class="editor-pane preview-area card-base">
-                        <div class="pane-label">实时效果预览</div>
-                        <div class="preview-content scroll-y">
-                            <div class="article-body" v-html="renderedText"></div>
-                        </div>
+    <div class="editor-split-container">
+        <div class="editor-pane edit-area card-base">
+            <div class="pane-label">文章录入 (Markdown)</div>
+            <textarea v-model="form.cloze_text" placeholder="录入文章，用 {{1}} 表示第1个空格..." class="fancy-textarea"></textarea>
+            
+            <div class="answer-config-panel">
+                <div class="pane-label border-top">配置正确答案 ({{ gapCount }}个)</div>
+                <div class="answer-grid scroll-y">
+                    <div v-for="n in gapCount" :key="n" class="config-row">
+                        <span class="index-tag">{{ n }}</span>
+                        <input 
+                            :ref="el => configInputRefs[n-1] = el" 
+                            v-model="form.answers[n - 1]" 
+                            class="config-input" 
+                            placeholder="填入正确答案..." 
+                        />
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="editor-pane preview-area card-base">
+            <div class="pane-label">实时效果预览 (点击数字可定位左侧答案框)</div>
+            <div class="preview-content scroll-y">
+                <div class="article-body" v-html="renderedText"></div>
+            </div>
+        </div>
+    </div>
+</div>
             <div v-else class="empty-state animate-in">
                 <div class="empty-glass-card">
                     <div class="empty-illustration">
@@ -1034,5 +1058,76 @@ const isUserCorrect = (n) => {
     max-width: 240px;
     line-height: 1.6;
     margin: 0 auto;
+}
+/* 管理员答案配置面板 */
+.answer-config-panel {
+    height: 300px; /* 固定高度，超出滚动 */
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.border-top {
+    border-top: 1px solid #f1f5f9;
+}
+
+.answer-grid {
+    flex: 1;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 答案双列排布，更高效 */
+    gap: 12px;
+    background: #fafafa;
+}
+
+.config-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.config-input {
+    flex: 1;
+    border: 1px solid #edf2f7;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+}
+
+.config-input:focus {
+    border-color: #52c41a;
+}
+
+.index-tag {
+    width: 24px;
+    height: 24px;
+    background: #1e293b;
+    color: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* 高亮闪烁动画 */
+.highlight-flash {
+    animation: flash-green 1s ease;
+    border-color: #52c41a !important;
+    background: #f6ffed !important;
+    box-shadow: 0 0 10px rgba(82, 196, 26, 0.2);
+}
+
+@keyframes flash-green {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 </style>
