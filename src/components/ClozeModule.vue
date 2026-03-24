@@ -77,7 +77,7 @@ onMounted(() => {
 const renderedText = computed(() => {
     const text = isAdding.value ? form.cloze_text : (selectedQuiz.value?.cloze_text || '')
     if (!text) return '<p class="empty-hint">等待内容录入...</p>'
-    
+
     return text.replace(/\{\{(\d+)\}\}/g, (match, p1) => {
         // 如果是编辑模式，派发 scroll-to-ans；如果是练习模式，派发 focus-gap
         const eventName = isAdding.value ? 'scroll-to-ans' : 'focus-gap'
@@ -191,37 +191,34 @@ const isUserCorrect = (n) => {
             </div>
 
             <div v-else-if="isAdding" class="editor-layout animate-in">
-    <div class="editor-top-bar">...</div> 
+                <div class="editor-top-bar">...</div>
 
-    <div class="editor-split-container">
-        <div class="editor-pane edit-area card-base">
-            <div class="pane-label">文章录入 (Markdown)</div>
-            <textarea v-model="form.cloze_text" placeholder="录入文章，用 {{1}} 表示第1个空格..." class="fancy-textarea"></textarea>
-            
-            <div class="answer-config-panel">
-                <div class="pane-label border-top">配置正确答案 ({{ gapCount }}个)</div>
-                <div class="answer-grid scroll-y">
-                    <div v-for="n in gapCount" :key="n" class="config-row">
-                        <span class="index-tag">{{ n }}</span>
-                        <input 
-                            :ref="el => configInputRefs[n-1] = el" 
-                            v-model="form.answers[n - 1]" 
-                            class="config-input" 
-                            placeholder="填入正确答案..." 
-                        />
+                <div class="editor-split-container">
+                    <div class="editor-pane edit-area card-base">
+                        <div class="pane-label">文章录入 (Markdown)</div>
+                        <textarea v-model="form.cloze_text" placeholder="录入文章，用 {{1}} 表示第1个空格..."
+                            class="fancy-textarea"></textarea>
+
+                        <div class="answer-config-panel">
+                            <div class="pane-label">配置正确答案 ({{ gapCount }}个)</div>
+                            <div class="answer-grid scroll-y" style="flex: 1; overflow-y: auto;">
+                                <div v-for="n in gapCount" :key="n" class="config-row">
+                                    <span class="index-tag">{{ n }}</span>
+                                    <input :ref="el => configInputRefs[n - 1] = el" v-model="form.answers[n - 1]"
+                                        class="config-input" placeholder="答案..." />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editor-pane preview-area card-base">
+                        <div class="pane-label">实时效果预览 (点击数字可定位左侧答案框)</div>
+                        <div class="preview-content scroll-y">
+                            <div class="article-body" v-html="renderedText"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="editor-pane preview-area card-base">
-            <div class="pane-label">实时效果预览 (点击数字可定位左侧答案框)</div>
-            <div class="preview-content scroll-y">
-                <div class="article-body" v-html="renderedText"></div>
-            </div>
-        </div>
-    </div>
-</div>
             <div v-else class="empty-state animate-in">
                 <div class="empty-glass-card">
                     <div class="empty-illustration">
@@ -301,6 +298,12 @@ const isUserCorrect = (n) => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.edit-area {
+   display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .nav-item-card:hover {
@@ -422,14 +425,13 @@ const isUserCorrect = (n) => {
 
 .cloze-viewport {
     flex: 1;
-    min-width: 0;
     height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 20px;
     box-sizing: border-box;
-    background: #fdfdfd;
-    transition: padding-left 0.3s;
+    overflow: hidden;
+    /* 禁止视口产生滚动条 */
 }
 
 .is-collapsed+.cloze-viewport {
@@ -438,9 +440,9 @@ const isUserCorrect = (n) => {
 
 .practice-layout {
     display: flex;
-    gap: 24px;
-    flex: 1;
-    min-height: 0;
+    gap: 20px;
+    flex: 1;      /* 占用 viewport 剩余所有空间 */
+    min-height: 0; /* 极其重要：允许子元素收缩，防止被内容撑开 */
 }
 
 .card-base {
@@ -455,6 +457,7 @@ const isUserCorrect = (n) => {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .section-top {
@@ -471,8 +474,8 @@ const isUserCorrect = (n) => {
 }
 
 .reading-scroll {
-    flex: 1;
-    overflow-y: auto;
+   flex: 1;       /* 核心：吸收剩余高度 */
+    overflow-y: auto; 
     padding: 30px 50px;
 }
 
@@ -483,14 +486,16 @@ const isUserCorrect = (n) => {
 }
 
 .answer-section {
-    width: 360px;
+   width: 280px;
     flex-shrink: 0;
+    display: flex;
 }
 
 .answer-card {
-    height: 100%;
+    flex: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* 纵向排列 Head, Body, Foot */
+    min-height: 0;         /* 极其重要 */
 }
 
 .card-head {
@@ -542,20 +547,42 @@ const isUserCorrect = (n) => {
     box-shadow: 0 4px 12px rgba(82, 196, 26, 0.08);
 }
 
+/* 5. 缩小按钮尺寸 */
+.btn-primary,
+.btn-secondary {
+    height: 40px;
+    /* 固定高度，紧凑感 */
+    padding: 0;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+.input-row {
+    margin-bottom: 8px;
+}
+
 .gap-input {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 14px 0;
-    font-size: 15px;
+    padding: 10px 0;
+    /* 减小输入框上下内边距 */
+    font-size: 14px;
     font-weight: 700;
     color: #334155;
     outline: none;
 }
 
+.card-body {
+    flex: 1;               /* 核心：让答案列表吸收所有剩余高度 */
+    overflow-y: auto;      /* 这里是唯一的滚动点 */
+    padding: 16px;
+}
+
+/* 4. 锁定底部，减小 Padding */
 .card-foot {
-    padding: 5px;
-    border-top: 1px solid #f8fafc;
+   flex-shrink: 0;        /* 确保底部按钮不被压缩 */
+    padding: 12px;
 }
 
 /* 修正了之前过大的 padding */
@@ -632,7 +659,8 @@ const isUserCorrect = (n) => {
     height: 38px;
     border-radius: 12px;
     border: none;
-    background: #1e293b; /* 深色主题 */
+    background: #1e293b;
+    /* 深色主题 */
     color: #ffffff;
     cursor: pointer;
     display: flex;
@@ -677,7 +705,8 @@ const isUserCorrect = (n) => {
 
 /* 悬停动效：背景变色、旋转、阴影增强 */
 .add-btn:hover {
-    background: #22c55e; /* 悬停变为充满生机的绿色 */
+    background: #22c55e;
+    /* 悬停变为充满生机的绿色 */
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
 }
@@ -699,7 +728,7 @@ const isUserCorrect = (n) => {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transform: rotate(45deg);
     transition: 0.6s;
 }
@@ -717,16 +746,15 @@ const isUserCorrect = (n) => {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 /* --- 管理员编辑器专用样式 (仅影响 isAdding 状态) --- */
 .editor-layout {
+   flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    gap: 16px;
-    overflow: hidden;
+    min-height: 0;
 }
 
 .editor-top-bar {
@@ -784,11 +812,10 @@ const isUserCorrect = (n) => {
 }
 
 .editor-split-container {
+    flex: 1;
     display: flex;
     gap: 20px;
-    flex: 1;
-    min-height: 0;
-    /* 关键：防止 flex 容器被撑开 */
+    min-height: 0; /* 防止编辑器撑开整页 */
 }
 
 .editor-pane {
@@ -808,15 +835,15 @@ const isUserCorrect = (n) => {
 }
 
 .fancy-textarea {
-    flex: 1;
-    border: none;
-    padding: 20px;
-    font-size: 16px;
-    line-height: 1.8;
-    color: #334155;
-    resize: none;
-    outline: none;
-    background: #fafafa;
+    flex: 1; 
+    min-height: 0; /* 允许 textarea 在 flex 下收缩 */
+    overflow-y: auto;
+}
+
+.fancy-textarea {
+    flex: 2;
+    /* 给予文本框更多空间 */
+    min-height: 200px;
 }
 
 .preview-content {
@@ -1059,12 +1086,13 @@ const isUserCorrect = (n) => {
     line-height: 1.6;
     margin: 0 auto;
 }
+
 /* 管理员答案配置面板 */
 .answer-config-panel {
-    height: 300px; /* 固定高度，超出滚动 */
+    height: 40%; /* 或者使用 flex: 0.8 */
     display: flex;
     flex-direction: column;
-    background: #fff;
+    min-height: 0;
 }
 
 .border-top {
@@ -1073,11 +1101,7 @@ const isUserCorrect = (n) => {
 
 .answer-grid {
     flex: 1;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 答案双列排布，更高效 */
-    gap: 12px;
-    background: #fafafa;
+    overflow-y: auto; /* 答案过长时在此内部滚动 */
 }
 
 .config-row {
@@ -1126,8 +1150,34 @@ const isUserCorrect = (n) => {
 }
 
 @keyframes flash-green {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 只有在鼠标悬停在滚动区域时才显示滚动条，或者干脆做得极细 */
+.scroll-y::-webkit-scrollbar {
+    width: 4px;
+}
+
+.scroll-y::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scroll-y::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.scroll-y:hover::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
 }
 </style>

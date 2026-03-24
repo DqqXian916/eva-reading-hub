@@ -305,7 +305,6 @@ const openReading = (reading) => {
   userSelections.value = new Array(reading.quiz?.length || 0).fill(null)
 
   sidebarCollapsed.value = true
-  listPanelCollapsed.value = true
 }
 
 const handleSaveReading = async (formData) => {
