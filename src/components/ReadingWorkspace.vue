@@ -7,6 +7,7 @@
  * isSubmitted: 是否已提交核对
  * scoreInfo: 得分汇总文字
  */
+import { ref } from 'vue'
 defineProps({
   activeReading: Object,
   isFullScreen: Boolean,
@@ -14,7 +15,8 @@ defineProps({
   isSubmitted: Boolean,
   scoreInfo: String
 })
-
+const hoverIdx = ref(null) // 记录当前悬停的题目索引
+const hoverOptIdx = ref(null) // 记录当前悬停的选项索引
 defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
 </script>
 
@@ -40,12 +42,6 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
       </article>
 
       <aside class="quiz-col">
-        <div class="quiz-header">
-          <h3>Reading Check</h3>
-          <p v-if="!isSubmitted">请阅读文章并选择正确答案</p>
-          <p v-else class="done-tag">✅ 测试已完成</p>
-        </div>
-
         <div class="questions-list">
           <div v-for="(q, qIdx) in activeReading.quiz" :key="qIdx" class="question-card">
             <div class="q-row">
@@ -58,28 +54,42 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
                 { selected: userSelections[qIdx] === oIdx },
                 { correct: isSubmitted && oIdx === q.answer },
                 { wrong: isSubmitted && userSelections[qIdx] === oIdx && oIdx !== q.answer }
-              ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })">
+              ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })"
+                @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)"
+                @mouseleave="hoverIdx = null, hoverOptIdx = null">
                 <span class="option-content">{{ opt }}</span>
               </div>
             </div>
 
-            <div v-if="isSubmitted" class="analysis-box">
-              <div class="analysis-label">
-                <span class="icon">💡</span> 答案解析：
-              </div>
-              <div class="analysis-text">
-                {{ q.analysis || '暂无解析' }}
-              </div>
+            <div v-if="isSubmitted" class="analysis-box" :class="{ 'is-hovering': hoverIdx === qIdx }">
+              <template v-if="hoverIdx === qIdx">
+                <div class="analysis-label hover-mode">
+                  <span class="icon">🔍</span> 选项 {{ String.fromCharCode(65 + hoverOptIdx) }} 详解：
+                </div>
+                <div class="analysis-text">
+                  {{ q.analysis[hoverOptIdx] }}
+                </div>
+              </template>
+
+              <template v-else>
+                <div class="analysis-label">
+                  <span class="icon">💡</span> 答案解析：
+                </div>
+                <div class="analysis-text">
+                  {{ q.analysis[q.answer] }}
+                </div>
+              </template>
             </div>
           </div>
         </div>
-
         <div class="quiz-footer">
-          <div v-if="scoreInfo" class="score-box">
+          <div v-if="isSubmitted && scoreInfo" class="score-box">
             <div class="score-text">{{ scoreInfo }}</div>
             <button class="btn-retry" @click="$emit('close')">查看其他文章</button>
           </div>
-          <button v-else class="btn-primary submit-btn" :disabled="userSelections.includes(null)"
+          
+          <button v-else class="btn-primary submit-btn" 
+            :disabled="userSelections.includes(null)"
             @click="$emit('submit')">
             提交答案
           </button>
@@ -327,44 +337,95 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   background: transparent;
   /* 背景透明，减少分割感 */
 }
-
-/* --- 方案三：莫兰迪灰蓝解析框 --- */
+/* 修改后的解析框样式 */
 .analysis-box {
   margin-top: 16px;
   padding: 14px;
-  background-color: #f8fafc; /* 极浅的蓝灰色背景 */
-  border-left: 4px solid #cbd5e1; /* 中性灰蓝侧边条 */
-  border-radius: 8px; /* 圆角与选项保持一致 */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02); /* 微弱内阴影，增加深度感 */
-  animation: slideUp 0.3s ease-out; /* 提交后的平滑升起动画 */
+  background-color: #f8fafc;
+  border-left: 4px solid #cbd5e1;
+  border-radius: 8px;
+  transition: all 0.2s ease; /* 让背景色和边框色切换平滑 */
+  min-height: 90px; /* 设置最小高度，防止切换选项时下方内容跳动 */
+}
+
+/* 悬停选项时，解析框的反馈效果 */
+.analysis-box.is-hovering {
+  background-color: #f1f5f9; /* 稍微加深一点颜色 */
+  border-left-color: #94a3b8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .analysis-label {
   font-size: 13px;
-  font-weight: 700; /* 加粗标题 */
-  color: #475569; /* 灰蓝色标题 */
-  margin-bottom: 6px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 5px; /* 图标与文字的间距 */
+  gap: 6px;
+}
+
+/* 悬停时的标签高亮 */
+.analysis-label.hover-mode {
+  color: #1e293b;
 }
 
 .analysis-text {
   font-size: 14px;
   line-height: 1.6;
-  color: #334155; /* 深灰蓝正文，阅读体验极佳 */
-  word-break: break-word; /* 防止长文本溢出 */
+  color: #334155;
+  animation: fadeInShort 0.2s ease-out; /* 切换内容时的微小淡入 */
+}
+
+@keyframes fadeInShort {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+/* 提交后鼠标移入选项的反馈 */
+.option:hover {
+  background: #f1f5f9;
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+.is-submitted .option {
+  cursor: help;
+  /* 提交后鼠标变成问号，提示用户“这里有解析” */
+}
+
+.analysis-label {
+  font-size: 13px;
+  font-weight: 700;
+  /* 加粗标题 */
+  color: #475569;
+  /* 灰蓝色标题 */
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* 图标与文字的间距 */
+}
+
+.analysis-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #334155;
+  /* 深灰蓝正文，阅读体验极佳 */
+  word-break: break-word;
+  /* 防止长文本溢出 */
 }
 
 /* 进场动画 */
 @keyframes slideUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
