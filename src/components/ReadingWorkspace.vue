@@ -62,6 +62,15 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
                 <span class="option-content">{{ opt }}</span>
               </div>
             </div>
+
+            <div v-if="isSubmitted" class="analysis-box">
+              <div class="analysis-label">
+                <span class="icon">💡</span> 答案解析：
+              </div>
+              <div class="analysis-text">
+                {{ q.analysis || '暂无解析' }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -317,5 +326,45 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   padding: 8px 25px;
   background: transparent;
   /* 背景透明，减少分割感 */
+}
+
+/* --- 方案三：莫兰迪灰蓝解析框 --- */
+.analysis-box {
+  margin-top: 16px;
+  padding: 14px;
+  background-color: #f8fafc; /* 极浅的蓝灰色背景 */
+  border-left: 4px solid #cbd5e1; /* 中性灰蓝侧边条 */
+  border-radius: 8px; /* 圆角与选项保持一致 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02); /* 微弱内阴影，增加深度感 */
+  animation: slideUp 0.3s ease-out; /* 提交后的平滑升起动画 */
+}
+
+.analysis-label {
+  font-size: 13px;
+  font-weight: 700; /* 加粗标题 */
+  color: #475569; /* 灰蓝色标题 */
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* 图标与文字的间距 */
+}
+
+.analysis-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #334155; /* 深灰蓝正文，阅读体验极佳 */
+  word-break: break-word; /* 防止长文本溢出 */
+}
+
+/* 进场动画 */
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 </style>
