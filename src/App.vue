@@ -10,7 +10,8 @@ import ReadingWorkspace from './components/ReadingWorkspace.vue'
 import QuizModule from './components/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
-
+import BrainBreakModule from './components/BrainBreakModule.vue'
+import LegacyGameModule from './components/LegacyGameModule.vue'
 
 // --- 状态管理 ---
 const activeModule = ref('reading')
@@ -31,6 +32,8 @@ const isLoading = ref(false)
 const isFullScreen = ref(false)
 
 const studentQuizzes = ref([])
+
+const studentGameScores = ref([])
 
 // 答题状态记录
 const userSelections = ref([])
@@ -82,6 +85,9 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchClozeQuizzes(newStudent.id) // 新增：切换到填空模块时加载数据
   } else if (newModule === 'vocab-test') { 
     await fetchVocabTests(newStudent.id) // 新增：词汇评估模块数据加载
+  } else if (newModule === 'brain-break') {
+    // 可以在这里加载该学员的游戏最高分记录
+    // await fetchGameScores(newStudent.id)
   }
 })
 
@@ -348,6 +354,8 @@ const handleSaveReading = async (formData) => {
           阅读训练</button>
         <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
           短文填空</button>
+          <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
+  @click="activeModule = 'brain-break'">🎮 换个脑子</button>
       </nav>
       <div class="nav-right">
         <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
@@ -389,6 +397,10 @@ const handleSaveReading = async (formData) => {
         <template v-else-if="activeModule === 'quiz'">
           <QuizModule :student="currentStudent" :quizzes="studentQuizzes" :canEdit="isAdminMode" @save="saveQuiz"
             @delete="deleteQuiz" />
+        </template>
+
+        <template v-else-if="activeModule === 'brain-break'">
+          <BrainBreakModule :student="currentStudent" />
         </template>
 
         <template v-else-if="activeModule === 'cloze'">

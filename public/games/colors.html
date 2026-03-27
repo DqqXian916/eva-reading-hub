@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Atelier - Inspiration Palette</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #fdfcf8; /* 极淡的米黄色，像未打磨的陶瓷 */
+            --text-main: #2c2c2c;
+            --accent: #a89f91; /* 柔和的莫兰迪色，用于辅助文字 */
+            --panel-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .studio-container {
+            display: flex;
+            width: 100%;
+            max-width: 960px; /* 稍微加宽，给文字更多空间 */
+            min-height: 550px;
+            background: var(--panel-bg);
+            /* 更柔和、更弥散的阴影，营造悬浮感 */
+            box-shadow: 0 30px 90px rgba(0,0,0,0.03);
+            border-radius: 4px; /* 极小的圆角，保持克制 */
+            overflow: hidden;
+            border: 1px solid #f3f3f3;
+            position: relative;
+        }
+
+        /* --- 左侧：陶瓷调色板 --- */
+        .palette-side {
+            flex: 1;
+            padding: 50px;
+            border-right: 1px solid #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #fafafa; /* 淡淡的灰色区分区域 */
+        }
+
+        .palette-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 20px;
+            margin-bottom: 50px;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .swatch-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 90px);
+            gap: 30px;
+        }
+
+        /* --- 核心 UI 优化：色块设计 --- */
+        .swatch {
+            width: 85px;
+            height: 85px;
+            border-radius: 50% 50% 50% 15%; /* 颜料滴状 */
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); /* 更平滑的过渡 */
+            filter: saturate(0.8);
+            position: relative;
+            /* 去掉生硬黑边，改用超细的淡描边和微阴影 */
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        /* Hover 时的轻微互动 */
+        .swatch:hover {
+            transform: scale(1.1) rotate(-3deg) translateY(-5px);
+            filter: saturate(1.1);
+            z-index: 10;
+        }
+
+        /* --- 选中态：不再是黑边，而是高级的悬浮投影 --- */
+        .swatch.active {
+            transform: scale(1.05) translateY(-3px);
+            filter: saturate(1.2);
+            /* 关键改动：使用带色相的弥散投影，让色块看起来像在发光 */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.05);
+        }
+
+        /* --- 右侧：内容展示区 --- */
+        .info-side {
+            flex: 1.5;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            position: relative;
+        }
+
+        /* 文字上浮动效 */
+        #word-content {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.7s ease;
+        }
+
+        #word-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .word-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            margin: 0;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        /* 喇叭图标 */
+        .speaker-icon {
+            font-size: 26px;
+            cursor: pointer;
+            color: #e0e0e0;
+            transition: color 0.3s;
+        }
+        .speaker-icon:hover { color: var(--accent); }
+
+        .phonetic {
+            font-size: 16px;
+            color: var(--accent);
+            margin: 5px 0 30px 0;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        /* --- 英文美句样式 --- */
+        .quote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 22px;
+            color: #4a4a4a;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            border-left: 3px solid #eee;
+            padding-left: 15px;
+        }
+
+        .definition {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #777;
+            margin-bottom: 35px;
+            font-weight: 300;
+        }
+
+        .vibe-tag {
+            align-self: flex-start;
+            padding: 6px 20px;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 30px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        /* 欢迎页消息 */
+        .placeholder {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #ccc;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        /* 适配 Vue 侧边栏模式下的 iframe */
+        @media (max-width: 600px) {
+            .studio-container { flex-direction: column; height: auto; }
+            .palette-side { border-right: none; border-bottom: 1px solid #f5f5f5; padding: 30px;}
+            .info-side { padding: 40px; }
+            .word-header { font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="studio-container">
+    <div class="palette-side">
+        <div class="palette-title">The Atelier Palette</div>
+        <div class="swatch-grid">
+            <div class="swatch" style="background: #e0d5c1;" onclick="inspect(0, this)"></div>
+            <div class="swatch" style="background: #9caf88;" onclick="inspect(1, this)"></div>
+            <div class="swatch" style="background: #7a8992;" onclick="inspect(2, this)"></div>
+            <div class="swatch" style="background: #d4a373;" onclick="inspect(3, this)"></div>
+            <div class="swatch" style="background: #e5b3bb;" onclick="inspect(4, this)"></div>
+            <div class="swatch" style="background: #f4f1de;" onclick="inspect(5, this)"></div>
+        </div>
+    </div>
+
+    <div class="info-side">
+        <div id="word-content">
+            <h1 class="word-header">
+                <span id="w-title">Word</span>
+                <span class="speaker-icon" onclick="replayAudio()">🔊</span>
+            </h1>
+            <div class="phonetic" id="w-phone">/pronunciation/</div>
+            
+            <div class="quote" id="w-quote">"Aesthetics is the logic of the heart."</div>
+            
+            <div class="definition" id="w-def">Select a shade to find inspiration.</div>
+            <div class="vibe-tag" id="w-tag">Aesthetic</div>
+        </div>
+        <div id="idle-msg" class="placeholder">Pick a shade from the ceramic palette...</div>
+    </div>
+</div>
+
+<script>
+    // --- 升级后的数据：增加英文美句 ---
+    const atelierData = [
+        { 
+            w: 'Champagne', p: '[ʃæmˈpeɪn]', 
+            q: 'A soft shimmer of gold, like a silken sunbeam.',
+            d: '代表一种清透、高级的淡金色。像阳光洒在丝绸上的质感。', t: 'Elegant' 
+        },
+        { 
+            w: 'Sage', p: '[seɪdʒ]', 
+            q: 'A calm, earthy green, like morning mist on the leaves.',
+            d: '这是一种带点灰调的绿色，非常温柔。就像清晨森林里带着雾气的叶子。', t: 'Calm' 
+        },
+        { 
+            w: 'Slate', p: '[sleɪt]', 
+            q: 'A deep, thoughtful blue-grey, a quiet stone against the sky.',
+            d: '比灰色更深邃，带一点蓝调。给人一种像石头一样冷静、高级的职业感。', t: 'Professional' 
+        },
+        { 
+            w: 'Caramel', p: '[ˈkærəmel]', 
+            q: 'Warm and syrupy, it carries the sweetness of autumn.',
+            d: '焦糖色。听起来就很香甜、温暖。是秋天的风衣，也是下午茶桌上的那一抹浓郁。', t: 'Warm' 
+        },
+        { 
+            w: 'Mauve', p: '[moʊv]', 
+            q: 'A vintage, poetic lavender, a soft shadow of romance.',
+            d: '一种带有灰色调的淡紫色，非常法式。代表着浪漫气息。', t: 'Romantic' 
+        },
+        { 
+            w: 'Ivory', p: '[ˈaɪvəri]', 
+            q: 'More than just white, it is the timeless shade of eternity.',
+            d: '象牙白。比纯白多了一点奶油般的温润。代表着纯净、复古和永恒。', t: 'Pure' 
+        }
+    ];
+
+    let currentData = null;
+
+    // --- 语音合成函数 ---
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // 停止之前的朗读
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'en-US';
+            msg.rate = 0.85; // 稍微放慢语速，清晰、高级
+            window.speechSynthesis.speak(msg);
+        }
+    }
+
+    // 只重新朗读单词
+    function replayAudio() {
+        if(currentData) speak(currentData.w);
+    }
+
+    function inspect(i, el) {
+        const content = document.getElementById('word-content');
+        const idle = document.getElementById('idle-msg');
+        
+        // --- 样式处理：选中态 ---
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+
+        // --- 内容切换逻辑 ---
+        idle.style.display = 'none';
+        content.classList.remove('visible'); // 先收起动效
+        
+        setTimeout(() => {
+            currentData = atelierData[i];
+            
+            // 更新文字
+            document.getElementById('w-title').innerText = currentData.w;
+            document.getElementById('w-phone').innerText = currentData.p;
+            document.getElementById('w-quote').innerText = currentData.q; // 更新美句
+            document.getElementById('w-def').innerText = currentData.d;
+            document.getElementById('w-tag').innerText = currentData.t;
+            
+            content.classList.add('visible'); // 展开上浮动效
+            
+            // --- 关键增强：自动跟读单词和全句 ---
+            // 先朗读单词
+            speak(currentData.w);
+            
+            // 停顿 0.5 秒后朗读整句美句
+            setTimeout(() => {
+                if ('speechSynthesis' in window) {
+                    const msg = new SpeechSynthesisUtterance(currentData.q);
+                    msg.lang = 'en-US';
+                    msg.rate = 0.85; // 保持语速
+                    // 单词朗读完毕后会自动接着朗读这一句
+                    window.speechSynthesis.speak(msg);
+                }
+            }, 500);
+
+        }, 200);
+    }
+</script>
+</body>
+</html>

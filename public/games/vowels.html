@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自然拼读</title>
+    <style>
+        :root {
+            --primary: #706fd3;
+            --accent-long: #ff793f;
+            --accent-short: #33d9b2;
+            --bg: #f1f2f6;
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #2f3542; overflow: hidden; }
+
+        /* 游戏主容器 */
+        #game-stage {
+            background: white; width: 480px; padding: 30px 40px; border-radius: 40px;
+            box-shadow: var(--card-shadow); text-align: center; position: relative;
+            border: 4px solid transparent; transition: all 0.3s;
+        }
+
+        /* 进度条 */
+        .progress-box { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        #bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease; }
+
+        /* 顶部导航 */
+        .tab-bar { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f8f9fa; padding: 8px; border-radius: 20px; }
+        .vowel-tab { 
+            width: 50px; height: 50px; line-height: 50px; cursor: pointer; border-radius: 15px; 
+            font-size: 22px; font-weight: bold; transition: 0.3s; color: #a4b0be;
+        }
+        .vowel-tab.active { background: var(--primary); color: white; transform: scale(1.1); box-shadow: 0 5px 15px rgba(112, 111, 211, 0.4); }
+
+        /* 连击数展示 */
+        #combo-badge {
+            position: absolute; top: -15px; right: -15px; background: #ff4757; color: white;
+            width: 60px; height: 60px; border-radius: 50%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; font-weight: bold; font-size: 12px;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); transform: scale(0); transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        #combo-badge b { font-size: 24px; line-height: 1; }
+
+        /* 核心展示区 */
+        .main-card {
+            height: 240px; display: flex; flex-direction: column; justify-content: center;
+            background: #fff; border: 2px solid #edeff2; border-radius: 35px;
+            margin-bottom: 25px; position: relative; transition: transform 0.3s;
+        }
+
+        #word { font-size: 82px; font-weight: 900; margin: 0; color: #130f40; cursor: pointer; letter-spacing: -1px; }
+        
+        #info-layer {
+            position: absolute; bottom: 20px; width: 100%; display: flex; flex-direction: column;
+            align-items: center; opacity: 0; transform: translateY(10px); transition: 0.4s;
+        }
+        #ipa-display { font-size: 30px; color: var(--primary); font-weight: bold; }
+        #zh-display { font-size: 16px; color: #57606f; font-weight: bold; background: #e3e4f0; padding: 2px 15px; border-radius: 20px; margin-top: 5px; }
+        
+        .show-info { opacity: 1 !important; transform: translateY(0px) !important; }
+
+        /* 按钮设计 */
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .choice-btn {
+            border: none; padding: 22px 10px; border-radius: 25px; color: white;
+            font-size: 19px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .btn-l { background: var(--accent-long); box-shadow: 0 8px 0 #cd6133; }
+        .btn-s { background: var(--accent-short); box-shadow: 0 8px 0 #218c74; }
+        .choice-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .btn-hint { font-size: 12px; opacity: 0.85; font-weight: normal; }
+
+        /* 错误抖动动画 */
+        .shake { animation: shakeAnim 0.4s ease-in-out; border-color: #ff4757 !important; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* 状态反馈图标 */
+        #feedback-icon {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 120px; z-index: 100; display: none; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-stage">
+    <div id="combo-badge">COMBO<br><b id="combo-count">0</b></div>
+    
+    <div class="progress-box"><div id="bar"></div></div>
+
+    <div class="tab-bar" id="tabs">
+        <div class="vowel-tab active" onclick="setGroup('Aa')">A</div>
+        <div class="vowel-tab" onclick="setGroup('Ee')">E</div>
+        <div class="vowel-tab" onclick="setGroup('Ii')">I</div>
+        <div class="vowel-tab" onclick="setGroup('Oo')">O</div>
+        <div class="vowel-tab" onclick="setGroup('Uu')">U</div>
+    </div>
+
+    <div class="main-card" id="card">
+        <h1 id="word" onclick="readIt()">-</h1>
+        <div id="info-layer">
+            <div id="ipa-display">/ /</div>
+            <div id="zh-display">助记词</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="choice-btn btn-l" onclick="decide('long')">
+            <span>📢 字母音</span>
+            <span class="btn-hint" id="hint-l">--</span>
+        </button>
+        <button class="choice-btn btn-s" onclick="decide('short')">
+            <span>🤐 短元音</span>
+            <span class="btn-hint" id="hint-s">--</span>
+        </button>
+    </div>
+
+    <div id="feedback-icon">⭐</div>
+</div>
+
+<script>
+    const config = {
+        'Aa': { l_ipa: '/eɪ/', l_zh: '读“诶” (拼音A)', s_ipa: '/æ/', s_zh: '读“哎” (张大嘴)', list: [{w:'name', t:'long'}, {w:'cake', t:'long'}, {w:'plane', t:'long'}, {w:'face', t:'long'}, {w:'cat', t:'short'}, {w:'bag', t:'short'}, {w:'hat', t:'short'}, {w:'act', t:'short'}] },
+        'Ee': { l_ipa: '/iː/', l_zh: '读“姨” (拼音E)', s_ipa: '/e/', s_zh: '读“哎” (微微笑)', list: [{w:'me', t:'long'}, {w:'she', t:'long'}, {w:'tree', t:'long'}, {w:'these', t:'long'}, {w:'pen', t:'short'}, {w:'red', t:'short'}, {w:'desk', t:'short'}, {w:'egg', t:'short'}] },
+        'Ii': { l_ipa: '/aɪ/', l_zh: '读“爱” (拼音I)', s_ipa: '/ɪ/', s_zh: '读“一” (短促有力)', list: [{w:'shine', t:'long'}, {w:'like', t:'long'}, {w:'bike', t:'long'}, {w:'nice', t:'long'}, {w:'win', t:'short'}, {w:'big', t:'short'}, {w:'sit', t:'short'}, {w:'milk', t:'short'}] },
+        'Oo': { l_ipa: '/əʊ/', l_zh: '读“欧” (拼音O)', s_ipa: '/ɒ/', s_zh: '读“喔” (大口短促)', list: [{w:'home', t:'long'}, {w:'rose', t:'long'}, {w:'nose', t:'long'}, {w:'hope', t:'long'}, {w:'hot', t:'short'}, {w:'dog', t:'short'}, {w:'box', t:'short'}, {w:'not', t:'short'}] },
+        'Uu': { l_ipa: '/juː/', l_zh: '读“右” (拼音U)', s_ipa: '/ʌ/', s_zh: '读“啊” (肚子被踢)', list: [{w:'use', t:'long'}, {w:'cute', t:'long'}, {w:'music', t:'long'}, {w:'student', t:'long'}, {w:'just', t:'short'}, {w:'bus', t:'short'}, {w:'sun', t:'short'}, {w:'cup', t:'short'}] }
+    };
+
+    let curGroup = 'Aa', curIdx = 0, combo = 0;
+
+    function setGroup(g) {
+        curGroup = g; curIdx = 0; combo = 0;
+        document.querySelectorAll('.vowel-tab').forEach(t => t.classList.toggle('active', t.innerText === g.charAt(0)));
+        document.getElementById('hint-l').innerText = config[g].l_ipa + " " + config[g].l_zh;
+        document.getElementById('hint-s').innerText = config[g].s_ipa + " " + config[g].s_zh;
+        document.getElementById('combo-badge').style.transform = 'scale(0)';
+        render();
+    }
+
+    function render() {
+        const item = config[curGroup].list[curIdx];
+        document.getElementById('word').innerText = item.w;
+        document.getElementById('info-layer').classList.remove('show-info');
+        document.getElementById('game-stage').classList.remove('shake');
+        document.getElementById('feedback-icon').style.display = 'none';
+        
+        // 更新进度条
+        const progress = (curIdx / config[curGroup].list.length) * 100;
+        document.getElementById('bar').style.width = progress + '%';
+        
+        readIt();
+    }
+
+    function readIt() {
+        const u = new SpeechSynthesisUtterance(config[curGroup].list[curIdx].w);
+        u.lang = 'en-US'; u.rate = 0.8;
+        window.speechSynthesis.speak(u);
+    }
+
+    function decide(type) {
+        const item = config[curGroup].list[curIdx];
+        const fb = document.getElementById('feedback-icon');
+        const layer = document.getElementById('info-layer');
+        const stage = document.getElementById('game-stage');
+        
+        document.getElementById('ipa-display').innerText = type === 'long' ? config[curGroup].l_ipa : config[curGroup].s_ipa;
+        document.getElementById('zh-display').innerText = type === 'long' ? config[curGroup].l_zh : config[curGroup].s_zh;
+        layer.classList.add('show-info');
+
+        if(type === item.t) {
+            // 答对逻辑
+            combo++;
+            fb.innerText = '⭐';
+            fb.style.display = 'block';
+            if(combo > 1) {
+                const badge = document.getElementById('combo-badge');
+                badge.style.transform = 'scale(1)';
+                document.getElementById('combo-count').innerText = combo;
+            }
+        } else {
+            // 答错逻辑
+            combo = 0;
+            document.getElementById('combo-badge').style.transform = 'scale(0)';
+            stage.classList.add('shake');
+            fb.innerText = '❌';
+            fb.style.display = 'block';
+        }
+
+        setTimeout(() => {
+            curIdx = (curIdx + 1) % config[curGroup].list.length;
+            render();
+        }, 2000);
+    }
+
+    window.onload = () => setGroup('Aa');
+</script>
+
+</body>
+</html>
