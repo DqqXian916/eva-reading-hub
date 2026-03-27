@@ -1,230 +1,252 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐱 Richel‘s pet</title>
+    <title>🐱 Richel‘s 蓬蓬拿破仑 - 软糯撒娇版</title>
     <style>
         :root {
-            --cat-gold: #f3e5ab; --cat-blue: #98c1d9; --eye-green: #95d5b2;
-            --bg-soft: #fdf0d5; --text: #6d6875; --accent: #ffb4a2;
+            --maine-grey-dark: #6d6875;
+            --maine-grey-mid: #b5b2be;
+            --maine-grey-light: #e5e5e5;
+            --eye-brown: #7b4422;
+            --bg-soft: #f8f9fa;
+            --accent: #ffb4a2;
+            --progress-bg: #eeeeee;
+            --hp-red: #ff4d6d;
         }
 
         body {
-            font-family: 'PingFang SC', sans-serif; background: var(--bg-soft);
+            font-family: 'PingFang SC', sans-serif;
+            background: var(--bg-soft);
             display: flex; justify-content: center; align-items: center;
             height: 100vh; margin: 0; overflow: hidden;
         }
 
-        #game-box {
-            background: white; width: 420px; padding: 40px;
-            border-radius: 60px; box-shadow: 0 30px 80px rgba(181, 131, 141, 0.2);
-            text-align: center; position: relative; z-index: 10;
-        }
+        .settings-icon { position: absolute; top: 20px; left: 20px; font-size: 24px; cursor: pointer; z-index: 100; opacity: 0.2; transition: 0.3s; }
+        .settings-icon:hover { opacity: 1; transform: rotate(45deg); }
+        #admin-panel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 500px; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 0 100px rgba(0,0,0,0.2); z-index: 200; }
+        #admin-panel textarea { width: 100%; height: 280px; border: 2px solid #eee; border-radius: 15px; padding: 10px; font-family: monospace; margin-bottom: 15px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; }
 
+        #game-box { background: white; width: 420px; padding: 40px; border-radius: 60px; box-shadow: 0 30px 80px rgba(109,104,117,0.15); text-align: center; position: relative; z-index: 10; }
+        .hp-bar { font-size: 1.2rem; margin-bottom: 10px; color: var(--hp-red); letter-spacing: 5px; }
         .cat-stage { height: 180px; display: flex; justify-content: center; align-items: flex-end; margin-bottom: 25px; }
-        .cat-body {
-            width: 110px; height: 85px; background: var(--cat-gold);
-            border-radius: 55px 55px 35px 35px; position: relative;
-            box-shadow: inset -12px 0 var(--cat-blue); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
 
-        .cat-head {
-            width: 95px; height: 80px; background: var(--cat-gold);
-            border-radius: 50%; position: absolute; top: -55px; left: 7px;
-            box-shadow: inset -6px 6px var(--cat-blue);
-        }
+        .progress-container { width: 80%; height: 12px; background: var(--progress-bg); border-radius: 10px; margin: 0 auto 5px; overflow: hidden; position: relative; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ffb4a2, #ff8d8d); transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 10px; }
+        .goal-text { font-size: 0.75rem; color: #999; margin-bottom: 15px; }
 
-        .crown { position: absolute; top: -25px; left: 25px; font-size: 30px; display: none; transform: rotate(-10deg); }
-        .bow { position: absolute; bottom: 0; left: 35px; font-size: 20px; display: none; }
-
-        .eye {
-            width: 20px; height: 20px; background: var(--eye-green);
-            border-radius: 50%; position: absolute; top: 35px; border: 2px solid #fff;
-        }
+        /* 猫咪形象保持不变 */
+        .cat-body { width: 130px; height: 70px; background: var(--maine-grey-mid); border-radius: 70px 70px 45px 45px; position: relative; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: inset -10px -5px 20px rgba(0,0,0,0.1), 0 0 20px 8px var(--maine-grey-mid); }
+        .cat-head { width: 105px; height: 90px; background: var(--maine-grey-mid); border-radius: 50%; position: absolute; top: -70px; left: 12.5px; box-shadow: 0 0 15px 5px var(--maine-grey-mid); }
+        .crown, .bow { position: absolute; display: none; z-index: 50; left: 50%; transform: translateX(-50%); }
+        .crown { top: -35px; font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .ear { width: 32px; height: 32px; background: var(--maine-grey-dark); position: absolute; top: -8px; border-radius: 40% 60% 40% 40%; }
+        .ear.left { left: 5px; transform: rotate(-20deg); } .ear.right { right: 5px; transform: rotate(20deg); border-radius: 60% 40% 40% 40%; }
+        .eye { width: 24px; height: 24px; background: var(--eye-brown); border-radius: 50%; position: absolute; top: 32px; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .eye.left { left: 18px; } .eye.right { right: 18px; }
-        .eye::after { content: ''; width: 8px; height: 8px; background: #333; border-radius: 50%; position: absolute; top: 4px; left: 4px; }
-
-        .ear { width: 28px; height: 28px; background: var(--accent); position: absolute; top: -12px; border-radius: 8px 25px 8px 8px; }
-        .ear.left { left: 3px; transform: rotate(-15deg); }
-        .ear.right { right: 3px; transform: rotate(15deg); border-radius: 25px 8px 8px 8px; }
-
-        .tail {
-            width: 45px; height: 18px; background: var(--cat-blue);
-            position: absolute; right: -28px; bottom: 25px;
-            border-radius: 25px; transform-origin: left; transition: 0.4s;
-        }
+        .eye::after { content: ''; width: 12px; height: 12px; background: #222; border-radius: 50%; position: absolute; top: 6px; left: 6px; }
+        .eye::before { content: ''; width: 5px; height: 5px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 4px; z-index: 2; }
+        .nose { width: 10px; height: 7px; background: #ffafcc; position: absolute; top: 58px; left: 48px; border-radius: 50%; }
+        .blush { width: 15px; height: 8px; background: #ffcad4; position: absolute; top: 62px; border-radius: 50%; filter: blur(3px); }
+        .blush.l { left: 15px; } .blush.r { right: 15px; }
+        .bow { bottom: -5px; font-size: 24px; }
+        .tail { width: 65px; height: 40px; background: var(--maine-grey-dark); position: absolute; right: -35px; bottom: 15px; border-radius: 50%; filter: blur(2px); box-shadow: 0 0 15px var(--maine-grey-dark); }
 
         .combo-bounce { animation: bounce 0.4s ease infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        
-        .floating-heart {
-            position: absolute; color: var(--accent); font-size: 24px;
-            animation: floatUp 1.2s forwards; z-index: 1; pointer-events: none;
-        }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05) translateY(-10px); } }
+        .floating-heart { position: absolute; font-size: 24px; animation: floatUp 1s forwards; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
 
-        .badge { background: #fefae0; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; color: #b08968; margin-bottom: 15px; display: inline-block; }
-        .stats-row { display: flex; justify-content: space-around; margin: 15px 0; font-size: 1.1rem; }
-        .q-text { font-size: 2.2rem; margin: 20px 0; color: #4a4e69; min-height: 60px; font-weight: bold; }
-        input { 
-            width: 85%; padding: 18px; border: 4px solid #f0f0f0; border-radius: 30px; 
-            font-size: 1.3rem; outline: none; transition: 0.3s; text-align: center;
-        }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 180, 162, 0.4); }
-        .btn {
-            margin-top: 25px; background: var(--accent); color: white;
-            border: none; padding: 15px 70px; border-radius: 35px;
-            font-size: 1.2rem; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(255, 180, 162, 0.3);
-        }
+        .badge { background: #f1f3f5; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; color: #6d6875; margin-bottom: 10px; display: inline-block; }
+        .q-text { font-size: 2rem; margin: 15px 0; color: #4a4e69; min-height: 50px; font-weight: bold; }
+        input { width: 80%; padding: 15px; border: 3px solid #eee; border-radius: 25px; font-size: 1.2rem; outline: none; text-align: center; }
+        .btn { margin-top: 15px; background: var(--accent); color: white; border: none; padding: 12px 60px; border-radius: 30px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
     </style>
 </head>
+
 <body>
+    <div class="settings-icon" onclick="toggleAdmin()">⚙️</div>
+    <div class="overlay" id="overlay" onclick="toggleAdmin()"></div>
+    <div id="admin-panel">
+        <h3 style="margin-top:0">配置猫咪词库</h3>
+        <textarea id="word-config"></textarea>
+        <button class="btn" style="background: #84a59d; width: 100%; margin-top: 5px;" onclick="saveConfig()">保存并重启</button>
+    </div>
 
-<div id="game-box">
-    <div id="rank-badge" class="badge">等级：新手铲屎官</div>
-    
-    <div class="cat-stage">
-        <div class="cat-body" id="cat-body">
-            <div class="crown" id="crown">👑</div>
-            <div class="cat-head">
-                <div class="ear left"></div><div class="ear right"></div>
-                <div class="eye left"></div><div class="eye right"></div>
-                <div class="bow" id="bow">🎀</div>
+    <div id="game-box">
+        <div class="hp-bar" id="hp-display">❤️❤️❤️</div>
+        <div id="rank-badge" class="badge">🐱 准备好了吗？</div>
+        <div class="cat-stage">
+            <div class="cat-body" id="cat-body">
+                <div class="cat-head">
+                    <div class="crown" id="crown">👑</div>
+                    <div class="ear left"></div><div class="ear right"></div>
+                    <div class="eye left"></div><div class="eye right"></div>
+                    <div class="nose"></div>
+                    <div class="blush l"></div><div class="blush r"></div>
+                    <div class="bow" id="bow">🎀</div>
+                </div>
+                <div class="tail" id="tail"></div>
             </div>
-            <div class="tail" id="tail"></div>
         </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="goal-text" id="goal-info">任务进度：0 / 30</div>
+        <div id="mode" style="opacity: 0.5; font-size: 0.8rem; margin-bottom: 5px;"></div>
+        <div class="q-text" id="q">Waiting...</div>
+        <input type="text" id="ans" placeholder="在此输入" autocomplete="off">
+        <div id="msg" style="margin-top:10px; height: 20px; font-size: 0.9rem;"></div>
+        <button class="btn" id="feed-btn" onclick="check()">喂食 🍖</button>
     </div>
 
-    <div class="stats-row">
-        <span>🍖 饱食度: <span id="favor">0</span></span>
-        <span>🔥 连击: <span id="combo">0</span></span>
-    </div>
+    <script>
+        const GOAL = 30; 
+        let words = [], current = {}, mode = '', favor = 0, combo = 0, hp = 3, isFinished = false;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    <div id="mode" style="opacity: 0.6; font-size: 0.85rem;">测试开始喵~</div>
-    <div class="q-text" id="q">Wait...</div>
+        // --- 核心：软糯撒娇猫叫音效 (调校版) ---
+        function playMeow() {
+            const now = audioCtx.currentTime;
+            const oscillators = [
+                { freq: 440, type: 'triangle', gain: 0.2 },
+                { freq: 880, type: 'sine', gain: 0.1 },
+                { freq: 1320, type: 'sine', gain: 0.05 }
+            ];
 
-    <input type="text" id="ans" placeholder="输入答案按回车" autocomplete="off">
-    <div id="msg" style="margin-top:15px; font-weight: bold; height: 20px;"></div>
-    
-    <button class="btn" onclick="check()">确认投喂</button>
-</div>
+            oscillators.forEach(config => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = config.type;
+                
+                osc.frequency.setValueAtTime(config.freq * 0.8, now);
+                osc.frequency.exponentialRampToValueAtTime(config.freq * 1.2, now + 0.15);
+                osc.frequency.exponentialRampToValueAtTime(config.freq * 1.05, now + 0.55);
 
-<script>
-    // 已根据提供的两张图片整合全部单词
-    const words = [
-        {en: "word", cn: "单词"}, {en: "how", cn: "怎样"}, {en: "cucumber", cn: "黄瓜"},
-        {en: "september", cn: "九月"}, {en: "conversation", cn: "对话/会议"}, {en: "diligent", cn: "勤奋的"},
-        {en: "tip", cn: "贴士/提示"}, {en: "remember", cn: "记得/记住"}, {en: "broccoli", cn: "西兰花"},
-        {en: "bacon", cn: "培根"}, {en: "egg", cn: "鸡蛋"}, {en: "pancake", cn: "松饼"},
-        {en: "fiber", cn: "纤维"}, {en: "carbs", cn: "碳水"}, {en: "protein", cn: "蛋白质"},
-        {en: "step", cn: "步伐/步骤"}, {en: "momentum", cn: "动力"}, {en: "noise", cn: "噪音"},
-        {en: "wish", cn: "希望"}, {en: "above", cn: "在之上"}, {en: "cost", cn: "花费"},
-        {en: "pet", cn: "宠物"}
-    ];
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(config.gain, now + 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
 
-    let current = {};
-    let mode = '';
-    let favor = 0;
-    let combo = 0;
+                const vibrato = audioCtx.createOscillator();
+                const vibratoGain = audioCtx.createGain();
+                vibrato.frequency.value = 6; 
+                vibratoGain.gain.value = 8;
+                vibrato.connect(vibratoGain);
+                vibratoGain.connect(osc.frequency);
+                vibrato.start();
 
-    function createHeart() {
-        const heart = document.createElement('div');
-        heart.className = 'floating-heart';
-        heart.innerText = ['❤️', '✨', '🌸', '🍗', '🐟'][Math.floor(Math.random()*5)];
-        heart.style.left = (Math.random() * 80 + 10) + '%';
-        heart.style.top = '70%';
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 1200);
-    }
-
-    function next() {
-        current = words[Math.floor(Math.random() * words.length)];
-        const modes = ['E2C', 'C2E', 'SPELL'];
-        mode = modes[Math.floor(Math.random() * modes.length)];
-        
-        document.getElementById('cat-body').classList.remove('combo-bounce');
-        document.getElementById('ans').value = '';
-        document.getElementById('msg').innerText = '';
-        
-        if (mode === 'E2C') {
-            document.getElementById('mode').innerText = "【英译汉】猫咪想知道中文意思";
-            document.getElementById('q').innerText = current.en;
-        } else if (mode === 'C2E') {
-            document.getElementById('mode').innerText = "【汉译英】把中文翻译给猫咪听";
-            document.getElementById('q').innerText = current.cn.split('/')[0]; // 取第一个含义
-        } else {
-            document.getElementById('mode').innerText = "【拼写】帮猫咪把单词拼完整";
-            let s = current.en.split('');
-            let i = Math.floor(Math.random() * s.length);
-            s[i] = '_';
-            document.getElementById('q').innerText = s.join(' ');
-        }
-    }
-
-    function check() {
-        const val = document.getElementById('ans').value.trim().toLowerCase();
-        const msg = document.getElementById('msg');
-        const body = document.getElementById('cat-body');
-        
-        let right = false;
-        if (mode === 'E2C') {
-            // 支持图片中给出的多个中文含义（如 呼喊/呼叫）
-            const meanings = current.cn.split('/');
-            right = meanings.some(m => val.includes(m)) && val.length > 0;
-        } else {
-            right = (val === current.en.toLowerCase());
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            });
         }
 
-        if (right) {
-            combo++;
-            favor += (combo >= 3 ? 2 : 1);
-            msg.style.color = "#84a59d";
-            msg.innerText = combo >= 3 ? `连击中！好聪明喵！🔥` : "答对啦！投喂成功 🍖";
-            body.classList.add('combo-bounce');
-            for(let i=0; i<3; i++) setTimeout(createHeart, i*200);
-            setTimeout(next, 1200);
-        } else {
-            combo = 0;
-            favor = Math.max(0, favor - 1);
-            msg.style.color = "#e5989b";
-            msg.innerText = `记错啦，是: ${current.en}`;
-            setTimeout(next, 2500);
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'en-US'; msg.rate = 0.9;
+            window.speechSynthesis.speak(msg);
         }
-        updateEvolution();
-    }
 
-    function updateEvolution() {
-        document.getElementById('favor').innerText = favor;
-        document.getElementById('combo').innerText = combo;
-        const badge = document.getElementById('rank-badge');
-        const bow = document.getElementById('bow');
-        const crown = document.getElementById('crown');
-        const body = document.getElementById('cat-body');
-
-        if (favor >= 20) {
-            badge.innerText = "等级：拿破仑猫女王 👑";
-            badge.style.background = "#ffd700";
-            crown.style.display = "block";
-            body.style.transform = "scale(1.2)";
-        } else if (favor >= 10) {
-            badge.innerText = "等级：精致萌猫 🎀";
-            bow.style.display = "block";
-            body.style.transform = "scale(1.1)";
-        } else if (favor >= 5) {
-            badge.innerText = "等级：快乐小猫 🐱";
-            body.style.transform = "scale(1.05)";
-        } else {
-            badge.innerText = "等级：新手铲屎官";
-            bow.style.display = "none";
-            crown.style.display = "none";
-            body.style.transform = "scale(1)";
+        function init() {
+            const saved = localStorage.getItem('richel_cat_words');
+            words = saved ? JSON.parse(saved) : [{en:"study", cn:"学习"}];
+            updateUI(); next();
         }
-    }
 
-    document.getElementById('ans').addEventListener('keypress', (e) => { if (e.key === 'Enter') check(); });
-    next();
-</script>
+        function next() {
+            if (isFinished) return;
+            current = words[Math.floor(Math.random() * words.length)];
+            const modes = ['E2C', 'C2E', 'SPELL'];
+            mode = modes[Math.floor(Math.random() * modes.length)];
+            document.getElementById('cat-body').classList.remove('combo-bounce');
+            document.getElementById('ans').value = '';
+            document.getElementById('msg').innerText = '';
+            document.getElementById('mode').innerText = mode === 'E2C' ? "英译汉" : mode === 'C2E' ? "汉译英" : "补全拼写";
+            document.getElementById('q').innerText = mode === 'SPELL' ? current.en.split('').map((c,i)=> i==1?'_':c).join(' ') : (mode === 'E2C' ? current.en : current.cn);
+            speak(current.en);
+        }
 
+        function check() {
+            if (isFinished) return;
+            const val = document.getElementById('ans').value.trim().toLowerCase();
+            if (!val) return;
+            let right = mode === 'E2C' ? (current.cn.includes(val) || val.includes(current.cn)) : (val === current.en.toLowerCase().trim());
+
+            if (right) {
+                playMeow(); 
+                combo++;
+                favor = Math.min(GOAL, favor + (combo >= 3 ? 2 : 1));
+                document.getElementById('msg').style.color = "#b5838d";
+                document.getElementById('msg').innerText = "太棒了喵！";
+                document.getElementById('cat-body').classList.add('combo-bounce');
+                for (let i = 0; i < 3; i++) setTimeout(spawnHeart, i * 200);
+                if (favor >= GOAL) finishGame();
+                else setTimeout(next, 800);
+            } else {
+                combo = 0; hp--; favor = Math.max(0, favor - 1);
+                document.getElementById('msg').style.color = "#999";
+                document.getElementById('msg').innerText = `那是 ${mode === 'E2C' ? current.cn : current.en} 喵...`;
+                speak(current.en);
+                if (hp <= 0) { alert("猫咪肚子饿了，需要你加油喵！"); hp = 3; favor = Math.max(0, favor - 5); }
+                setTimeout(next, 2000);
+            }
+            updateUI();
+        }
+
+        function finishGame() {
+            isFinished = true;
+            playMeow(); setTimeout(playMeow, 500);
+            document.getElementById('q').innerText = "呜~ 吃饱啦！";
+            document.getElementById('ans').disabled = true;
+            document.getElementById('feed-btn').innerText = "任务完成";
+            document.getElementById('feed-btn').disabled = true;
+            setInterval(spawnHeart, 600);
+        }
+
+        function updateUI() {
+            document.getElementById('hp-display').innerText = "❤️".repeat(hp) + "🖤".repeat(3-hp);
+            document.getElementById('progress-bar').style.width = (favor / GOAL * 100) + "%";
+            document.getElementById('goal-info').innerText = isFinished ? "🎉 拿破仑今天很开心喵！" : `任务进度：${favor} / ${GOAL}`;
+            const badge = document.getElementById('rank-badge');
+            const bow = document.getElementById('bow');
+            const crown = document.getElementById('crown');
+            if (favor >= 20) { badge.innerText = "等级：皇家女王 👑"; crown.style.display = "block"; bow.style.display = "block"; }
+            else if (favor >= 8) { badge.innerText = "等级：领结绅士 🎀"; bow.style.display = "block"; crown.style.display = "none"; }
+            else { badge.innerText = "等级：饥饿小灰"; bow.style.display = "none"; crown.style.display = "none"; }
+        }
+
+        function spawnHeart() {
+            const h = document.createElement('div'); h.className = 'floating-heart';
+            h.innerText = ['❤️', '✨', '🌸', '🍗'][Math.floor(Math.random() * 4)];
+            h.style.left = (Math.random() * 60 + 20) + '%'; h.style.top = '40%';
+            document.body.appendChild(h); setTimeout(() => h.remove(), 1000);
+        }
+
+        function toggleAdmin() {
+            const p = document.getElementById('admin-panel'), o = document.getElementById('overlay');
+            const show = p.style.display !== 'block';
+            p.style.display = show ? 'block' : 'none'; o.style.display = show ? 'block' : 'none';
+            if (show) document.getElementById('word-config').value = JSON.stringify(words, null, 2);
+        }
+
+        function saveConfig() {
+            try {
+                words = JSON.parse(document.getElementById('word-config').value);
+                localStorage.setItem('richel_cat_words', JSON.stringify(words));
+                toggleAdmin(); favor = 0; hp = 3; isFinished = false;
+                document.getElementById('ans').disabled = false;
+                document.getElementById('feed-btn').disabled = false;
+                init();
+            } catch(e) { alert("格式错啦"); }
+        }
+
+        document.getElementById('ans').addEventListener('keypress', (e) => { if (e.key === 'Enter') check(); });
+        init();
+    </script>
 </body>
 </html>
