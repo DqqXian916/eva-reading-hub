@@ -26,9 +26,9 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
       <div class="exclusive-badge">✨ Eva老师 爱徒专用 ❤️</div>
       <div class="tool-group">
         <button class="btn-tool" @click="$emit('toggleFull')">
-          {{ isFullScreen ? '退出全屏 ↙' : '全屏模式 ↗' }}
+          {{ isFullScreen ? '退出 ↙' : '全屏 ↗' }}
         </button>
-        <button class="btn-tool close" @click="$emit('close')">返回列表</button>
+        <button class="btn-tool close" @click="$emit('close')">返回</button>
       </div>
     </div>
 
@@ -48,16 +48,32 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
               <span class="q-num">{{ qIdx + 1 }}</span>
               <span class="q-title">{{ q.q }}</span>
             </div>
-
+            <div v-if="q.sub_q" class="statements-box">
+              <div v-for="(item, sIdx) in q.sub_q" :key="sIdx" class="statement-item">
+                <span class="statement-index">{{ item.slice(0, 1) }}</span>
+                <span class="statement-text">{{ item.slice(1) }}</span>
+              </div>
+            </div>
             <div class="options-group">
               <div v-for="(opt, oIdx) in q.options" :key="oIdx" :class="['option',
                 { selected: userSelections[qIdx] === oIdx },
                 { correct: isSubmitted && oIdx === q.answer },
-                { wrong: isSubmitted && userSelections[qIdx] === oIdx && oIdx !== q.answer }
+                { wrong: isSubmitted && userSelections[qIdx] === oIdx && oIdx !== q.answer },
+                { 'is-image-opt': q.option_type === 'image_base64' } // 新增类名
               ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })"
                 @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)"
                 @mouseleave="hoverIdx = null, hoverOptIdx = null">
-                <span class="option-content">{{ opt }}</span>
+
+                <template v-if="q.option_type === 'image_base64'">
+                  <div class="opt-img-wrapper">
+                    <span class="opt-letter">{{ String.fromCharCode(65 + oIdx) }}.</span>
+                    <img :src="opt.data" :alt="opt.desc" class="opt-img" />
+                  </div>
+                </template>
+
+                <template v-else>
+                  <span class="option-content">{{ opt }}</span>
+                </template>
               </div>
             </div>
 
@@ -87,9 +103,8 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
             <div class="score-text">{{ scoreInfo }}</div>
             <button class="btn-retry" @click="$emit('close')">查看其他文章</button>
           </div>
-          
-          <button v-else class="btn-primary submit-btn" 
-            :disabled="userSelections.includes(null)"
+
+          <button v-else class="btn-primary submit-btn" :disabled="userSelections.includes(null)"
             @click="$emit('submit')">
             提交答案
           </button>
@@ -337,6 +352,7 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   background: transparent;
   /* 背景透明，减少分割感 */
 }
+
 /* 修改后的解析框样式 */
 .analysis-box {
   margin-top: 16px;
@@ -344,13 +360,16 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   background-color: #f8fafc;
   border-left: 4px solid #cbd5e1;
   border-radius: 8px;
-  transition: all 0.2s ease; /* 让背景色和边框色切换平滑 */
-  min-height: 90px; /* 设置最小高度，防止切换选项时下方内容跳动 */
+  transition: all 0.2s ease;
+  /* 让背景色和边框色切换平滑 */
+  min-height: 90px;
+  /* 设置最小高度，防止切换选项时下方内容跳动 */
 }
 
 /* 悬停选项时，解析框的反馈效果 */
 .analysis-box.is-hovering {
-  background-color: #f1f5f9; /* 稍微加深一点颜色 */
+  background-color: #f1f5f9;
+  /* 稍微加深一点颜色 */
   border-left-color: #94a3b8;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
@@ -374,12 +393,18 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   font-size: 14px;
   line-height: 1.6;
   color: #334155;
-  animation: fadeInShort 0.2s ease-out; /* 切换内容时的微小淡入 */
+  animation: fadeInShort 0.2s ease-out;
+  /* 切换内容时的微小淡入 */
 }
 
 @keyframes fadeInShort {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* 提交后鼠标移入选项的反馈 */
@@ -427,5 +452,78 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 新增：图片选项专用布局 */
+.is-image-opt {
+  padding: 8px !important;
+  /* 图片选项缩小内边距 */
+}
+
+.opt-img-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.opt-letter {
+  font-weight: bold;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.opt-img {
+  max-width: 100%;
+  /* 自动适应容器宽度 */
+  max-height: 80px;
+  /* 限制高度防止撑爆卡片 */
+  object-fit: contain;
+  border-radius: 4px;
+  background: white;
+  /* 给透明图层垫底 */
+}
+
+/* 提交后的反馈效果增强 */
+.option.correct.is-image-opt {
+  border: 2px solid #22c55e !important;
+}
+
+.option.wrong.is-image-opt {
+  border: 2px solid #ef4444 !important;
+}
+
+/* 鼠标悬停时的放大微动效 */
+.is-image-opt:hover .opt-img {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+/* 组合题陈述区整体容器 */
+.statements-box {
+  margin: 12px 0 16px 32px; /* 与题目标题对齐 */
+  padding: 12px 16px;
+  background-color: #f8fafc; 
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statement-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #475569;
+}
+
+/* 序号样式（①②③④） */
+.statement-index {
+  color: grey; 
+  font-weight: bold;
+}
+
+.statement-text {
+  line-height: 1.6;
 }
 </style>
