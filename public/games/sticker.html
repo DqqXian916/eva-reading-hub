@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jenny's 3D Sticker Book</title>
+    <style>
+        :root {
+            --sticker-pink: #ff8fa3;
+            --sticker-glow: rgba(255, 143, 163, 0.4);
+            --bg-grid: #fff5f7;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-grid);
+            background-image: radial-gradient(#ffd1dc 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+        }
+
+        #game-stage {
+            width: 95%; max-width: 1000px; height: 650px;
+            background: white;
+            border: 12px solid #ffffff; border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        /* 顶部装饰栏 */
+        .header {
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            background: #fffafa; border-radius: 28px 28px 0 0; border-bottom: 2px solid #ffe4e6;
+        }
+        .header h1 { margin: 0; color: var(--sticker-pink); font-size: 28px; letter-spacing: 1px; }
+
+        .lang-switch {
+            background: white; color: var(--sticker-pink); border: 2px solid var(--sticker-pink);
+            padding: 6px 18px; border-radius: 20px; cursor: pointer; font-weight: bold;
+            transition: 0.3s; box-shadow: 0 3px 0 var(--sticker-pink);
+        }
+        .lang-switch:hover { background: var(--sticker-pink); color: white; }
+
+        /* 主区域 */
+        .main-layout { flex: 1; display: flex; padding: 25px; gap: 30px; }
+
+        /* 3D 贴纸网格 */
+        .sticker-grid {
+            flex: 1.4; display: grid; grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr); gap: 15px;
+        }
+
+        /* 重点：3D 贴纸样式 */
+        .sticker-item {
+            background: #f9f9f9; border-radius: 22px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; opacity: 0.2; filter: grayscale(100%);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #eee;
+        }
+
+        /* 点亮后的 3D 质感 */
+        .sticker-item.active {
+            opacity: 1; filter: grayscale(0%);
+            background: white;
+            border: 2px solid #fff;
+            /* 3D 立体阴影效果 */
+            box-shadow: 
+                0 10px 20px var(--sticker-glow),
+                inset -4px -4px 8px rgba(0,0,0,0.05),
+                inset 4px 4px 8px rgba(255,255,255,1);
+            animation: popSticker 0.6s ease;
+        }
+
+        /* 贴纸反光高光 */
+        .sticker-item.active::before {
+            content: ''; position: absolute; top: 10%; left: 10%;
+            width: 30%; height: 20%; background: rgba(255,255,255,0.8);
+            border-radius: 50%; filter: blur(5px); transform: rotate(-20deg);
+        }
+
+        .emoji { font-size: 50px; z-index: 1; filter: drop-shadow(2px 4px 2px rgba(0,0,0,0.1)); }
+        .label { font-size: 14px; color: #ff748d; font-weight: bold; margin-top: 8px; z-index: 1; }
+
+        /* 答题面板 */
+        .quiz-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .bubble {
+            background: #fff; border: 3px solid #ffccd5; border-radius: 30px;
+            padding: 25px; margin-bottom: 25px; font-size: 22px; color: #5d5d5d;
+            box-shadow: 0 10px 0 #fff1f2; line-height: 1.6; position: relative;
+        }
+
+        .opt-btn {
+            background: #ffffff; border: 2px solid #ffccd5; padding: 15px; margin-bottom: 12px;
+            border-radius: 50px; font-size: 20px; color: #ff748d; font-weight: bold;
+            cursor: pointer; transition: 0.3s; width: 100%;
+            box-shadow: 0 5px 15px rgba(255, 143, 163, 0.15);
+        }
+        .opt-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 143, 163, 0.3); background: #fffafb; }
+        .correct { background: #e6fffa !important; color: #2d6a4f !important; border-color: #38b2ac !important; }
+        .wrong { background: #fff5f5 !important; border-color: #feb2b2 !important; animation: shake 0.4s; }
+
+        /* 通关画面 */
+        #celebration {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.98);
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; border-radius: 40px;
+        }
+
+        .rainbow-ribbon { font-size: 120px; animation: swing 2s infinite ease-in-out; }
+        @keyframes swing { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+
+        /* 动画定义 */
+        @keyframes popSticker {
+            0% { transform: scale(0.5) rotate(-20deg); }
+            70% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1.05) rotate(0deg); }
+        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+        /* 庆祝小图标 */
+        .sparkle { position: absolute; pointer-events: none; animation: flyOut 1.5s forwards; }
+        @keyframes flyOut {
+            from { transform: translate(0, 0) scale(1); opacity: 1; }
+            to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-stage">
+    <div class="header">
+        <h1 id="title">Jenny's Sticker Album</h1>
+        <button class="lang-switch" id="langBtn" onclick="toggleLang()">繁體 / 简体</button>
+    </div>
+
+    <div class="main-layout">
+        <div class="sticker-grid" id="grid"></div>
+        <div class="quiz-panel">
+            <div class="bubble" id="quizText">...</div>
+            <div id="btnContainer"></div>
+            <div style="text-align: center; margin-top: 15px; font-size: 35px; cursor: pointer; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));" onclick="playVoice()">🍬</div>
+            <p style="text-align: center; color: #ff8fa3; font-size: 12px; margin-top: 5px;">Click candy to hear</p>
+        </div>
+    </div>
+
+    <div id="celebration">
+        <div class="rainbow-ribbon">🎀</div>
+        <h2 id="winTitle" style="color: #ff477e; font-size: 45px; margin: 10px 0;">Awesome Jenny!</h2>
+        <p id="winMsg" style="font-size: 22px; color: #ff8fa3;">妳把貼紙簿都貼滿啦！</p>
+        <button class="opt-btn" style="width: 240px; background: var(--sticker-pink); color: white;" onclick="location.reload()">再玩一遍吧！</button>
+    </div>
+</div>
+
+<script>
+    const dataConfig = [
+        { w: "gear", tc: "裝備", sc: "装备", s_tc: "Jenny，準備好妳的魔法 **[裝備]**！", s_sc: "Jenny，准备好你的魔法 **[装备]**！", e: "🎒" },
+        { w: "september", tc: "九月", sc: "九月", s_tc: "開學囉！這是金色的 **[九月]**。", s_sc: "开学啰！这是金色的 **[九月]**。", e: "🍂" },
+        { w: "cucumber", tc: "青瓜", sc: "青瓜", s_tc: "想要點好吃的嗎？來根 **[青瓜]**。", s_sc: "想要点好吃的吗？来根 **[青瓜]**。", e: "🥒" },
+        { w: "step", tc: "台階", sc: "台阶", s_tc: "跟著旋律，邁上這級 **[台階]**。", s_sc: "跟着旋律，迈上这级 **[台阶]**。", e: "🪜" },
+        { w: "computer", tc: "電腦", sc: "电脑", s_tc: "用 **[電腦]** 編織出美麗的魔法吧。", s_sc: "用 **[电脑]** 编织出美丽的魔法吧。", e: "💻" },
+        { w: "projector", tc: "投影儀", sc: "投影仪", s_tc: "看！**[投影儀]** 放出了星光。", s_sc: "看！**[投影仪]** 放出了星光。", e: "📽️" },
+        { w: "crew", tc: "團隊", sc: "团队", s_tc: "和妳的 **[團隊]** 小隊友一起出發。", s_sc: "和你的 **[团队]** 小队友一起出发。", e: "👭" },
+        { w: "momentum", tc: "動力", sc: "动力", s_tc: "小火箭升空需要強大的 **[動力]**！", s_sc: "小火箭升空需要强大的 **[动力]**！", e: "🚀" },
+        { w: "art", tc: "藝術", sc: "艺术", s_tc: "盡情發揮妳的 **[藝術]** 天分吧。", s_sc: "尽情发挥你的 **[艺术]** 天分吧。", e: "🎨" },
+        { w: "conversation", tc: "對話", sc: "对话", s_tc: "花朵之間正在進行小聲的 **[對話]**。", s_sc: "花朵之间正在进行小声的 **[对话]**。", e: "💬" }
+    ];
+
+    let currentLang = 'tc';
+    let currentIndex = 0;
+    let quizOrder = [...dataConfig].sort(() => Math.random() - 0.5);
+
+    function toggleLang() {
+        currentLang = (currentLang === 'tc') ? 'sc' : 'tc';
+        document.getElementById('langBtn').innerText = currentLang === 'tc' ? '繁體 / 简体' : '简体 / 繁体';
+        updateUI();
+    }
+
+    function initGrid() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        dataConfig.forEach(item => {
+            const slot = document.createElement('div');
+            slot.className = 'sticker-item';
+            slot.id = `stk-${item.w}`;
+            slot.innerHTML = `<div class="emoji">${item.e}</div><div class="label" id="lab-${item.w}">${item[currentLang]}</div>`;
+            grid.appendChild(slot);
+        });
+    }
+
+    function updateUI() {
+        dataConfig.forEach(item => {
+            const l = document.getElementById(`lab-${item.w}`);
+            if(l) l.innerText = item[currentLang];
+        });
+        if(currentIndex < quizOrder.length) {
+            const data = quizOrder[currentIndex];
+            const story = currentLang === 'tc' ? data.s_tc : data.s_sc;
+            const m = data[currentLang];
+            document.getElementById('quizText').innerHTML = story.replace(`[${m}]`, `<span style="color:var(--sticker-pink); text-shadow:1px 1px 0px #fff; border-bottom:3px dashed;">${m}</span>`);
+        }
+        document.getElementById('winTitle').innerText = currentLang === 'tc' ? "超棒的 Jenny!" : "超棒的 Jenny!";
+        document.getElementById('winMsg').innerText = currentLang === 'tc' ? "妳把貼紙簿都填滿啦！" : "你把贴纸簿都填满啦！";
+    }
+
+    function loadQuiz() {
+        if (currentIndex >= quizOrder.length) {
+            showWin(); return;
+        }
+        updateUI();
+        const box = document.getElementById('btnContainer');
+        box.innerHTML = '';
+
+        let choices = [quizOrder[currentIndex].w];
+        while (choices.length < 3) {
+            let r = dataConfig[Math.floor(Math.random()*10)].w;
+            if(!choices.includes(r)) choices.push(r);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = c;
+            btn.onclick = () => {
+                if (c === quizOrder[currentIndex].w) {
+                    btn.classList.add('correct');
+                    playVoice();
+                    const target = document.getElementById(`stk-${c}`);
+                    target.classList.add('active');
+                    spawnSparkles(target);
+                    setTimeout(() => { currentIndex++; loadQuiz(); }, 1200);
+                } else {
+                    btn.classList.add('wrong');
+                    setTimeout(() => btn.classList.remove('wrong'), 500);
+                }
+            };
+            box.appendChild(btn);
+        });
+    }
+
+    function spawnSparkles(el) {
+        const rect = el.getBoundingClientRect();
+        for(let i=0; i<10; i++) {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            s.innerHTML = ['✨','💖','🌸','⭐'][Math.floor(Math.random()*4)];
+            s.style.left = (rect.left + rect.width/2) + 'px';
+            s.style.top = (rect.top + rect.height/2) + 'px';
+            s.style.setProperty('--x', (Math.random()*200 - 100) + 'px');
+            s.style.setProperty('--y', (Math.random()*200 - 100) + 'px');
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 1500);
+        }
+    }
+
+    function playVoice() {
+        const u = new SpeechSynthesisUtterance(quizOrder[currentIndex].w);
+        u.lang = 'en-US'; u.pitch = 1.4;
+        window.speechSynthesis.speak(u);
+    }
+
+    function showWin() {
+        document.getElementById('celebration').style.display = 'flex';
+    }
+
+    initGrid();
+    loadQuiz();
+</script>
+
+</body>
+</html>

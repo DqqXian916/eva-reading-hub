@@ -191,8 +191,16 @@ const isUserCorrect = (n) => {
             </div>
 
             <div v-else-if="isAdding" class="editor-layout animate-in">
-                <div class="editor-top-bar">...</div>
-
+                <div class="editor-top-bar">
+                    <div class="editor-info">
+                                <h2>{{ form.id ? '编辑练习' : '新增练习' }}</h2>
+                                <span class="editor-tag">CLOZE EDITOR</span>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="btn-cancel" @click="isAdding = false">取消</button>
+                        <button class="btn-save" @click="emit('save', { ...form })">保存题目</button>
+                    </div>
+                </div>
                 <div class="editor-split-container">
                     <div class="editor-pane edit-area card-base">
                         <div class="pane-label">文章录入 (Markdown)</div>

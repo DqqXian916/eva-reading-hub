@@ -8,7 +8,9 @@ const games = ref([
     { id: 'breakfast', name: '公主/王子的早餐', path: '/games/breakfast.html', icon: '🍳', color: '#4ec0ca' },
     { id: 'colors', name: '调色盘', path: '/games/colors.html', icon: '🎨', color: '#2ecc71' },
     { id: 'miaw', name: '小柚又饿了', path: '/games/miaw.html', icon: '🐱', color: '#f1c40f' },
-    { id: 'vowels', name: '元音扫雷', path: '/games/vowels.html', icon: '🔍', color: '#95a5a6' }
+    { id: 'vowels', name: '元音扫雷', path: '/games/vowels.html', icon: '🔍', color: '#95a5a6' },
+    { id: 'sticker', name: '貼紙薄', path: '/games/sticker.html', icon: '🎀', color: '#95a5a6' },
+    { id: 'hacker', name: '单词黑客', path: '/games/hacker.html', icon: '💻', color: '#95a5a6' }
 ])
 
 const activeGame = ref(null)
