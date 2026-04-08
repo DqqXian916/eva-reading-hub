@@ -42,8 +42,8 @@ const currentLevel = computed(() => {
   if (count >= 20) return 5; // 满级：光环
   if (count >= 16) return 4; // 皇冠
   if (count >= 12) return 3; // 领结
-  if (count >= 8)  return 2; // 眼镜
-  if (count >= 4)  return 1; // 铃铛
+  if (count >= 8) return 2; // 眼镜
+  if (count >= 4) return 1; // 铃铛
   return 0;
 });
 // --- 监听等级变化，触发升级特效 ---
@@ -85,7 +85,8 @@ const handleMainBtnClick = () => {
 };
 
 const mainBtnText = computed(() => {
-  if (isFinished.value) return "呜~ 吃饱啦！";
+  // 通关后的提示语更新
+  if (isFinished.value) return "小柚吃饱了，下次再来喂他吧～";
   if (!hasChecked.value) return "检查答案";
   return "下一题";
 });
@@ -99,7 +100,6 @@ const currentWord = computed(() => {
 });
 
 const displayQuestion = computed(() => {
-  if (isFinished.value) return "呜~ 吃饱啦！";
   if (!currentWord.value) return "";
 
   if (mode.value === 'SPELL') {
@@ -211,8 +211,10 @@ const handleCheck = () => {
   if (hasChecked.value || !userInput.value.trim() || isFinished.value) return;
   const val = userInput.value.trim().toLowerCase();
 
+  // 英译汉逻辑增强：处理分号、逗号、括号干扰
+  const validAnswers = currentWord.value.cn.split(/[；;，,（）()]/).map(s => s.trim()).filter(s => s.length > 0);
   const isRight = mode.value === 'E2C'
-    ? (currentWord.value.cn.includes(val) || val.includes(currentWord.value.cn))
+    ? (validAnswers.some(ans => ans === val) || val === currentWord.value.cn.trim())
     : (val === currentWord.value.en.toLowerCase().trim());
 
   hasChecked.value = true;
@@ -220,35 +222,22 @@ const handleCheck = () => {
 
   if (isRight) {
     playMeow();
-    // --- 关键：增加好感度 ---
     favor.value++;
     combo.value++;
-    feedbackMsg.value = `喵！太棒了！连击 x${combo.value}`;
+    feedbackMsg.value = `连击 x${combo.value}`; // 去掉多余文字
     msgColor.value = "#b5838d";
-
-    // 触发连击动画
     isComboAnim.value = true;
     setTimeout(() => { isComboAnim.value = false }, 500);
     spawnHeart();
-
-    // 检查是否达到目标（吃饱了）
-    if (favor.value >= props.goal) {
-      isFinished.value = true;
-    }
+    if (favor.value >= props.goal) isFinished.value = true;
   } else {
-    // 错误逻辑
     combo.value = 0;
     hp.value--;
-    feedbackMsg.value = `哎呀，应该是：${currentWord.value.en}`;
+    feedbackMsg.value = mode.value === 'E2C' ? currentWord.value.cn : currentWord.value.en;
     msgColor.value = "#e5989b";
     isShaking.value = true;
     setTimeout(() => { isShaking.value = false }, 400);
     speak(currentWord.value.en);
-
-    if (hp.value <= 0) {
-      feedbackMsg.value = "猫咪饿晕倒了... 重新开始吧！";
-      // 可以选：isFinished.value = true 或者直接重置
-    }
   }
 };
 const saveConfig = () => {
@@ -350,6 +339,12 @@ onMounted(() => {
             </button>
           </div>
         </div>
+        <div v-else class="finish-zone">
+          <p style="font-size: 1.2rem; color: #b5838d; font-weight: bold; margin: 20px 0;">
+            小柚吃饱了，下次再来喂他吧～
+          </p>
+          <button class="btn" @click="resetGame">再玩一轮</button>
+        </div>
         <div class="progress-container">
           <div class="progress-bar" :style="{ width: (favor / goal * 100) + '%' }"></div>
         </div>
@@ -427,6 +422,8 @@ onMounted(() => {
   border-radius: 70px 70px 45px 45px;
   position: relative;
   box-shadow: inset -10px -5px 20px rgba(0, 0, 0, 0.1), 0 0 20px 8px var(--maine-grey-mid);
+  z-index: 2;
+  /* 身体比尾巴高层级 */
 }
 
 .cat-head {
@@ -540,7 +537,8 @@ onMounted(() => {
   border-radius: 50%;
   filter: blur(2px);
   box-shadow: 0 0 15px var(--maine-grey-dark);
-  z-index: -1;
+  /* 确保 z-index 在 body 之下但在 stage 之上，或者直接去掉负值 */
+  z-index: 1;
 }
 
 /* 装饰物 */

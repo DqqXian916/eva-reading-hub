@@ -9,7 +9,7 @@ const props = defineProps(['student', 'canEdit'])
 const emit = defineEmits(['saveConfig'])
 
 const games = ref([
-    { id: 'breakfast', name: '公主/王子的早餐', path: '/games/breakfast.html', icon: '🍳', color: '#4ec0ca' },
+    { id: 'breakfast', name: '公主的早餐', path: '/games/breakfast.html', icon: '🍳', color: '#4ec0ca' },
     { id: 'colors', name: '调色盘', path: '/games/colors.html', icon: '🎨', color: '#2ecc71' },
     {
         id: 'miaw',
@@ -25,7 +25,7 @@ const games = ref([
     { id: 'vowels', name: '元音扫雷', path: '/games/vowels.html', icon: '🔍', color: '#95a5a6' },
     { id: 'sticker', name: '貼紙薄', path: '/games/sticker.html', icon: '🎀', color: '#95a5a6' },
     { id: 'hacker', name: '单词黑客', path: '/games/hacker.html', icon: '💻', color: '#95a5a6' },
-    { id: 'adventure of lisa', name: 'lisa的冒险', path: '/games/fill.html', icon: '🧗', color: '#95a5a6' }
+    { id: 'adventure of lisa', name: '涂鸦日记', path: '/games/fill.html', icon: '🖌️', color: '#95a5a6' }
 ])
 
 const activeGame = ref(null)
