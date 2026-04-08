@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eva's Lisa Story Studio Pro ✨</title>
+    <style>
+        :root {
+            --eva-pink: #ffc2d1;
+            --eva-rose: #fb6f92;
+            --text: #5d576b;
+            --ink: #dcdde1;
+        }
+
+        body {
+            background: #fff5f7;
+            font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+            margin: 0; display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden; color: var(--text);
+        }
+
+        #studio-card {
+            width: 95vw; max-width: 650px;
+            background: white; border-radius: 40px;
+            padding: 25px; box-shadow: 0 30px 60px rgba(251, 111, 146, 0.2);
+            position: relative; border: 1px solid #ffe3e9; text-align: center;
+        }
+
+        #art-box {
+            width: 100%; height: 280px;
+            background: linear-gradient(180deg, #fdfbfb 0%, #ebedee 100%);
+            border-radius: 30px; margin-bottom: 20px;
+            position: relative; display: flex; justify-content: center; align-items: center;
+            border: 2px dashed var(--eva-pink);
+        }
+
+        svg { width: 60%; height: 60%; z-index: 5; }
+        .path-ink { fill: #f0f0f0; stroke: var(--ink); stroke-width: 2; transition: all 1s ease; }
+        
+        #eye-closed { opacity: 1; transition: 0.5s; }
+        #eye-open { opacity: 0; transition: 0.5s; }
+        #mouth-smile { opacity: 0; transition: 0.5s; }
+
+        /* 最终总结页 */
+        #final-article {
+            display: none; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; background: white;
+            z-index: 100; border-radius: 40px; padding: 30px;
+            box-sizing: border-box; overflow-y: auto; text-align: left;
+        }
+
+        #cn-hint { font-size: 1.4rem; font-weight: bold; color: var(--eva-rose); margin-bottom: 15px; min-height: 2rem; }
+        
+        #sentence-slots { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; min-height: 55px; }
+        .slot {
+            padding: 8px 16px; background: #f8f9fa; border-radius: 12px;
+            font-size: 1.3rem; font-weight: 600; color: transparent;
+            border-bottom: 3px solid #eee; transition: 0.4s;
+        }
+        .slot.filled { color: white; background: var(--eva-rose); border-bottom-color: #d63384; transform: scale(1.05); }
+
+        #word-pool { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; position: relative; z-index: 10; }
+        .ball {
+            background: white; border: 2.5px solid var(--eva-rose); border-radius: 30px;
+            padding: 10px 22px; font-size: 1.15rem; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;
+            user-select: none;
+        }
+        .ball:hover { transform: translateY(-3px); border-color: var(--eva-rose); }
+        .ball.hide { visibility: hidden; pointer-events: none; }
+
+        .article-title { color: var(--eva-rose); text-align: center; border-bottom: 2px dashed var(--eva-pink); padding-bottom: 15px; }
+        .key-word { color: var(--eva-rose); font-weight: bold; text-decoration: underline; }
+        .p-block { margin-bottom: 15px; opacity: 0; transform: translateY(10px); animation: fadeInUp 0.5s forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    </style>
+</head>
+<body>
+
+<div id="studio-card">
+    <div id="art-box">
+        <svg viewBox="0 0 200 200">
+            <circle id="art-sun" class="path-ink" cx="160" cy="40" r="15" />
+            <path id="art-hair" class="path-ink" d="M100 40 Q70 40 60 70 L140 70 Q130 40 100 40 Z" />
+            <circle id="art-face" class="path-ink" cx="100" cy="85" r="30" />
+            <g id="lisa-eyes">
+                <path id="eye-closed" d="M85 85 Q90 88 95 85 M105 85 Q110 88 115 85" stroke="#ccc" fill="none" />
+                <g id="eye-open" style="opacity: 0;">
+                    <circle cx="90" cy="85" r="3" fill="#333" />
+                    <circle cx="110" cy="85" r="3" fill="#333" />
+                </g>
+            </g>
+            <path id="mouth-smile" d="M90 100 Q100 108 110 100" stroke="#fb6f92" stroke-width="2" fill="none" />
+            <path id="art-dress" class="path-ink" d="M100 115 L70 160 L130 160 Z" />
+        </svg>
+
+        <div id="final-article">
+            <h2 class="article-title">✨ Lisa's Magical Story ✨</h2>
+            <div id="article-body"></div>
+            <button onclick="location.reload()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none; background:var(--eva-rose); color:white; cursor:pointer;">Restart Adventure ✨</button>
+        </div>
+    </div>
+
+    <div id="game-ui">
+        <div id="cn-hint">Building...</div>
+        <div id="sentence-slots"></div>
+        <div id="word-pool"></div>
+    </div>
+</div>
+
+<script>
+    const story = [
+        { cn: "Lisa 是一个勤奋的女孩。", en: ["Lisa", "is", "a", "diligent", "girl"], target: "art-face", color: "#ffe0bd", full: "<strong>Lisa</strong> is a <span class='key-word'>diligent</span> girl." },
+        { cn: "虽然她有时有点害羞。", en: ["But", "she", "is", "a", "bit", "shy"], target: "art-hair", color: "#ffb7c5", full: "Sometimes she is a bit <span class='key-word'>shy</span>." },
+        { cn: "在春天，阳光很暖和。", en: ["The", "sun", "is", "warm", "in", "spring"], target: "art-sun", color: "#ffbe0b", full: "In <span class='key-word'>spring</span>, the <span class='key-word'>sun</span> is <span class='key-word'>warm</span>." },
+        { cn: "农场里风景很美。", en: ["The", "landscape", "is", "nice", "on", "farm"], target: "art-dress", color: "#b9fbc0", full: "The <span class='key-word'>landscape</span> is nice on the <span class='key-word'>farm</span>." },
+        { cn: "她去电影院欣赏好故事。", en: ["She","goes", "to", "the","cinema","to","enjoy", "a", "great", "story"], target: "art-dress", color: "#ff85a2", full: "She goes to the <span class='key-word'>cinema</span> to enjoy a great <span class='key-word'>story</span>." }
+    ];
+
+    let currentLvl = 0;
+    let step = 0;
+
+    function speak(t) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+    }
+
+    function init() {
+        if (currentLvl >= story.length) {
+            showFinal();
+            return;
+        }
+        
+        const data = story[currentLvl];
+        step = 0;
+        document.getElementById('cn-hint').innerText = "📖 " + data.cn;
+        
+        const slots = document.getElementById('sentence-slots');
+        slots.innerHTML = '';
+        data.en.forEach(() => {
+            const s = document.createElement('div');
+            s.className = 'slot';
+            s.innerText = '____';
+            slots.appendChild(s);
+        });
+
+        const pool = document.getElementById('word-pool');
+        pool.innerHTML = '';
+        const shuffled = [...data.en].sort(() => Math.random() - 0.5);
+        shuffled.forEach(w => {
+            const b = document.createElement('div');
+            b.className = 'ball';
+            b.innerText = w;
+            b.onclick = (e) => { e.stopPropagation(); handleSelect(w, b); };
+            pool.appendChild(b);
+        });
+        speak(data.en.join(' '));
+    }
+
+    function handleSelect(word, el) {
+        const target = story[currentLvl].en;
+        if (word === target[step]) {
+            const slots = document.getElementsByClassName('slot');
+            slots[step].innerText = word;
+            slots[step].classList.add('filled');
+            el.classList.add('hide');
+            step++;
+            speak(word);
+
+            if (step === target.length) {
+                const s = story[currentLvl];
+                const part = document.getElementById(s.target);
+                part.style.fill = s.color;
+                part.style.stroke = "none";
+                
+                // 唤醒 Lisa
+                document.getElementById('eye-closed').style.opacity = '0';
+                document.getElementById('eye-open').style.opacity = '1';
+                document.getElementById('mouth-smile').style.opacity = '1';
+
+                setTimeout(() => {
+                    currentLvl++;
+                    init();
+                }, 1200);
+            }
+        } else {
+            el.style.animation = 'shake 0.3s';
+            setTimeout(() => el.style.animation = '', 300);
+            speak("Not quite!");
+        }
+    }
+
+    function showFinal() {
+        document.getElementById('game-ui').style.display = 'none';
+        const f = document.getElementById('final-article');
+        f.style.display = 'block';
+        const body = document.getElementById('article-body');
+        story.forEach((item, i) => {
+            const p = document.createElement('p');
+            p.className = 'p-block';
+            p.style.animationDelay = (i * 0.3) + 's';
+            p.innerHTML = item.full;
+            body.appendChild(p);
+        });
+        speak("Fantastic! You've completed Lisa's story.");
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>

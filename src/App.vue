@@ -348,6 +348,30 @@ const handleSaveReading = async (formData) => {
   }
 }
 
+const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
+  try {
+    isLoading.value = true
+    // 使用 upsert 针对 student_id 进行操作
+    const { error } = await supabase
+      .from('student_configs')
+      .upsert({ 
+        student_id: studentId, 
+        current_word_list: wordList, // 对应表中的 current_word_list
+        game_goal: goal || 20,       // 对应表中的 game_goal
+        updated_at: new Date() 
+      }, { 
+        onConflict: 'student_id'      // 核心：告诉 Supabase 冲突判断依据是 student_id
+      })
+
+    if (error) throw error
+    alert("✅ 词库已同步到云端")
+  } catch (e) {
+    console.error("保存失败:", e)
+    alert("❌ 保存失败：" + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -415,7 +439,7 @@ const handleSaveReading = async (formData) => {
         </template>
 
         <template v-else-if="activeModule === 'brain-break'">
-          <BrainBreakModule :student="currentStudent" />
+          <BrainBreakModule :student="currentStudent" :canEdit="isAdminMode" @saveConfig="handleSaveGameConfig"/>
         </template>
 
         <template v-else-if="activeModule === 'cloze'">
