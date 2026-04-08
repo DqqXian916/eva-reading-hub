@@ -17,6 +17,7 @@ defineProps({
 })
 const hoverIdx = ref(null) // 记录当前悬停的题目索引
 const hoverOptIdx = ref(null) // 记录当前悬停的选项索引
+const showChinese = ref(false)  // 新增：控制语言显示的状态
 defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
 </script>
 
@@ -35,10 +36,19 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
     <div class="content-container">
       <article class="article-col">
         <div class="article-header">
-          <div class="student-tag">READING MATERIAL（阅读文章） 🌟</div>
+          <div class="header-top-row">
+            <div class="student-tag">READING MATERIAL（阅读文章） 🌟</div>
+
+            <button v-if="isSubmitted && activeReading.body_cn" class="lang-toggle-btn"
+              :class="{ 'is-active': showChinese }" @click="showChinese = !showChinese">
+              {{ showChinese ? '查看原文' : '对照中文' }}
+            </button>
+          </div>
           <h1 class="article-title">{{ activeReading.title }}</h1>
         </div>
-        <div v-html="activeReading.body" class="article-text rich-content"></div>
+
+        <div v-html="(showChinese && activeReading.body_cn) ? activeReading.body_cn : activeReading.body"
+          class="article-text rich-content" :class="{ 'cn-mode': showChinese && activeReading.body_cn }"></div>
       </article>
 
       <aside class="quiz-col">
@@ -497,11 +507,13 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
   transform: scale(1.05);
   transition: transform 0.2s ease;
 }
+
 /* 组合题陈述区整体容器 */
 .statements-box {
-  margin: 12px 0 16px 32px; /* 与题目标题对齐 */
+  margin: 12px 0 16px 32px;
+  /* 与题目标题对齐 */
   padding: 12px 16px;
-  background-color: #f8fafc; 
+  background-color: #f8fafc;
   border-radius: 10px;
   border: 1px solid #f1f5f9;
   display: flex;
@@ -519,11 +531,64 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
 
 /* 序号样式（①②③④） */
 .statement-index {
-  color: grey; 
+  color: grey;
   font-weight: bold;
 }
 
 .statement-text {
   line-height: 1.6;
+}
+
+/* 新增：头部布局调整 */
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 新增：中英文切换按钮样式 */
+.lang-toggle-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #3b82f6;
+  background: white;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.lang-toggle-btn:hover {
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+.lang-toggle-btn.is-active {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 新增：中文模式下的文本微调 */
+.article-text.cn-mode {
+  color: #1e293b;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.9;
+  /* 中文行高稍微大一点更好看 */
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

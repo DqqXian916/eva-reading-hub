@@ -316,21 +316,36 @@ const openReading = (reading) => {
 const handleSaveReading = async (formData) => {
   try {
     let res;
+    // 构造要保存的 payload，确保包含 body_cn
+    const payload = {
+      title: formData.title, 
+      body: formData.body, 
+      body_cn: formData.body_cn, 
+      quiz: formData.quiz
+    }
     if (formData.id) {
-      res = await supabase.from('readings').update({
-        title: formData.title, body: formData.body, quiz: formData.quiz
-      }).eq('id', formData.id)
+      // 修改模式
+      res = await supabase
+        .from('readings')
+        .update(payload)
+        .eq('id', formData.id)
     } else {
-      res = await supabase.from('readings').insert([{
-        student_id: currentStudent.value.id,
-        title: formData.title, body: formData.body, quiz: formData.quiz
-      }])
+      // 新增模式
+      res = await supabase
+        .from('readings')
+        .insert([{
+          ...payload,
+          student_id: currentStudent.value.id
+        }])
     }
     if (res.error) throw res.error
-    alert("保存成功")
+    alert("✅ 文章已成功保存到云端")
     viewMode.value = 'list'
     await fetchReadings(currentStudent.value.id)
-  } catch (e) { alert(e.message) }
+  } catch (e) { 
+    console.error("保存失败:", e)
+    alert("❌ 保存失败：" + e.message) 
+  }
 }
 
 </script>
