@@ -32,8 +32,10 @@ let heartId = 0;
 let audioCtx = null;
 const isShaking = ref(false);
 const isProcessing = ref(false); // 新增：防抖锁
-const handleSpeakClick = () => {
-  // 这种由用户直接点击产生的调用，100% 能成功
+const handleSpeakClick = (e) => {
+  // 阻止冒泡，防止点击反馈触发其他逻辑
+  if (e) e.stopPropagation();
+  // 显式打印日志，方便你在控制台看有没有触发
   speak(currentWord.value.en);
 };
 // --- 2. 计算等级 ---
@@ -74,13 +76,18 @@ const playUpgradeSound = () => {
 };
 // --- 4. 核心游戏逻辑 ---
 const handleMainBtnClick = () => {
-  // 状态机逻辑：
   if (!hasChecked.value) {
-    // 状态 A: 尚未检查 -> 执行校验
     handleCheck();
   } else {
-    // 状态 B: 已经检查 -> 跳转下一题
+    // 只有在准备换题的时候，才清空一次之前的语音队列
+    window.speechSynthesis.cancel(); 
     nextQuestion();
+    // 给 DOM 和引擎一点点喘息时间（50ms）
+    setTimeout(() => {
+      if (currentWord.value?.en) {
+        speak(currentWord.value.en);
+      }
+    }, 50)
   }
 };
 
@@ -129,18 +136,26 @@ const currentModeName = computed(() => {
   const map = { 'E2C': '英译汉', 'C2E': '汉译英', 'SPELL': '补全拼写' };
   return map[mode.value];
 });
-
 // --- 3. 工具函数 (音频/语音) ---
 const speak = (text) => {
-  if (!text) return;
-  // 核心：把题目里的下划线去掉，否则语音合成会读出 "underscore"
-  const cleanText = text.replace(/_/g, '').trim();
-  window.speechSynthesis.cancel(); // 停止之前的朗读
+  if (!text || typeof text !== 'string') return;
+  const cleanText = text
+    .replace(/_/g, '') 
+    .replace(/\(.*\)/g, '') 
+    .replace(/（.*）/g, '')
+    .replace(/[^\x00-\xff]/g, '')
+    .trim();
+  if (!cleanText) return;
   const msg = new SpeechSynthesisUtterance(cleanText);
   msg.lang = 'en-US';
-  msg.rate = 0.9; // 稍微放慢一点点，方便学生听清
-  console.log('我要讲话了')
-  console.log(msg)
+  msg.rate = 0.85;
+  msg.volume = 1;
+  // 监听报错，帮助我们定位
+  msg.onerror = (e) => {
+    if (e.error !== 'canceled') { // 忽略被取消的正常情况
+      console.error('语音合成真正报错:', e);
+    }
+  };
   window.speechSynthesis.speak(msg);
 };
 const playMeow = () => {
@@ -189,13 +204,11 @@ const nextQuestion = () => {
   isComboAnim.value = false;
   feedbackMsg.value = '';
   isProcessing.value = false;
+  
+  // 随机题目逻辑保持不变
   currentIdx.value = Math.floor(Math.random() * words.value.length);
   const modes = ['E2C', 'C2E', 'SPELL'];
   mode.value = modes[Math.floor(Math.random() * modes.length)];
-  // 延迟一小会儿朗读，确保 DOM 更新
-  nextTick(() => {
-    speak(currentWord.value.en);
-  });
 };
 const resetGame = () => {
   isProcessing.value = false;
@@ -206,25 +219,40 @@ const resetGame = () => {
   nextQuestion();
 };
 
-// 修改 handleCheck：错误时重读
 const handleCheck = () => {
   if (hasChecked.value || !userInput.value.trim() || isFinished.value) return;
-  const val = userInput.value.trim().toLowerCase();
-
-  // 英译汉逻辑增强：处理分号、逗号、括号干扰
-  const validAnswers = currentWord.value.cn.split(/[；;，,（）()]/).map(s => s.trim()).filter(s => s.length > 0);
-  const isRight = mode.value === 'E2C'
-    ? (validAnswers.some(ans => ans === val) || val === currentWord.value.cn.trim())
-    : (val === currentWord.value.en.toLowerCase().trim());
+  // 1. 基础清洗：去掉空格、转小写，并统一中英文标点
+  const normalize = (str) => {
+    return str.toLowerCase().trim()
+      .replace(/[（）()]/g, '') // 去掉所有括号，让“俄罗斯(人)的”变成“俄罗斯人的”
+      .replace(/[.。…\s]/g, '')  // 去掉省略号和空格，让“在...之前”变成“在之前”
+      .replace(/[；;，,]/g, '|'); // 统一分隔符为管道符
+  };
+  const val = normalize(userInput.value);
+  const originalCn = currentWord.value.cn;
+  let isRight = false;
+  if (mode.value === 'E2C') {
+    // 2. 核心逻辑：拆分库里的所有可能义项
+    const cleanCn = normalize(originalCn);
+    const validAnswers = cleanCn.split('|').filter(s => s.length > 0);
+    // 3. 多重判定：
+    isRight = validAnswers.some(ans => {
+      // 学生输入的词在义项里，或者义项里包含学生输入的词（比如输入“俄罗斯人”匹配“俄罗斯人的”）
+      return ans.includes(val) || val.includes(ans);
+    }) || normalize(originalCn).includes(val);
+  } else {
+    isRight = (userInput.value.trim().toLowerCase() === currentWord.value.en.toLowerCase().trim());
+  }
 
   hasChecked.value = true;
   isRightAnswer.value = isRight;
 
+  // --- 后续反馈逻辑逻辑保持不变 ---
   if (isRight) {
     playMeow();
     favor.value++;
     combo.value++;
-    feedbackMsg.value = `连击 x${combo.value}`; // 去掉多余文字
+    feedbackMsg.value = `连击 x${combo.value}`;
     msgColor.value = "#b5838d";
     isComboAnim.value = true;
     setTimeout(() => { isComboAnim.value = false }, 500);
@@ -233,7 +261,7 @@ const handleCheck = () => {
   } else {
     combo.value = 0;
     hp.value--;
-    feedbackMsg.value = mode.value === 'E2C' ? currentWord.value.cn : currentWord.value.en;
+    feedbackMsg.value = originalCn; // 报错直接给原词，不带前缀
     msgColor.value = "#e5989b";
     isShaking.value = true;
     setTimeout(() => { isShaking.value = false }, 400);
@@ -315,7 +343,7 @@ onMounted(() => {
         </div>
 
         <div class="mode-tag">{{ currentModeName }}</div>
-        <div class="q-text" @click="speak(currentWord.en)" style="cursor: pointer;">
+        <div class="q-text" @click="handleSpeakClick" style="cursor: pointer;">
           {{ displayQuestion }}
           <span style="font-size: 1.2rem; margin-left: 8px; opacity: 0.6;">🔊</span>
         </div>
