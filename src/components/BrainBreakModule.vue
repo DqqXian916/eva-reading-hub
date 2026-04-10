@@ -52,18 +52,18 @@ const fetchStudentConfig = async () => {
             .select('current_word_list, game_goal')
             .eq('student_id', props.student.id)
             .maybeSingle()
+        
         if (error) throw error
-        console.log("数据库返回原始数据:", data) // 检查这里 data 是否为 null
-        if (data) {
-            // 找到对应的游戏
-            const miawGame = games.value.find(g => g.id === 'miaw')
-            if (miawGame) {
-                // 重点：确保字段名 current_word_list 与数据库完全一致
-                miawGame.config.wordList = data.current_word_list || []
-                miawGame.config.goal = data.game_goal || 20
-                console.log("父组件：miaw 游戏配置已更新", miawGame.config.wordList);
+
+        // 无论 data 是否存在，都进行同步
+        games.value.forEach(game => {
+            if (game.isVue) {
+                // 如果 data 为空，说明该学生没配置，直接清空 wordList
+                game.config.wordList = data?.current_word_list || [] 
+                game.config.goal = data?.game_goal || 20
             }
-        }
+        })
+        
     } catch (e) {
         console.error("加载配置异常:", e)
     } finally {
@@ -161,13 +161,13 @@ const saveGameConfig = () => {
                 <div class="game-card">
                     <template v-if="activeGame">
                         <template v-if="activeGame.isVue">
-                            <CatFeedingGame v-if="activeGame.id === 'miaw'" :wordList="activeGame.config.wordList"
+                            <CatFeedingGame v-if="activeGame.id === 'miaw'" :wordList="activeGame.config.wordList" :key="props.student.id"
                                 :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
-                            <WordHackerGame v-if="activeGame.id === 'hacker'" :wordList="activeGame.config.wordList"  
+                            <WordHackerGame v-if="activeGame.id === 'hacker'" :wordList="activeGame.config.wordList"  :key="props.student.id"
                                     :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                 studentId: props.student.id,
                                 wordList: newWords,

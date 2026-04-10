@@ -1,21 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
-// 1. 接收父组件传入的数据
 const props = defineProps({
-  wordList: {
-    type: Array,
-    default: () => []
-  },
-  goal: {
-    type: Number,
-    default: 20
-  }
+  wordList: { type: Array, default: () => [] },
+  goal: { type: Number, default: 20 },
+  canEdit: Boolean
 });
 
 const emit = defineEmits(['finish', 'updateConfig']);
 
-// --- 状态变量 ---
+// --- 1. 状态管理 ---
 const words = ref([]);
 const currentIndex = ref(0);
 const score = ref(0);
@@ -26,28 +20,34 @@ const options = ref([]);
 const errorLog = ref([]);
 const isShaking = ref(false);
 const isComboActive = ref(false);
-const currentBtnState = ref(null); // { word: '', correct: bool, answer: '' }
+const currentBtnState = ref(null); 
 const floatPoints = ref([]);
 
 let timer = null;
 const comboRanks = ["GOOD!", "GREAT!", "EXCELLENT!", "UNSTOPPABLE!", "GODLIKE!"];
 
-// --- 计算属性 ---
+// --- 2. 计算属性 ---
 const currentWord = computed(() => words.value[currentIndex.value] || {});
+
+const displaySentence = computed(() => {
+  if (!currentWord.value.s) return 'SYSTEM SCANNING...';
+  const regex = new RegExp(currentWord.value.en, 'gi');
+  return currentWord.value.s.replace(regex, '_______');
+});
 
 const comboRankName = computed(() => {
   let rIdx = Math.min(Math.floor((combo.value - 2) / 2), comboRanks.length - 1);
-  return comboRanks[rIdx];
+  return comboRanks[rIdx] || "HACKING...";
 });
 
 const rankTitle = computed(() => {
-  if (score.value > 2000) return "OMNIPOTENT OPERATOR (主宰者)";
-  if (score.value > 1200) return "DATA ARCHITECT (架构师)";
-  if (score.value > 600) return "CORE INFILTRATOR (渗透者)";
-  return "RECRUIT HACKER (初级)";
+  if (score.value > 2000) return "OMNIPOTENT OPERATOR";
+  if (score.value > 1200) return "DATA ARCHITECT";
+  if (score.value > 600) return "CORE INFILTRATOR";
+  return "RECRUIT HACKER";
 });
 
-// --- 语音合成 ---
+// --- 3. 核心功能 ---
 const speak = (txt) => {
   if (!txt) return;
   window.speechSynthesis.cancel();
@@ -57,78 +57,44 @@ const speak = (txt) => {
   window.speechSynthesis.speak(u);
 };
 
-const initGame = () => {
-  // 1. 获取源数据：如果父组件没传，使用默认占位词
-  const source = props.wordList && props.wordList.length > 0 
-    ? props.wordList 
-    : [{ en: "system", cn: "系统", s: "Initializing the _______." }];
-
-  // 2. 洗牌并抽取前 20 个
-  // .sort(() => Math.random() - 0.5) 负责乱序
-  // .slice(0, 20) 负责只取前 20 个（如果不足 20 个会自动取全部）
-  words.value = [...source]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 20);
-
-  // 3. 重置所有状态
-  currentIndex.value = 0;
-  score.value = 0;
-  combo.value = 0;
-  isFinished.value = false;
-  errorLog.value = [];
-  
-  // 4. 开始第一题
-  nextQuestion();
+const startTimer = () => {
+  clearInterval(timer);
+  timeLeft.value = 100;
+  timer = setInterval(() => {
+    timeLeft.value -= 1.2; 
+    if (timeLeft.value <= 0) handleChoice(null);
+  }, 100);
 };
 
-// 只有在没开始游戏或者已经结束时，才因为 wordList 改变而重新初始化
-watch(() => props.wordList, (newVal) => {
-  if (newVal && newVal.length > 0 && (words.value.length === 0 || isFinished.value)) {
-    initGame();
-  }
-}, { deep: true });
+const endGame = () => {
+  isFinished.value = true;
+  clearInterval(timer);
+  emit('finish', { score: score.value, errors: errorLog.value, total: words.value.length });
+};
 
 const nextQuestion = () => {
+  clearInterval(timer);
   if (currentIndex.value >= words.value.length) {
     endGame();
     return;
   }
   
-  // 生成混淆选项
   let opts = [currentWord.value.en];
-  // 尝试从当前词库找干扰项
   const otherWords = words.value.filter(w => w.en !== currentWord.value.en);
-  while (opts.length < 4 && otherWords.length >= 3) {
+  while (opts.length < 4 && otherWords.length > 0) {
     let r = otherWords[Math.floor(Math.random() * otherWords.length)].en;
     if (!opts.includes(r)) opts.push(r);
   }
-  // 如果词库太小，补齐选项
-  const fallbacks = ["loading...", "error", "access", "denied"];
-  let fIdx = 0;
-  while (opts.length < 4) {
-    opts.push(fallbacks[fIdx++]);
-  }
-
   options.value = opts.sort(() => Math.random() - 0.5);
   currentBtnState.value = null;
   startTimer();
 };
 
-const startTimer = () => {
-  clearInterval(timer);
-  timeLeft.value = 100;
-  timer = setInterval(() => {
-    timeLeft.value -= 1.2; // 难度系数：数值越大时间越短
-    if (timeLeft.value <= 0) handleChoice(null);
-  }, 100);
-};
-
 const handleChoice = (choice, event = null) => {
-  if (currentBtnState.value) return; // 防止重复点击
-  
+  if (currentBtnState.value || isFinished.value) return; 
   clearInterval(timer);
   const correct = currentWord.value.en;
-  const isCorrect = choice === correct;
+  const isCorrect = choice?.toLowerCase() === correct?.toLowerCase();
 
   if (isCorrect) {
     speak(correct);
@@ -139,51 +105,74 @@ const handleChoice = (choice, event = null) => {
     
     if (event) {
       const id = Date.now();
-      floatPoints.value.push({ id, x: event.clientX, y: event.clientY, text: `+${added}` });
-      setTimeout(() => {
-        floatPoints.value = floatPoints.value.filter(p => p.id !== id);
-      }, 800);
+      // 物理弹射逻辑：随机偏移与旋转
+      const randomX = (Math.random() - 0.5) * 140; 
+      const randomY = (Math.random() - 0.5) * 40;
+      floatPoints.value.push({ 
+        id, 
+        x: event.clientX + randomX, 
+        y: event.clientY + randomY, 
+        text: `+${added}`,
+        isHigh: combo.value >= 5,
+        rotation: (Math.random() - 0.5) * 40 
+      });
+      setTimeout(() => { floatPoints.value = floatPoints.value.filter(p => p.id !== id); }, 1000);
     }
   } else {
-    // 记录错题碎片
     if (!errorLog.value.find(e => e.en === correct)) {
       errorLog.value.push({ en: correct, cn: currentWord.value.cn });
     }
     isShaking.value = true;
     setTimeout(() => isShaking.value = false, 300);
-    speak("Error.");
+    speak("Access Denied");
     combo.value = 0;
     isComboActive.value = false;
   }
 
   currentBtnState.value = { word: choice, correct: isCorrect, answer: correct };
-
   setTimeout(() => {
-    currentIndex.value++;
-    nextQuestion();
+    if (!isFinished.value) {
+      currentIndex.value++;
+      nextQuestion();
+    }
   }, 1200);
 };
 
-const endGame = () => {
-  isFinished.value = true;
+const initGame = () => {
   clearInterval(timer);
-  // 向父组件反馈游戏结果
-  emit('finish', { 
-    score: score.value, 
-    errors: errorLog.value,
-    total: words.value.length 
-  });
+  isFinished.value = false;
+  currentIndex.value = 0;
+  score.value = 0;
+  combo.value = 0;
+  errorLog.value = [];
+  isComboActive.value = false;
+  currentBtnState.value = null;
+  if (props.wordList && props.wordList.length > 0) {
+    words.value = [...props.wordList].sort(() => Math.random() - 0.5).slice(0, 20);
+    nextQuestion();
+  }
 };
 
+// --- 4. 生命周期 ---
+watch(() => props.wordList, (newList) => {
+  if (Array.isArray(newList) && newList.length > 0) {
+    words.value = [...newList];
+    initGame();
+  } else {
+    words.value = [];
+    clearInterval(timer);
+  }
+}, { immediate: true, deep: true });
+
 onMounted(initGame);
-onUnmounted(() => clearInterval(timer));
+onUnmounted(() => { clearInterval(timer); window.speechSynthesis.cancel(); });
 </script>
 
 <template>
   <div class="hacker-viewport" :class="{ 'high-combo-glow': combo >= 5 }">
     <div class="cyber-grid"></div>
 
-    <div id="terminal" :class="{ 'error-shake': isShaking }">
+    <div v-if="words.length > 0" id="terminal" :class="{ 'error-shake': isShaking }">
       <div id="combo-overlay" :class="{ 'combo-active': isComboActive }">
         <p id="combo-rank">{{ comboRankName }}</p>
         <p id="combo-text">X{{ combo }}</p>
@@ -198,50 +187,64 @@ onUnmounted(() => clearInterval(timer));
       <div id="timer-wrapper"><div id="timer-bar" :style="{ width: timeLeft + '%' }"></div></div>
       <div id="progress-wrapper"><div id="progress-fill" :style="{ width: (currentIndex / words.length) * 100 + '%' }"></div></div>
 
-      <div id="sentence-display">
-        {{ currentWord.s?.replace(currentWord.en, '_______') || 'SYSTEM SCANNING...' }}
-      </div>
+      <div id="sentence-display">{{ displaySentence }}</div>
       <div id="target-word">{{ currentWord.cn || 'SYNCING' }}</div>
 
       <div id="options-grid">
-        <button 
-          v-for="opt in options" 
-          :key="opt"
-          class="btn-opt"
+        <button v-for="opt in options" :key="opt" class="btn-opt"
           :disabled="currentBtnState !== null"
-          :class="{
-            'correct': currentBtnState?.answer === opt,
-            'wrong': currentBtnState?.word === opt && !currentBtnState?.correct
-          }"
-          @click="handleChoice(opt, $event)"
-        >
+          :class="{ 'correct': currentBtnState?.answer === opt, 'wrong': currentBtnState?.word === opt && !currentBtnState?.correct }"
+          @click="handleChoice(opt, $event)">
           {{ opt }}
         </button>
       </div>
     </div>
 
+    <div v-else id="terminal" class="empty-system">
+      <div class="status-bar">
+        <span>STATUS: <b style="color: #ff9f43;">IDLE</b></span>
+        <span>LINK: <b style="color: #576574;">NULL</b></span>
+      </div>
+      <div class="empty-content">
+        <div class="glitch-icon">!</div>
+        <h2 class="empty-title">NO DATA PACKETS</h2>
+        <div class="terminal-loader">
+          <p class="typing">> Initializing scan...</p>
+          <p class="typing" style="color: #ff0055;">> Error: Eva老师，题库空了！</p>
+          <p class="typing">> 💻 请注入新的补丁...</p>
+        </div>
+      </div>
+    </div>
+
     <Teleport to="body">
-      <div 
-        v-for="p in floatPoints" 
-        :key="p.id" 
-        class="float-pts" 
-        :style="{ left: p.x + 'px', top: (p.y - 50) + 'px' }"
-      >
-        {{ p.text }}
+      <div v-for="p in floatPoints" :key="p.id" 
+        class="float-pts-container" 
+        :style="{ left: p.x + 'px', top: p.y + 'px', transform: `rotate(${p.rotation}deg)` }">
+        <div class="pts-main" :class="{ 'gold-pts': p.isHigh }">
+          {{ p.text }}
+          <div class="pts-shine"></div>
+        </div>
       </div>
     </Teleport>
 
     <div v-if="isFinished" id="overlay">
       <div class="result-card">
-        <h1 class="neon-text-blue">INTRUSION COMPLETE</h1>
+        <h1 class="neon-text-blue">MISSION COMPLETE</h1>
         <h2 id="rank-title">{{ rankTitle }}</h2>
+        
         <div class="final-stats">
-            <p>TOTAL DATA RECOVERED: {{ score }}</p>
-            <p>ACCURACY: {{ Math.round(((words.length - errorLog.length) / words.length) * 100) }}%</p>
+            <div class="stat-item">
+                <span class="stat-label">TOTAL SCORE</span>
+                <span class="stat-value">{{ score }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">ACCURACY</span>
+                <span class="stat-value">{{ words.length ? Math.round(((words.length - errorLog.length) / words.length) * 100) : 0 }}%</span>
+            </div>
         </div>
         
         <div v-if="errorLog.length > 0" id="error-box">
-          <p class="error-warn">[!] 检测到损坏数据 (已加入复习列表):</p>
+          <p class="error-warn">[!] 检测到损坏数据 (需加强记忆):</p>
           <div class="error-scroll-area">
             <table class="error-table">
                 <tbody>
@@ -253,131 +256,100 @@ onUnmounted(() => clearInterval(timer));
               </table>
           </div>
         </div>
-        <button class="btn-restart" @click="initGame">重新加载系统</button>
+        
+        <button class="btn-restart" @click="initGame">REBOOT SYSTEM</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* --- 基础变量 --- */
 .hacker-viewport {
-  --bg-color: #020408;
-  --panel-bg: #0d1117;
-  --neon-blue: #00f2fe;
-  --neon-purple: #7000ff;
-  --neon-red: #ff0055;
-  --neon-green: #00ff88;
-  
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-color);
-  color: #e6edf3;
-  font-family: 'Consolas', monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  position: relative;
+  --bg-color: #020408; --panel-bg: #0d1117; --neon-blue: #00f2fe; --neon-purple: #7000ff; 
+  --neon-red: #ff0055; --neon-green: #00ff88; --gold: #ffcc00;
+  width: 100%; height: 100%; background: var(--bg-color); color: #e6edf3; font-family: 'Consolas', monospace; 
+  display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative;
 }
 
-.cyber-grid {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px), 
-                    linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  transform: perspective(500px) rotateX(45deg);
-  transform-origin: bottom;
-  opacity: 0.5;
+/* --- 【爆炸加分特效】 --- */
+.float-pts-container {
+  position: fixed; pointer-events: none; z-index: 9999;
+  animation: pts-spring-blast 0.9s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
 }
-
-#terminal {
-  background: var(--panel-bg);
-  border: 1px solid var(--neon-blue);
-  width: 95%;
-  max-width: 700px;
-  padding: 25px;
-  box-shadow: 0 0 30px rgba(0, 242, 254, 0.1);
-  position: relative;
-  z-index: 5;
+.pts-main {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 3.8rem; font-weight: 900; color: #fff;
+  text-shadow: 0 0 15px var(--neon-green), 0 0 30px var(--neon-green), 0 0 50px rgba(0, 255, 136, 0.6);
+  position: relative; overflow: hidden; padding: 0 15px;
 }
-
-/* 进度与状态 */
-.status-bar {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--neon-blue);
-  margin-bottom: 8px;
-  letter-spacing: 1px;
+.gold-pts {
+  text-shadow: 0 0 20px var(--gold), 0 0 40px var(--gold), 0 0 70px rgba(255, 204, 0, 1);
 }
+.pts-shine {
+  position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  animation: pts-shine-move 0.4s ease-out forwards;
+}
+@keyframes pts-spring-blast {
+  0% { transform: translate(-50%, 0) scale(0) rotate(-30deg); opacity: 0; }
+  25% { transform: translate(-50%, -100%) scale(1.7) rotate(15deg); opacity: 1; }
+  100% { transform: translate(-50%, -280%) scale(0.8); opacity: 0; }
+}
+@keyframes pts-shine-move { 100% { left: 150%; } }
 
+/* --- 结算页面全样式 --- */
+#overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 100; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
+.result-card { 
+    width: 90%; max-width: 500px; text-align: center; border: 2px solid var(--neon-blue); 
+    padding: 40px; background: #0d1117; box-shadow: 0 0 80px rgba(0, 242, 254, 0.25);
+}
+.neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); font-size: 2rem; margin-bottom: 5px; }
+#rank-title { color: #8b949e; font-size: 1rem; letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; }
+.final-stats { display: flex; justify-content: space-around; margin: 30px 0; background: rgba(255,255,255,0.03); padding: 25px; border-radius: 4px; border: 1px solid #30363d; }
+.stat-label { font-size: 11px; color: #8b949e; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+.stat-value { font-size: 2.2rem; color: #fff; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+#error-box { background: rgba(255, 0, 85, 0.1); border-left: 4px solid var(--neon-red); padding: 10px; text-align: left; }
+.error-warn { color: var(--neon-red); font-size: 13px; font-weight: bold; margin-bottom: 12px; }
+.error-scroll-area { max-height: 180px; overflow-y: auto; }
+.error-table { width: 100%; border-collapse: collapse; }
+.error-table td { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.err-en { color: #fff; font-weight: bold; font-size: 1.1rem; }
+.err-cn { color: #8b949e; text-align: right; }
+.btn-restart { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 15px 50px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.3s; letter-spacing: 2px; }
+.btn-restart:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); transform: translateY(-3px); }
+
+/* --- 终端基础样式 --- */
+#terminal { background: var(--panel-bg); border: 1px solid var(--neon-blue); width: 95%; max-width: 700px; padding: 25px; position: relative; z-index: 5; box-shadow: 0 0 30px rgba(0, 242, 254, 0.1); }
+.cyber-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px); background-size: 40px 40px; transform: perspective(500px) rotateX(45deg); opacity: 0.5; }
+.high-combo-glow { animation: bg-pulse-intense 2s infinite; }
+@keyframes bg-pulse-intense { 0%, 100% { box-shadow: inset 0 0 100px rgba(112, 0, 255, 0.1); } 50% { box-shadow: inset 0 0 150px rgba(112, 0, 255, 0.25); } }
+
+/* --- 连击文本 --- */
+#combo-overlay { position: absolute; top: 10%; right: 5%; pointer-events: none; opacity: 0; text-align: center; }
+.combo-active { opacity: 1 !important; animation: combo-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+#combo-text { font-size: 4.5rem; color: #ffcc00; text-shadow: 0 0 20px #ffcc00; font-weight: 900; font-style: italic; margin: 0; }
+@keyframes combo-pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+
+/* --- 其它 UI 组件 --- */
+.status-bar { display: flex; justify-content: space-between; font-size: 12px; color: var(--neon-blue); margin-bottom: 8px; }
 #timer-wrapper { width: 100%; height: 3px; background: #161b22; margin-bottom: 15px; }
 #timer-bar { height: 100%; background: var(--neon-red); transition: width 0.1s linear; }
-
-#progress-wrapper { width: 100%; height: 6px; background: #161b22; border: 1px solid #30363d; margin-bottom: 25px; }
+#progress-wrapper { width: 100%; height: 6px; background: #161b22; margin-bottom: 25px; }
 #progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue)); }
-
-/* 文本展示 */
-#sentence-display { min-height: 50px; font-size: 1.1rem; color: #8b949e; text-align: center; margin-bottom: 5px; line-height: 1.4; }
-#target-word { font-size: 3rem; text-align: center; margin-bottom: 30px; color: #fff; text-shadow: 0 0 10px var(--neon-blue); font-weight: bold; }
-
-/* 选项 */
-#options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.btn-opt { 
-  background: rgba(255, 255, 255, 0.03); 
-  border: 1px solid #30363d; 
-  padding: 15px; 
-  font-size: 1.3rem; 
-  color: #c9d1d9; 
-  cursor: pointer; 
-  transition: all 0.2s;
-  font-family: inherit;
-}
+#target-word { font-size: 3.5rem; text-align: center; margin-bottom: 30px; color: #fff; text-shadow: 0 0 15px var(--neon-blue); font-weight: bold; }
+#options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.btn-opt { background: rgba(255, 255, 255, 0.03); border: 1px solid #30363d; padding: 18px; font-size: 1.4rem; color: #c9d1d9; cursor: pointer; font-family: inherit; transition: 0.2s; }
 .btn-opt:hover:not(:disabled) { border-color: var(--neon-blue); background: rgba(0, 242, 254, 0.1); }
 .btn-opt.correct { background: rgba(0, 255, 136, 0.15) !important; border-color: var(--neon-green) !important; color: var(--neon-green); }
 .btn-opt.wrong { background: rgba(255, 0, 85, 0.15) !important; border-color: var(--neon-red) !important; color: var(--neon-red); }
 
-/* 连击 */
-#combo-overlay { position: absolute; top: 10%; right: 5%; pointer-events: none; text-align: center; opacity: 0; }
-.combo-active { opacity: 1 !important; animation: combo-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-#combo-text { font-size: 4rem; color: #ffcc00; text-shadow: 0 0 15px #ffcc00; margin: 0; font-weight: 900; }
-#combo-rank { font-size: 1rem; color: var(--neon-blue); margin-top: -5px; }
-
-@keyframes combo-pop {
-  0% { transform: scale(0.5) rotate(-10deg); }
-  100% { transform: scale(1) rotate(5deg); }
-}
-
-/* 结算 */
-#overlay {
-  position: absolute; inset: 0;
-  background: rgba(2, 4, 8, 0.95);
-  z-index: 100;
-  display: flex; justify-content: center; align-items: center;
-  backdrop-filter: blur(5px);
-}
-.result-card { width: 85%; text-align: center; }
-.neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 5px; }
-.final-stats { margin: 20px 0; color: #8b949e; font-size: 1.1rem; }
-#error-box { background: rgba(255, 0, 85, 0.05); border: 1px solid rgba(255, 0, 85, 0.2); padding: 15px; border-radius: 10px; }
-.error-scroll-area { max-height: 150px; overflow-y: auto; margin-top: 10px; }
-.error-table { width: 100%; font-size: 0.9rem; }
-.err-en { color: var(--neon-red); font-weight: bold; width: 40%; text-align: right; padding-right: 15px; }
-.err-cn { color: #8b949e; text-align: left; }
-
-.btn-restart { 
-  background: var(--neon-blue); color: #000; padding: 12px 30px; 
-  border: none; font-weight: bold; cursor: pointer; margin-top: 25px; border-radius: 5px;
-}
-
-.float-pts { position: fixed; color: var(--neon-green); font-weight: bold; font-size: 1.5rem; pointer-events: none; z-index: 2000; animation: float-up 0.8s ease-out forwards; }
-@keyframes float-up { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-60px); opacity: 0; } }
-
+/* --- 空状态 --- */
+.empty-system { border: 1px dashed var(--neon-red) !important; background: rgba(255, 0, 85, 0.02) !important; }
+.glitch-icon { font-size: 60px; color: var(--neon-red); animation: glitch 1.5s infinite; }
+@keyframes glitch { 0%, 100% { transform: translate(0); } 30% { transform: translate(-4px, 2px); } 70% { transform: translate(4px, -2px); } }
+.typing { font-size: 14px; color: var(--neon-green); border-right: 2px solid; width: 0; overflow: hidden; white-space: nowrap; animation: typing 1s steps(20) forwards; margin: 5px 0; }
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 .error-shake { animation: shake 0.2s linear; }
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-}
 </style>
