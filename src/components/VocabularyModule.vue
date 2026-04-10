@@ -101,10 +101,23 @@ const formatSentence = (s, word) => {
   <div class="eva-study-wrapper">
     <nav class="word-side-list">
       <div class="list-header">
-        <span class="header-tag">STUDY PLAN</span>
+        <span class="header-tag">TODAY'S PICK 🍔 </span>
         <div class="progress-info">
-          <strong>{{ masteredCount }}/{{ initialWords.length }}</strong> 词汇达成
-        </div>
+  <span class="progress-num">{{ masteredCount }}/{{ initialWords.length }}</span>
+  <div class="plankton-warning">
+    <span class="warning-text">窃取中：痞老板警告</span>
+    <span class="plankton-eye">
+        <svg class="plankton-icon" width="13" height="16" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 6C7 6 6 2 4 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M17 6C17 6 18 2 20 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M12 28C6.47715 28 2 23.5228 2 18V9C2 6.23858 4.23858 4 7 4H17C19.7614 4 22 6.23858 22 9V18C22 23.5228 17.5228 28 12 28Z" fill="currentColor"/>
+          <circle cx="12" cy="14" r="5" fill="white"/>
+          <circle cx="12" cy="14" r="2.5" fill="#0f172a"/>
+          <path d="M8 21.5C8.82843 23.2386 10.6046 24.5 12.5 24.5C14.3954 24.5 16.1716 23.2386 17 21.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+  </div>
+</div>
       </div>
 
       <div class="scroll-area">
@@ -513,5 +526,138 @@ const formatSentence = (s, word) => {
   color: #0f172a;
   margin: 0;
   line-height: 1;
+}
+/* 进度条外层容器 */
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* 数字部分：加粗，颜色更有质感 */
+.progress-num {
+  font-family: 'Monaco', 'Consolas', monospace; /* 程序员等宽字体 */
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 痞老板警告标签：做成类似“胶囊标签”的精致感 */
+.plankton-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #f0fdf4; /* 极浅的绿 */
+  border: 1px solid #dcfce7;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 警告文字：更小巧、更有间距感 */
+.warning-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #166534; /* 深绿色 */
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* 灵魂黄瓜：加一个微弱的呼吸动画，像在监视 */
+.plankton-eye {
+  font-size: 12px;
+  animation: watch-blink 3s infinite ease-in-out;
+}
+
+/* 呼吸动画：模拟痞老板在暗中观察 */
+@keyframes watch-blink {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* 装饰性的小点：模拟黑客终端感 */
+.plankton-warning::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-right: 2px;
+  box-shadow: 0 0 5px #22c55e;
+}
+/* 修改之前的呼吸动画容器 */
+.plankton-eye {
+  display: flex; /* 确保居中 */
+  align-items: center;
+  /* 去掉原来的字体动画，加一个微小的旋转和呼吸 */
+  animation: watch-sway 3s infinite ease-in-out; 
+}
+
+/* 如果你的 UI 是绿色的，图标也会自动变绿 */
+.plankton-icon {
+  color: #27ae60; /* 默认使用主厨绿 */
+}
+
+/* 当达到 100% 进度时，可以给这个图标加个红色警告效果 */
+.is-complete .plankton-icon {
+  color: #ef4444; /* 红色警告 */
+}
+
+/* 呼吸动画：模拟痞老板在观察和轻轻摇晃 */
+@keyframes watch-sway {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.05) rotate(2deg); opacity: 0.9; }
+}
+/* 1. 修改容器样式，确保它是动画的承载点 */
+.plankton-eye {
+  display: inline-flex; 
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  /* 统一使用一个更生动的动画：结合了缩放和轻微晃动 */
+  animation: plankton-life 3s infinite ease-in-out;
+  transform-origin: center bottom; /* 以底部为基准晃动，更像个生物 */
+}
+
+/* 2. 确保图标颜色跟随父级 */
+.plankton-icon {
+  display: block;
+  color: #27ae60; 
+  transition: color 0.3s ease;
+}
+
+/* 3. 定义合体动画：呼吸 + 观察 */
+@keyframes plankton-life {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    filter: drop-shadow(0 0 0px rgba(39, 174, 96, 0));
+  }
+  50% { 
+    transform: scale(1.1) rotate(3deg); 
+    /* 呼吸时带一点点绿色的荧光效果，更有实验室感 */
+    filter: drop-shadow(0 0 3px rgba(39, 174, 96, 0.4));
+  }
+}
+
+/* 4. 装饰小点的闪烁动画（可选，增加黑客感） */
+.plankton-warning::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-right: 4px;
+  box-shadow: 0 0 5px #22c55e;
+  animation: led-blink 1s infinite;
+}
+
+@keyframes led-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 </style>
