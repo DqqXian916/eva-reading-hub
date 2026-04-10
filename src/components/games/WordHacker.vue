@@ -301,22 +301,22 @@ onUnmounted(() => { clearInterval(timer); window.speechSynthesis.cancel(); });
 /* --- 结算页面全样式 --- */
 #overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 100; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
 .result-card { 
-    width: 90%; max-width: 500px; text-align: center; border: 2px solid var(--neon-blue); 
-    padding: 40px; background: #0d1117; box-shadow: 0 0 80px rgba(0, 242, 254, 0.25);
+    width: 90%; height:83%;max-width: 500px; text-align: center; border: 2px solid var(--neon-blue); 
+    padding: 35px; background: #0d1117; box-shadow: 0 0 80px rgba(0, 242, 254, 0.25);
 }
 .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); font-size: 2rem; margin-bottom: 5px; }
 #rank-title { color: #8b949e; font-size: 1rem; letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; }
 .final-stats { display: flex; justify-content: space-around; margin: 30px 0; background: rgba(255,255,255,0.03); padding: 25px; border-radius: 4px; border: 1px solid #30363d; }
 .stat-label { font-size: 11px; color: #8b949e; letter-spacing: 1px; margin-bottom: 8px; display: block; }
 .stat-value { font-size: 2.2rem; color: #fff; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-#error-box { background: rgba(255, 0, 85, 0.1); border-left: 4px solid var(--neon-red); padding: 10px; text-align: left; }
+#error-box { background: rgba(255, 0, 85, 0.1); border-left: 4px solid var(--neon-red); padding: 5px; text-align: left; }
 .error-warn { color: var(--neon-red); font-size: 13px; font-weight: bold; margin-bottom: 12px; }
 .error-scroll-area { max-height: 180px; overflow-y: auto; }
 .error-table { width: 100%; border-collapse: collapse; }
 .error-table td { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 .err-en { color: #fff; font-weight: bold; font-size: 1.1rem; }
 .err-cn { color: #8b949e; text-align: right; }
-.btn-restart { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 15px 50px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.3s; letter-spacing: 2px; }
+.btn-restart { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 5px 50px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.3s; letter-spacing: 2px; }
 .btn-restart:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); transform: translateY(-3px); }
 
 /* --- 终端基础样式 --- */
