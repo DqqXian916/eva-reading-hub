@@ -11,8 +11,7 @@ import QuizModule from './components/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/BrainBreakModule.vue'
-import LegacyGameModule from './components/LegacyGameModule.vue'
-
+import VocabularyModule from './components/VocabularyModule.vue'
 // --- 状态管理 ---
 const activeModule = ref('reading')
 const isAdminMode = ref(false)
@@ -24,6 +23,7 @@ const editingReading = ref(null)   // 正在编辑的文章对象
 const confirmBtn = ref(null) // 定义按钮引用
 const studentClozeQuizzes = ref([])
 const studentVocabTests = ref([]) // 存储词汇评估记录
+const currentWordList = ref([])
 
 const sidebarCollapsed = ref(false)
 const listPanelCollapsed = ref(false)
@@ -72,7 +72,6 @@ const verifyPassword = () => {
 }
 
 // --- 核心逻辑 ---
-
 // 1. 监听切换（学员或模块改变时重置状态并加载数据）
 watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   if (!newStudent) return
@@ -83,11 +82,13 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchQuizzes(newStudent.id)
   } else if (newModule === 'cloze') {
     await fetchClozeQuizzes(newStudent.id) // 新增：切换到填空模块时加载数据
-  } else if (newModule === 'vocab-test') { 
+  } else if (newModule === 'vocab-test') {
     await fetchVocabTests(newStudent.id) // 新增：词汇评估模块数据加载
   } else if (newModule === 'brain-break') {
     // 可以在这里加载该学员的游戏最高分记录
     // await fetchGameScores(newStudent.id)
+  } else if (newModule === 'words') {
+    await fetchVocabulary(newStudent.id)
   }
 })
 
@@ -117,7 +118,7 @@ const fetchClozeQuizzes = async (studentId) => {
 // 获取词汇评估历史记录
 const fetchVocabTests = async (studentId) => {
   isLoading.value = true
-  const { data } = await supabase.from('vocab_tests') 
+  const { data } = await supabase.from('vocab_tests')
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
@@ -171,7 +172,7 @@ const handleDeleteStudent = async (student) => {
       currentStudent.value = null;
     }
     await fetchStudents();
-    
+
   } catch (e) {
     alert("❌ 删除失败：" + e.message);
   } finally {
@@ -183,16 +184,16 @@ const handleDeleteStudent = async (student) => {
 // App.vue 逻辑部分
 const handleAddNewStudent = async () => {
   const name = prompt("请输入新学员的姓名：")
-  
+
   if (name && name.trim()) {
     try {
       isLoading.value = true
       const { error } = await supabase
         .from('students')
         .insert([{ name: name.trim() }])
-      
+
       if (error) throw error
-      
+
       alert("✅ 学员添加成功！")
       await fetchStudents() // 添加成功后刷新列表
     } catch (e) {
@@ -201,6 +202,47 @@ const handleAddNewStudent = async () => {
       isLoading.value = false
     }
   }
+}
+
+// --- 新增：保存单词掌握状态和音标配置到云端 ---
+const handleUpdateWordProgress = async (updatedList) => {
+  if (!currentStudent.value) return;
+
+  try {
+    // 这里不需要 isLoading，因为是在后台静默同步，提升用户体验
+    const { error } = await supabase
+      .from('student_configs')
+      .upsert({
+        student_id: currentStudent.value.id,
+        current_word_list: updatedList, // 这里传过去的是带 m 字段的数组
+        updated_at: new Date()
+      }, {
+        onConflict: 'student_id'
+      });
+
+    if (error) throw error;
+    // 成功后，同步更新本地 currentWordList，确保数据一致
+    currentWordList.value = updatedList;
+    console.log("✅ 掌握进度已同步");
+  } catch (e) {
+    console.error("同步失败:", e);
+  }
+};
+
+const fetchVocabulary = async (studentId) => {
+  isLoading.value = true
+  const { data } = await supabase
+    .from('student_configs')
+    .select('current_word_list')
+    .eq('student_id', studentId)
+    .single()
+  // 如果数据库里有数据，确保每个单词都有 m 属性，没有就默认为 false
+  const list = data?.current_word_list || []
+  currentWordList.value = list.map(word => ({
+    ...word,
+    m: word.m || false  // 兜底处理：如果数据库没这个字段，默认未掌握
+  }))
+  isLoading.value = false
 }
 
 const fetchStudents = async () => {
@@ -318,9 +360,9 @@ const handleSaveReading = async (formData) => {
     let res;
     // 构造要保存的 payload，确保包含 body_cn
     const payload = {
-      title: formData.title, 
-      body: formData.body, 
-      body_cn: formData.body_cn, 
+      title: formData.title,
+      body: formData.body,
+      body_cn: formData.body_cn,
       quiz: formData.quiz
     }
     if (formData.id) {
@@ -342,9 +384,9 @@ const handleSaveReading = async (formData) => {
     alert("✅ 文章已成功保存到云端")
     viewMode.value = 'list'
     await fetchReadings(currentStudent.value.id)
-  } catch (e) { 
+  } catch (e) {
     console.error("保存失败:", e)
-    alert("❌ 保存失败：" + e.message) 
+    alert("❌ 保存失败：" + e.message)
   }
 }
 
@@ -354,12 +396,12 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
     // 使用 upsert 针对 student_id 进行操作
     const { error } = await supabase
       .from('student_configs')
-      .upsert({ 
-        student_id: studentId, 
+      .upsert({
+        student_id: studentId,
         current_word_list: wordList, // 对应表中的 current_word_list
         game_goal: goal || 20,       // 对应表中的 game_goal
-        updated_at: new Date() 
-      }, { 
+        updated_at: new Date()
+      }, {
         onConflict: 'student_id'      // 核心：告诉 Supabase 冲突判断依据是 student_id
       })
 
@@ -385,16 +427,16 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
       <nav class="nav-center">
         <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
           @click="activeModule = 'vocab-test'">📊 词汇评估</button>
-        <button :class="['module-tab', { active: activeModule === 'vocabulary' }]"
-          @click="activeModule = 'vocabulary'">🗂️ 单词复习</button>
+        <button :class="['module-tab', { active: activeModule === 'words' }]" @click="activeModule = 'words'">🗂️
+          单词复习</button>
         <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
           单选训练</button>
         <button :class="['module-tab', { active: activeModule === 'reading' }]" @click="activeModule = 'reading'">📖
           阅读训练</button>
         <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
           短文填空</button>
-          <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
-  @click="activeModule = 'brain-break'">🎮 换个脑子</button>
+        <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
+          @click="activeModule = 'brain-break'">🎮 换个脑子</button>
       </nav>
       <div class="nav-right">
         <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
@@ -403,8 +445,8 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
 
     <div class="main-body">
       <Sidebar :students="students" :currentStudent="currentStudent" :collapsed="sidebarCollapsed"
-        :canEdit="isAdminMode" @select="(s) => { currentStudent = s; }" @add="handleAddNewStudent" @deleteStudent="handleDeleteStudent"
-        @toggle="sidebarCollapsed = !sidebarCollapsed" />
+        :canEdit="isAdminMode" @select="(s) => { currentStudent = s; }" @add="handleAddNewStudent"
+        @deleteStudent="handleDeleteStudent" @toggle="sidebarCollapsed = !sidebarCollapsed" />
 
       <div class="module-view" v-if="currentStudent">
 
@@ -439,28 +481,22 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
         </template>
 
         <template v-else-if="activeModule === 'brain-break'">
-          <BrainBreakModule :student="currentStudent" :canEdit="isAdminMode" @saveConfig="handleSaveGameConfig"/>
+          <BrainBreakModule :student="currentStudent" :canEdit="isAdminMode" @saveConfig="handleSaveGameConfig" />
         </template>
 
         <template v-else-if="activeModule === 'cloze'">
-          <ClozeModule 
-            :student="currentStudent" 
-            :quizzes="studentClozeQuizzes" 
-            :canEdit="isAdminMode" 
-            @save="saveClozeQuiz"
-            @delete="deleteClozeQuiz" 
-          />
+          <ClozeModule :student="currentStudent" :quizzes="studentClozeQuizzes" :canEdit="isAdminMode"
+            @save="saveClozeQuiz" @delete="deleteClozeQuiz" />
         </template>
 
         <template v-else-if="activeModule === 'vocab-test'">
-          <VocabTestModule 
-            :student="currentStudent" 
-            :records="studentVocabTests" 
-            :canEdit="isAdminMode"
-            @save="saveVocabTest" 
-          />
+          <VocabTestModule :student="currentStudent" :records="studentVocabTests" :canEdit="isAdminMode"
+            @save="saveVocabTest" />
         </template>
-
+        <template v-else-if="activeModule === 'words'">
+          <VocabularyModule :key="currentStudent.id" :student="currentStudent"
+            :initialWords="currentWordList" @update-progress="handleUpdateWordProgress" />
+        </template>
         <template v-else>
           <div class="placeholder">
             <div class="card">
@@ -591,7 +627,8 @@ body {
   flex: 1;
   height: 100%;
   overflow: hidden;
-  overflow-y: auto; /* 允许纵向滚动 */
+  overflow-y: auto;
+  /* 允许纵向滚动 */
 }
 
 /* 阅读模块专用布局 */
@@ -813,7 +850,9 @@ body {
 
 .btn-confirm:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.4); /* 蓝色光晕提示已聚焦 */
-  transform: scale(1.02); /* 微微放大 */
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.4);
+  /* 蓝色光晕提示已聚焦 */
+  transform: scale(1.02);
+  /* 微微放大 */
 }
 </style>
