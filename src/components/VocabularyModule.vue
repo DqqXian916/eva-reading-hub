@@ -561,8 +561,8 @@ const formatSentence = (s, word) => {
 
 /* 警告文字：更小巧、更有间距感 */
 .warning-text {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9px;
+  font-weight: 600;
   color: #166534; /* 深绿色 */
   letter-spacing: 0.3px;
   text-transform: uppercase;
