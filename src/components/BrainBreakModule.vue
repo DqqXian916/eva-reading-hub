@@ -4,6 +4,7 @@ import { supabase } from '../supabase'
 import LegacyGameModule from './LegacyGameModule.vue'
 import CatFeedingGame from './games/CatFeeding.vue'
 import WordHackerGame from './games/WordHacker.vue'
+import GuZhengGame from './games/GuZheng.vue'
 
 // 1. 接收 canEdit 权限
 const props = defineProps(['student', 'canEdit'])
@@ -25,7 +26,7 @@ const games = ref([
     },
     { id: 'vowels', name: '元音扫雷', path: '/games/vowels.html', icon: '🔍', color: '#95a5a6' },
     { id: 'sticker', name: '貼紙薄', path: '/games/sticker.html', icon: '🎀', color: '#95a5a6' },
-     {
+    {
         id: 'hacker',
         name: '单词黑客',
         isVue: true, // 关键：标识这是一个 Vue 组件
@@ -36,7 +37,18 @@ const games = ref([
             goal: 20
         }
     },
-    { id: 'adventure of lisa', name: '涂鸦日记', path: '/games/fill.html', icon: '🖌️', color: '#95a5a6' }
+    { id: 'adventure of lisa', name: '涂鸦日记', path: '/games/fill.html', icon: '🖌️', color: '#95a5a6' },
+        {
+        id: 'guzheng',
+        name: '拨词',
+        isVue: true, // 关键：标识这是一个 Vue 组件
+        icon: '🪕',
+        color: '#9CAF88',
+        config: {
+            wordList: [],// 初始空，等后端注入
+            goal: 20
+        }
+    },
 ])
 
 const activeGame = ref(null)
@@ -168,6 +180,12 @@ const saveGameConfig = () => {
                                     goal: activeGame.config.goal
                                 })" />
                             <WordHackerGame v-if="activeGame.id === 'hacker'" :wordList="activeGame.config.wordList"  :key="props.student.id"
+                                    :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                studentId: props.student.id,
+                                wordList: newWords,
+                                goal: activeGame.config.goal
+                            })" />
+                            <GuZhengGame v-if="activeGame.id === 'guzheng'" :wordList="activeGame.config.wordList" :key="props.student.id"
                                     :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                 studentId: props.student.id,
                                 wordList: newWords,
