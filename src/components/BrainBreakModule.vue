@@ -5,6 +5,7 @@ import LegacyGameModule from './LegacyGameModule.vue'
 import CatFeedingGame from './games/CatFeeding.vue'
 import WordHackerGame from './games/WordHacker.vue'
 import GuZhengGame from './games/GuZheng.vue'
+import TombGame from './games/Tomb.vue'
 
 // 1. 接收 canEdit 权限
 const props = defineProps(['student', 'canEdit'])
@@ -48,6 +49,17 @@ const games = ref([
             wordList: [],// 初始空，等后端注入
             goal: 20
         }
+    },
+    {
+    id: 'tomb',
+    name: '非自然摸金',
+    isVue: true, // 关键：标识这是一个 Vue 组件
+    icon: '🏺',
+    color: '',
+    config: {
+        wordList: [],// 初始空，等后端注入
+        goal: 20
+    }
     },
 ])
 
@@ -191,6 +203,7 @@ const saveGameConfig = () => {
                                 wordList: newWords,
                                 goal: activeGame.config.goal
                             })" />
+                            <TombGame v-if="activeGame.id === 'tomb'" :wordList="activeGame.config.wordList" :key="props.student.id"/>
                         </template>
 
                         <template v-else>
