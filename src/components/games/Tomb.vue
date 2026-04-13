@@ -9,13 +9,13 @@
       <div id="world" :style="{ transform: `translateX(${gameState.wx}px)` }">
         <div class="floor-line"></div>
         <div v-for="(item, index) in treasures" :key="index" class="treasure" :style="{ left: item.x + 'px', opacity: item.collected ? 0 : 1 }">
-          <div class="relic-item">
-            <svg viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="22" fill="none" stroke="#ffd700" stroke-width="4" stroke-dasharray="6 4" opacity="0.8"/>
-            </svg>
+          <div class="relic-visual-box" :style="{ '--glow-color': item.rarityColor }">
+            <div class="relic-icon">{{ item.icon }}</div>
+            <div class="relic-texture-overlay"></div>
+            <div class="relic-aura"></div>
           </div>
           <div v-if="gameState.nearItem === item && !gameState.showTerminal" class="interact-hint">
-            <span class="key-box">SPACE</span> 同步圣物
+            <span class="key-box">SPACE</span> 鉴定「{{ item.relicName }}」
           </div>
         </div>
       </div>
@@ -23,47 +23,66 @@
       <div id="alice-sprite" v-if="gameState.active && !gameState.finished"
         :style="{ left: (gameState.px + gameState.wx) + 'px', transform: `scaleX(${gameState.facingLeft ? -1 : 1})` }"
         :class="{ 'walking': gameState.moving }">
-        <div class="alice-hair-flow"></div> <div class="alice-body-pixel"></div> <div class="alice-tank-pixel"></div> </div>
+        <div class="alice-hair-flow"></div>
+        <div class="alice-body-pixel"></div>
+        <div class="alice-tank-pixel"></div> 
+      </div>
       
       <transition name="pop">
         <div v-if="gameState.showTerminal" id="terminal-overlay">
           <div class="terminal-card">
             <div class="scan-line"></div>
             <div class="relic-header">
-              <h2 class="relic-cn">{{ gameState.currentTarget?.cn }}</h2>
-              <span class="relic-sub">「{{ gameState.currentTarget?.relicName }}」</span>
+              <div class="relic-status-tag">SYSTEM: IDENTIFYING ANTIQUITY...</div>
+              <div class="relic-main-display">
+                <h2 class="relic-cn">{{ gameState.currentTarget?.cn }}</h2>
+                <div class="relic-name-badge">{{ gameState.currentTarget?.relicName }}</div>
+              </div>
+              <div class="relic-divider"></div>
             </div>
             <div class="input-area">
-              <input ref="wordInput" v-model="userInput" @keyup.enter="checkWord" placeholder="SYNC ENGLISH KEY..." autocomplete="off">
+              <div class="input-label">请输入同步密钥 (EN)</div>
+              <input ref="wordInput" v-model="userInput" @keyup.enter="checkWord" placeholder="TYPE SYNC KEY..." autocomplete="off">
             </div>
-            <div class="cancel-text">按 ESC 取消同步系统</div>
+            <div class="cancel-text">
+              <span class="esc-key">ESC</span> 断开量子连接
+            </div>
           </div>
         </div>
       </transition>
 
       <div v-if="!gameState.active && !gameState.finished" id="start-overlay">
-        <div class="title-main">摸金行动：ALICE</div>
-        <button class="terminal-btn-primary" @click="startGame">启动同步系统</button>
+        <div class="start-content">
+          <h1 class="title-main">摸金行动：ALICE</h1>
+          <button class="start-action-btn" @click="startGame">开始行动</button>
+        </div>
       </div>
 
       <div v-if="gameState.finished" id="finish-screen">
-        <div class="accomplished-header">MISSION ACCOMPLISHED</div>
-        <div class="inv-card">
-          <h1 class="main-title">地宫圣物上缴清单</h1>
-          <div class="list-container gold-scroll">
-            <div v-for="(word, i) in inventory" :key="i" class="list-item">
-              <span class="id-tag">{{ (i+1).toString().padStart(2, '0') }}</span>
-              <span class="relic-type">{{ word.relicName }}</span>
-              <span class="relic-en">{{ word.en }}</span>
-              <span class="relic-zh">{{ word.cn }}</span>
+        <div class="status-tag">MISSION ACCOMPLISHED</div>
+        <div class="inventory-box">
+          <h1 class="inv-title">上交清单</h1>
+          <div class="word-list-scroll gold-scroll">
+            <div v-for="(word, i) in inventory" :key="i" class="word-item">
+              <span class="word-id">{{ (i+1).toString().padStart(2, '0') }}</span>
+              <span class="word-cn">{{ word.cn }}</span>
+              <span class="word-en">{{ word.en }}</span>
+              <span class="word-relic" :style="{ color: word.rarityColor }">{{ word.relicName }}</span>
+              <div class="secured-tag">SECURED</div>
             </div>
           </div>
-          <div class="final-rank">
-            <div class="rank-label">最终评级</div>
-            <div class="rank-val">SSS</div>
-            <div class="alice-credit">校尉 Alice 成功回收全部圣物</div>
+          
+          <div class="rank-section">
+            <div class="rank-box">
+              <div class="rank-label">最终评级</div>
+              <div class="rank-value gold-glow">{{ calculateRank() }}</div>
+            </div>
+            <div class="rank-details">
+              <div class="rank-stat">回收进度: {{ inventory.length }} / 10</div>
+              <div class="alice-credit">摸金校尉成功将珍宝带回现代</div>
+            </div>
           </div>
-          <button class="retry-btn" @click="resetGame">重新摸金</button>
+          <button class="retry-btn-fancy" @click="resetGame">再次进入地宫</button>
         </div>
       </div>
     </div>
@@ -81,12 +100,35 @@ const userInput = ref("");
 const wordInput = ref(null);
 const keys = {};
 
+const relicMeta = [
+  { name: "大内金樽", icon: "🏺", color: "#ffd700" },
+  { name: "焦尾古琴", icon: "🪕", color: "#d4a373" },
+  { name: "足金元宝", icon: "💰", color: "#ffcc00" },
+  { name: "长信宫灯", icon: "🏮", color: "#ff4d4d" },
+  { name: "羊脂玉扳指", icon: "💍", color: "#e0f2f1" },
+  { name: "宫廷流苏", icon: "🧧", color: "#ff1744" },
+  { name: "越洋炸鸡桶", icon: "🍗", color: "#ffa726" },
+  { name: "象牙梳", icon: "🪮", color: "#fff9c4" },
+  { name: "调兵虎符", icon: "🐅", color: "#8d6e63" },
+  { name: "龙纹玉佩", icon: "💠", color: "#4db6ac" }
+];
+
+// 动态评级逻辑
+const calculateRank = () => {
+  const count = inventory.value.length;
+  if (count >= 10) return "SSS";
+  if (count >= 8) return "S";
+  if (count >= 6) return "A";
+  return "B";
+};
+
 const initTreasures = () => {
-  const words = [...props.wordList].sort(() => Math.random() - 0.5).slice(0, 10);
-  const names = ["黄金面具", "青铜神树", "鬼玺", "白玉如意", "金杖", "龙纹璧"];
-  treasures.value = words.map((w, i) => ({
-    ...w, relicName: names[i % names.length], x: 800 + i * 500, collected: false
-  }));
+  const source = props.wordList.length > 0 ? props.wordList : Array.from({length: 10}, (_, i) => ({en: `Artifact${i}`, cn: `古物${i}`}));
+  const words = [...source].sort(() => Math.random() - 0.5).slice(0, 10);
+  treasures.value = words.map((w, i) => {
+    const meta = relicMeta[i % relicMeta.length];
+    return { ...w, relicName: meta.name, icon: meta.icon, rarityColor: meta.color, x: 800 + i * 600, collected: false };
+  });
 };
 
 const startGame = () => { gameState.active = true; requestAnimationFrame(gameLoop); };
@@ -101,6 +143,7 @@ const gameLoop = () => {
   }
   gameState.wx = Math.min(0, -gameState.px + 400);
   gameState.ox -= 0.008;
+  if (gameState.ox <= 0) { gameState.finished = true; gameState.ox = 0; }
   gameState.nearItem = treasures.value.find(t => !t.collected && Math.abs(gameState.px - t.x) < 70) || null;
   requestAnimationFrame(gameLoop);
 };
@@ -131,56 +174,71 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.game-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #000; font-family: 'Courier New', monospace; }
-#game-view { width: 1000px; aspect-ratio: 2/1; position: relative; background: #050505; border: 1px solid #222; overflow: hidden; }
+.game-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #000; font-family: 'JetBrains Mono', monospace; }
+#game-view { width: 1000px; aspect-ratio: 2/1; position: relative; background: #080808; border: 1px solid #222; overflow: hidden; }
 
-/* HUD 优化：防止溢出 */
+/* HUD */
 #hud { position: absolute; top: 15px; width: 100%; padding: 0 30px; display: flex; justify-content: space-between; z-index: 1000; box-sizing: border-box; }
-.cyan-glow { color: #00ffcc; text-shadow: 0 0 5px rgba(0,255,204,0.5); }
-.gold-glow { color: #ffcc00; font-weight: bold; text-shadow: 0 0 5px rgba(255,204,0,0.5); }
+.cyan-glow { color: #00ffcc; text-shadow: 0 0 8px #00ffcc; }
+.gold-glow { color: #ffcc00; font-weight: bold; text-shadow: 0 0 10px #ffcc00; }
 
-/* Alice 形象进化 */
+/* 详情页与鉴定卡片 */
+#terminal-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 5000; }
+.terminal-card { width: 440px; padding: 45px; background: #0a0a0a; border: 1px solid #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.2); text-align: center; position: relative; overflow: hidden; }
+.relic-status-tag { color: #00ffcc; font-size: 10px; letter-spacing: 2px; margin-bottom: 15px; opacity: 0.8; }
+.relic-cn { color: #ffcc00; font-size: 42px; margin: 0; font-weight: 900; }
+.relic-name-badge { display: inline-block; margin-top: 8px; padding: 2px 12px; border: 1px solid #ffcc00; color: #ffcc00; font-size: 14px; }
+.relic-divider { height: 1px; background: linear-gradient(90deg, transparent, #00ffcc, transparent); margin: 25px auto; width: 80%; }
+input { width: 100%; background: rgba(0, 255, 204, 0.05); border: none; border-bottom: 2px solid #00ffcc; color: #fff; padding: 15px; font-size: 22px; text-align: center; outline: none; }
+
+/* 极简开始页 */
+#start-overlay { position: absolute; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; text-align: center; }
+.start-content { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.title-main { color: #ffcc00; font-size: 48px; font-weight: 900; letter-spacing: 10px; text-shadow: 0 0 20px rgba(255, 204, 0, 0.4); margin: 0; }
+.start-action-btn { padding: 15px 60px; background: transparent; border: 2px solid #ffcc00; color: #ffcc00; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; letter-spacing: 4px; }
+.start-action-btn:hover { background: #ffcc00; color: #000; transform: scale(1.05); }
+
+/* 高级结算页样式 (找回区) */
+#finish-screen { position: absolute; inset: 0; background: #000; z-index: 6000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.status-tag { color: #00ffcc; letter-spacing: 5px; font-size: 14px; margin-bottom: 15px; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+.inventory-box { width: 800px; padding: 40px; background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid #ffcc00; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+.inv-title { color: #ffcc00; text-align: center; font-size: 28px; margin-bottom: 30px; letter-spacing: 2px; }
+.word-list-scroll { max-height: 220px; overflow-y: auto; padding-right: 15px; }
+.word-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
+.word-id { color: #444; width: 40px; font-size: 12px; }
+.word-relic { width: 150px; font-weight: bold; }
+.word-en { color: #00ffcc; flex: 1; font-weight: 800; font-size: 18px; margin: 0 20px; }
+.word-cn { color: #888; }
+.secured-tag { color: #00ffcc; border: 1px solid #00ffcc; font-size: 10px; padding: 1px 4px; opacity: 0.6; }
+
+.rank-section { display: flex; align-items: center; justify-content: space-between; margin-top: 35px; border-top: 1px solid #222; padding-top: 25px; }
+.rank-box { text-align: left; }
+.rank-label { color: #666; font-size: 12px; text-transform: uppercase; }
+.rank-value { font-size: 72px; font-weight: 900; line-height: 1; margin-top: 5px; }
+.rank-details { text-align: right; }
+.rank-stat { color: #ccc; font-size: 18px; margin-bottom: 5px; }
+.alice-credit { color: #444; font-size: 13px; font-style: italic; }
+
+.retry-btn-fancy { padding: 12px 30px; background: transparent; border: 1px solid #ffcc00; color: #ffcc00; cursor: pointer; font-weight: bold; margin-top: 25px; transition: 0.3s; }
+.retry-btn-fancy:hover { background: #ffcc00; color: #000; }
+
+/* 角色与世界 */
 #alice-sprite { position: absolute; bottom: 18%; width: 44px; height: 80px; z-index: 500; }
-.alice-hair-flow {
-  position: absolute; width: 4px; height: 4px; left: 0; top: 12px;
-  box-shadow: 0px 0px #d4a373, 4px 0px #d4a373, 8px 0px #d4a373, 12px 0px #d4a373,
-    0px 8px #d4a373, 4px 8px #d4a373, 8px 8px #d4a373, 12px 8px #d4a373,
-    0px 16px #d4a373, 4px 16px #d4a373, 0px 24px #d4a373, 4px 24px #d4a373, 0px 32px #d4a373;
-}
-.alice-body-pixel {
-  position: absolute; width: 4px; height: 4px; left: 16px;
-  box-shadow: 0px 4px #4a90e2, 4px 4px #4a90e2, /* 蓝色发带 */
-    0px 12px #ffe0bd, 4px 12px #ffe0bd, /* 脸 */
-    0px 20px #4a90e2, 4px 20px #4a90e2, /* 身体 */
-    0px 32px #333, 4px 32px #333; /* 腿 */
-}
-.alice-tank-pixel {
-  position: absolute; width: 4px; height: 4px; left: 12px; top: 32px;
-  background: #ffcc00; box-shadow: 0px 4px #ffcc00; /* 黄色气罐 */
-}
-
-/* 首页按钮样式 */
-.terminal-btn-primary {
-  position: absolute; top: 80px; left: 40px; padding: 8px 20px;
-  background: #ffffff !important; color: #000 !important;
-  border: 1px solid #666; font-weight: bold; cursor: pointer;
-}
-
-/* 交互提示 */
-.interact-hint { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); white-space: nowrap; color: #fff; font-size: 12px; }
-.key-box { background: #ffcc00; color: #000; padding: 2px 5px; font-weight: bold; border-radius: 2px; }
-
-/* 弹窗文案加固 */
-#terminal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 5000; }
-.terminal-card { width: 400px; padding: 40px; border: 1px solid #00ffcc; background: #0a0a0a; text-align: center; }
-.relic-cn { color: #ffcc00; font-size: 32px; margin: 0; display: block; }
-.relic-sub { color: #666; font-size: 14px; display: block; margin-top: 10px; }
-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #00ffcc; color: #fff; padding: 12px; font-size: 20px; text-align: center; outline: none; margin-top: 30px; }
-
-/* 其他样式 */
-.walking { animation: bob-run 0.15s infinite alternate; }
-@keyframes bob-run { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+.alice-hair-flow { position: absolute; width: 4px; height: 4px; left: 0; top: 12px; box-shadow: 0px 0px #d4a373, 4px 0px #d4a373, 8px 0px #d4a373, 0px 8px #d4a373, 4px 8px #d4a373, 0px 16px #d4a373, 4px 16px #d4a373, 0px 24px #d4a373; }
+.alice-body-pixel { position: absolute; width: 4px; height: 4px; left: 16px; box-shadow: 0px 4px #4a90e2, 4px 4px #4a90e2, 0px 12px #ffe0bd, 4px 12px #ffe0bd, 0px 20px #4a90e2, 4px 20px #4a90e2, 0px 32px #333, 4px 32px #333; }
+.relic-visual-box { position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+.relic-icon { font-size: 38px; z-index: 2; filter: drop-shadow(0 0 10px var(--glow-color)); }
+.relic-aura { position: absolute; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--glow-color); opacity: 0.3; animation: breathe 3s infinite alternate; }
 #world { position: absolute; inset: 0; width: 10000px; }
 .floor-line { position: absolute; bottom: 18%; width: 100%; height: 1px; background: #222; }
-.treasure { position: absolute; bottom: 20%; width: 50px; height: 50px; }
+.treasure { position: absolute; bottom: 20%; width: 60px; height: 60px; }
+.interact-hint { position: absolute; top: -55px; left: 50%; transform: translateX(-50%); white-space: nowrap; color: #fff; font-size: 13px; }
+.key-box { background: #ffcc00; color: #000; padding: 2px 6px; font-weight: bold; border-radius: 3px; }
+@keyframes breathe { from { transform: scale(0.9); opacity: 0.2; } to { transform: scale(1.1); opacity: 0.5; } }
+@keyframes scan { from { top: 0; } to { top: 100%; } }
+.scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 255, 204, 0.3); animation: scan 3s linear infinite; }
+.walking { animation: bob-move 0.15s infinite alternate; }
+@keyframes bob-move { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+.gold-scroll::-webkit-scrollbar { width: 4px; }
+.gold-scroll::-webkit-scrollbar-thumb { background: #ffcc00; }
 </style>

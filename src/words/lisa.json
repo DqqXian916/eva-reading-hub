@@ -1,0 +1,653 @@
+[
+  {
+    "m": false,
+    "s": "the house over there is theirs.",
+    "cn": "他们的",
+    "en": "theirs",
+    "ps": "ðerz"
+  },
+  {
+    "m": false,
+    "s": "they were here them, but now they are gone.",
+    "cn": "他们",
+    "en": "them",
+    "ps": "ðem"
+  },
+  {
+    "m": false,
+    "s": "please join us for lunch.",
+    "cn": "我们",
+    "en": "us",
+    "ps": "əs"
+  },
+  {
+    "m": false,
+    "s": "go straight ahead and turn left.",
+    "cn": "在前面；向前",
+    "en": "ahead",
+    "ps": "əˈhed"
+  },
+  {
+    "m": false,
+    "s": "i can speak english and chinese.",
+    "cn": "和；而且",
+    "en": "and",
+    "ps": "ənd"
+  },
+  {
+    "m": false,
+    "s": "we are students of this school.",
+    "cn": "是（be的复数）",
+    "en": "are",
+    "ps": "ɑːr"
+  },
+  {
+    "m": false,
+    "s": "can i ask you a question?",
+    "cn": "问；请求",
+    "en": "ask",
+    "ps": "æsk"
+  },
+  {
+    "m": false,
+    "s": "my aunt gave me a birthday present.",
+    "cn": "姨妈；姑妈",
+    "en": "aunt",
+    "ps": "ænt"
+  },
+  {
+    "m": false,
+    "s": "leaves turn yellow in autumn.",
+    "cn": "秋天",
+    "en": "autumn",
+    "ps": "ˈɔːtəm"
+  },
+  {
+    "m": false,
+    "s": "elephants are very big animals.",
+    "cn": "大的",
+    "en": "big",
+    "ps": "bɪɡ"
+  },
+  {
+    "m": false,
+    "s": "he is a clever boy.",
+    "cn": "男孩",
+    "en": "boy",
+    "ps": "bɔɪ"
+  },
+  {
+    "m": false,
+    "s": "it's cold but sunny today.",
+    "cn": "但是",
+    "en": "but",
+    "ps": "bʌt"
+  },
+  {
+    "m": false,
+    "s": "i can swim across the river.",
+    "cn": "能；可以；罐头",
+    "en": "can",
+    "ps": "kæn"
+  },
+  {
+    "m": false,
+    "s": "he drives a blue car to work.",
+    "cn": "小汽车",
+    "en": "car",
+    "ps": "kɑːr"
+  },
+  {
+    "m": false,
+    "s": "take care of yourself on the trip.",
+    "cn": "照料；负责",
+    "en": "care",
+    "ps": "ker"
+  },
+  {
+    "m": false,
+    "s": "let's go to the cinema tonight.",
+    "cn": "电影院",
+    "en": "cinema",
+    "ps": "ˈsɪnəmə"
+  },
+  {
+    "m": false,
+    "s": "we had a long conversation about history.",
+    "cn": "对话",
+    "en": "conversation",
+    "ps": "ˌkɑːnvərˈseɪʃn"
+  },
+  {
+    "m": false,
+    "s": "be careful at the pedestrian crossing.",
+    "cn": "十字路口",
+    "en": "crossing",
+    "ps": "ˈkrɔːsɪŋ"
+  },
+  {
+    "m": false,
+    "s": "i like to eat sliced cucumber with salt.",
+    "cn": "黄瓜",
+    "en": "cucumber",
+    "ps": "ˈkjuːkʌmbər"
+  },
+  {
+    "m": false,
+    "s": "she loves to dance to pop music.",
+    "cn": "跳舞",
+    "en": "dance",
+    "ps": "dæns"
+  },
+  {
+    "m": false,
+    "s": "dogs like to dig holes in the garden.",
+    "cn": "挖掘",
+    "en": "dig",
+    "ps": "dɪɡ"
+  },
+  {
+    "m": false,
+    "s": "he is a diligent student who works hard.",
+    "cn": "勤奋的",
+    "en": "diligent",
+    "ps": "ˈdɪlɪdʒənt"
+  },
+  {
+    "m": false,
+    "s": "don't touch the wet paint.",
+    "cn": "不（do not）",
+    "en": "don't",
+    "ps": "doʊnt"
+  },
+  {
+    "m": false,
+    "s": "can you draw a picture of a cat?",
+    "cn": "绘画；画",
+    "en": "draw",
+    "ps": "drɔː"
+  },
+  {
+    "m": false,
+    "s": "i go for a run every morning.",
+    "cn": "每个",
+    "en": "every",
+    "ps": "ˈevri"
+  },
+  {
+    "m": false,
+    "s": "the cows are grazing on the farm.",
+    "cn": "农场",
+    "en": "farm",
+    "ps": "fɑːrm"
+  },
+  {
+    "m": false,
+    "s": "my grandfather is fifty years old.",
+    "cn": "五十",
+    "en": "fifty",
+    "ps": "ˈfɪfti"
+  },
+  {
+    "m": false,
+    "s": "he cut his finger with a knife.",
+    "cn": "手指",
+    "en": "finger",
+    "ps": "ˈfɪŋɡər"
+  },
+  {
+    "m": false,
+    "s": "she is my best friend at school.",
+    "cn": "朋友",
+    "en": "friend",
+    "ps": "frend"
+  },
+  {
+    "m": false,
+    "s": "it's time to go to bed.",
+    "cn": "去；进行",
+    "en": "go",
+    "ps": "ɡoʊ"
+  },
+  {
+    "m": false,
+    "s": "the guard stands at the gate.",
+    "cn": "卫兵；看守",
+    "en": "guard",
+    "ps": "ɡɑːrd"
+  },
+  {
+    "m": false,
+    "s": "i have a sister and two brothers.",
+    "cn": "有；吃",
+    "en": "have",
+    "ps": "hæv"
+  },
+  {
+    "m": false,
+    "s": "how are you doing today?",
+    "cn": "怎样",
+    "en": "how",
+    "ps": "haʊ"
+  },
+  {
+    "m": false,
+    "s": "hurry up, or we will be late.",
+    "cn": "赶快",
+    "en": "hurry",
+    "ps": "ˈhɜːri"
+  },
+  {
+    "m": false,
+    "s": "don't let the big dog intimidate you.",
+    "cn": "恐吓；威胁",
+    "en": "intimidate",
+    "ps": "ɪnˈtɪmɪdeɪt"
+  },
+  {
+    "m": false,
+    "s": "the mountain landscape is beautiful.",
+    "cn": "风景",
+    "en": "landscape",
+    "ps": "ˈlændskeɪp"
+  },
+  {
+    "m": false,
+    "s": "he felt lazy on Sunday afternoon.",
+    "cn": "懒惰的",
+    "en": "lazy",
+    "ps": "ˈleɪzi"
+  },
+  {
+    "m": false,
+    "s": "we learn english every day.",
+    "cn": "学习",
+    "en": "learn",
+    "ps": "lɜːrn"
+  },
+  {
+    "m": false,
+    "s": "he is a fast learner.",
+    "cn": "学习者",
+    "en": "learner",
+    "ps": "ˈlɜːrnər"
+  },
+  {
+    "m": false,
+    "s": "could you lend me your pen?",
+    "cn": "借出",
+    "en": "lend",
+    "ps": "lend"
+  },
+  {
+    "m": false,
+    "s": "water is necessary for life.",
+    "cn": "生命；生活",
+    "en": "life",
+    "ps": "laɪf"
+  },
+  {
+    "m": false,
+    "s": "the soup is very hot.",
+    "cn": "非常",
+    "en": "very",
+    "ps": "ˈveri"
+  },
+  {
+    "m": false,
+    "s": "you should wash your hands before dinner.",
+    "cn": "洗",
+    "en": "wash",
+    "ps": "wɑːʃ"
+  },
+  {
+    "m": false,
+    "s": "where are you going?",
+    "cn": "在哪里",
+    "en": "where",
+    "ps": "wer"
+  },
+  {
+    "m": false,
+    "s": "it was a lifetime achievement for him.",
+    "cn": "一生；终身",
+    "en": "lifetime",
+    "ps": "ˈlaɪftaɪm"
+  },
+  {
+    "m": false,
+    "s": "i lost my keys this morning.",
+    "cn": "丢失的；迷失的",
+    "en": "lost",
+    "ps": "lɔːst"
+  },
+  {
+    "m": false,
+    "s": "it's your lucky day!",
+    "cn": "幸运的",
+    "en": "lucky",
+    "ps": "ˈlʌki"
+  },
+  {
+    "m": false,
+    "s": "i like the lyrics of this song.",
+    "cn": "歌词",
+    "en": "lyrics",
+    "ps": "ˈlɪrɪks"
+  },
+  {
+    "m": false,
+    "s": "don't be mad at me.",
+    "cn": "疯狂的；发火的",
+    "en": "mad",
+    "ps": "mæd"
+  },
+  {
+    "m": false,
+    "s": "i received a mail from my friend.",
+    "cn": "邮件；信件",
+    "en": "mail",
+    "ps": "meɪl"
+  },
+  {
+    "m": false,
+    "s": "he is a tall man.",
+    "cn": "男人",
+    "en": "man",
+    "ps": "mæn"
+  },
+  {
+    "m": false,
+    "s": "he is the master of the house.",
+    "cn": "主人；大师",
+    "en": "master",
+    "ps": "ˈmæstər"
+  },
+  {
+    "m": false,
+    "s": "i miss my family very much.",
+    "cn": "思念；错过",
+    "en": "miss",
+    "ps": "mɪs"
+  },
+  {
+    "m": false,
+    "s": "his mother is a doctor.",
+    "cn": "母亲",
+    "en": "mother",
+    "ps": "ˈmʌðər"
+  },
+  {
+    "m": false,
+    "s": "this is my new car.",
+    "cn": "我的",
+    "en": "my",
+    "ps": "maɪ"
+  },
+  {
+    "m": false,
+    "s": "the stars shine brightly at night.",
+    "cn": "夜晚",
+    "en": "night",
+    "ps": "naɪt"
+  },
+  {
+    "m": false,
+    "s": "it is not raining now.",
+    "cn": "不；不是",
+    "en": "not",
+    "ps": "nɑːt"
+  },
+  {
+    "m": false,
+    "s": "we need to leave now.",
+    "cn": "现在",
+    "en": "now",
+    "ps": "naʊ"
+  },
+  {
+    "m": false,
+    "s": "the nurse is helping the patient.",
+    "cn": "护士",
+    "en": "nurse",
+    "ps": "nɜːrs"
+  },
+  {
+    "m": false,
+    "s": "the book is on the table.",
+    "cn": "在...上面",
+    "en": "on",
+    "ps": "ɑːn"
+  },
+  {
+    "m": false,
+    "s": "do you want tea or coffee?",
+    "cn": "或者",
+    "en": "or",
+    "ps": "ɔːr"
+  },
+  {
+    "m": false,
+    "s": "we have plenty of food for everyone.",
+    "cn": "大量的",
+    "en": "plenty",
+    "ps": "ˈplenti"
+  },
+  {
+    "m": false,
+    "s": "be quick, the train is leaving.",
+    "cn": "快的",
+    "en": "quick",
+    "ps": "kwɪk"
+  },
+  {
+    "m": false,
+    "s": "the sun rose in the east.",
+    "cn": "玫瑰；上升",
+    "en": "rose",
+    "ps": "roʊz"
+  },
+  {
+    "m": false,
+    "s": "you must follow the school rule.",
+    "cn": "规则",
+    "en": "rule",
+    "ps": "ruːl"
+  },
+  {
+    "m": false,
+    "s": "he is learning the russian language.",
+    "cn": "俄罗斯的",
+    "en": "russian",
+    "ps": "ˈrʌʃn"
+  },
+  {
+    "m": false,
+    "s": "i can see a bird in the tree.",
+    "cn": "看见",
+    "en": "see",
+    "ps": "siː"
+  },
+  {
+    "m": false,
+    "s": "school starts in september.",
+    "cn": "九月",
+    "en": "september",
+    "ps": "sepˈtembər"
+  },
+  {
+    "m": false,
+    "s": "the little girl is very shy.",
+    "cn": "害羞的",
+    "en": "shy",
+    "ps": "ʃaɪ"
+  },
+  {
+    "m": false,
+    "s": "this is a simple math problem.",
+    "cn": "简单的",
+    "en": "simple",
+    "ps": "ˈsɪmpl"
+  },
+  {
+    "m": false,
+    "s": "what time does the show start?",
+    "cn": "开始",
+    "en": "start",
+    "ps": "stɑːrt"
+  },
+  {
+    "m": false,
+    "s": "don't make me angry.",
+    "cn": "生气",
+    "en": "angry",
+    "ps": "ˈæŋɡri"
+  },
+  {
+    "m": false,
+    "s": "we visited an old temple in kyoto.",
+    "cn": "寺庙",
+    "en": "temple",
+    "ps": "ˈtempl"
+  },
+  {
+    "m": false,
+    "s": "the number after nine is ten.",
+    "cn": "十",
+    "en": "ten",
+    "ps": "ten"
+  },
+  {
+    "m": false,
+    "s": "open your textbook to page ten.",
+    "cn": "教科书",
+    "en": "textbook",
+    "ps": "ˈtekstbʊk"
+  },
+  {
+    "m": false,
+    "s": "the book is on the desk.",
+    "cn": "这；那",
+    "en": "the",
+    "ps": "ðə"
+  },
+  {
+    "m": false,
+    "s": "that car belongs to theirs.",
+    "cn": "他/她/它们的",
+    "en": "theirs",
+    "ps": "ðerz"
+  },
+  {
+    "m": false,
+    "s": "tell them to come in.",
+    "cn": "他/她/它们",
+    "en": "them",
+    "ps": "ðem"
+  },
+  {
+    "m": false,
+    "s": "they are playing football.",
+    "cn": "他/她/它们",
+    "en": "they",
+    "ps": "ðeɪ"
+  },
+  {
+    "m": false,
+    "s": "what time is it?",
+    "cn": "时间；次数",
+    "en": "time",
+    "ps": "taɪm"
+  },
+  {
+    "m": false,
+    "s": "the kitten has tiny paws.",
+    "cn": "极小的",
+    "en": "tiny",
+    "ps": "ˈtaɪni"
+  },
+  {
+    "m": false,
+    "s": "give us some water, please.",
+    "cn": "我们",
+    "en": "us",
+    "ps": "əs"
+  },
+  {
+    "m": false,
+    "s": "i like this movie very much.",
+    "cn": "非常地",
+    "en": "very much",
+    "ps": "ˈveri mʌtʃ"
+  },
+  {
+    "m": false,
+    "s": "when will you come back?",
+    "cn": "什么时候",
+    "en": "when",
+    "ps": "wen"
+  },
+  {
+    "m": false,
+    "s": "who is that man standing there?",
+    "cn": "谁",
+    "en": "who",
+    "ps": "huː"
+  },
+  {
+    "m": false,
+    "s": "i am learning to draw.",
+    "cn": "绘画",
+    "en": "draw",
+    "ps": "drɔː"
+  },
+  {
+    "m": false,
+    "s": "the doctor came to clock his pulse.",
+    "cn": "时钟",
+    "en": "clock",
+    "ps": "klɑːk"
+  },
+  {
+    "m": false,
+    "s": "he works on a large farm.",
+    "cn": "农场",
+    "en": "farm",
+    "ps": "fɑːrm"
+  },
+  {
+    "m": false,
+    "s": "the shop is closed on Sundays.",
+    "cn": "商店",
+    "en": "shop",
+    "ps": "ʃɑːp"
+  },
+  {
+    "m": false,
+    "s": "winter is the coldest season.",
+    "cn": "冬天",
+    "en": "winter",
+    "ps": "ˈwɪntər"
+  },
+  {
+    "m": false,
+    "s": "summer is coming soon.",
+    "cn": "夏天",
+    "en": "summer",
+    "ps": "ˈsʌmər"
+  },
+  {
+    "m": false,
+    "s": "i like to read a story before bed.",
+    "cn": "故事",
+    "en": "story",
+    "ps": "ˈstɔːri"
+  },
+  {
+    "m": false,
+    "s": "flowers bloom in spring.",
+    "cn": "春天",
+    "en": "spring",
+    "ps": "sprɪŋ"
+  }
+]

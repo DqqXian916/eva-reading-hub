@@ -1,0 +1,674 @@
+[
+  {
+    "m": false,
+    "s": "Don't forget to lock the door.",
+    "cn": "忘记",
+    "en": "forget",
+    "ps": "fərˈɡet"
+  },
+  {
+    "m": false,
+    "s": "She did an excellent job on the test.",
+    "cn": "优秀的",
+    "en": "excellent",
+    "ps": "ˈeksələnt"
+  },
+  {
+    "m": false,
+    "s": "You shouldn't judge a book by its cover.",
+    "cn": "裁判；判断",
+    "en": "judge",
+    "ps": "dʒʌdʒ"
+  },
+  {
+    "m": false,
+    "s": "The band gave a great performance.",
+    "cn": "表演",
+    "en": "performance",
+    "ps": "pərˈfɔːrməns"
+  },
+  {
+    "m": false,
+    "s": "It's your round to buy the drinks.",
+    "cn": "轮；圆的",
+    "en": "round",
+    "ps": "raʊnd"
+  },
+  {
+    "m": false,
+    "s": "Please enter your password.",
+    "cn": "进入",
+    "en": "enter",
+    "ps": "ˈentər"
+  },
+  {
+    "m": false,
+    "s": "We must protect the environment.",
+    "cn": "保护",
+    "en": "protect",
+    "ps": "prəˈtekt"
+  },
+  {
+    "m": false,
+    "s": "We should take care of our environment.",
+    "cn": "环境",
+    "en": "environment",
+    "ps": "ɪnˈvaɪrənmənt"
+  },
+  {
+    "m": false,
+    "s": "Can you play any musical instruments?",
+    "cn": "乐器",
+    "en": "instruments",
+    "ps": "ˈɪnstrəmənts"
+  },
+  {
+    "m": false,
+    "s": "The news began to spread quickly.",
+    "cn": "传播",
+    "en": "spread",
+    "ps": "spred"
+  },
+  {
+    "m": false,
+    "s": "What is the meaning of this word?",
+    "cn": "意义",
+    "en": "meaning",
+    "ps": "ˈmiːnɪŋ"
+  },
+  {
+    "m": false,
+    "s": "Please continue with your work.",
+    "cn": "继续",
+    "en": "continue",
+    "ps": "kənˈtɪnjuː"
+  },
+  {
+    "m": false,
+    "s": "They are studying ancient history.",
+    "cn": "古老的",
+    "en": "ancient",
+    "ps": "ˈeɪnʃənt"
+  },
+  {
+    "m": false,
+    "s": "The wheel was a great invention.",
+    "cn": "发明",
+    "en": "invention",
+    "ps": "ɪnˈvenʃn"
+  },
+  {
+    "m": false,
+    "s": "The dress is made of pure silk.",
+    "cn": "丝绸",
+    "en": "silk",
+    "ps": "sɪlk"
+  },
+  {
+    "m": false,
+    "s": "The Emperor lived in a big palace.",
+    "cn": "皇帝",
+    "en": "Emperor",
+    "ps": "ˈempərər"
+  },
+  {
+    "m": false,
+    "s": "This cloth is very soft.",
+    "cn": "布料",
+    "en": "cloth",
+    "ps": "klɔːθ"
+  },
+  {
+    "m": false,
+    "s": "Time is more valuable than money.",
+    "cn": "有价值的",
+    "en": "valuable",
+    "ps": "ˈvæljuəbl"
+  },
+  {
+    "m": false,
+    "s": "The king ruled the country for years.",
+    "cn": "国王",
+    "en": "king",
+    "ps": "kɪŋ"
+  },
+  {
+    "m": false,
+    "s": "May I take your order now?",
+    "cn": "命令；点菜",
+    "en": "order",
+    "ps": "ˈɔːrdər"
+  },
+  {
+    "m": false,
+    "s": "Trade between the two countries increased.",
+    "cn": "贸易",
+    "en": "trade",
+    "ps": "treɪd"
+  },
+  {
+    "m": false,
+    "s": "We drove along the highway.",
+    "cn": "高速公路",
+    "en": "highway",
+    "ps": "ˈhaɪweɪ"
+  },
+  {
+    "m": false,
+    "s": "The traders sold spices and silk.",
+    "cn": "贸易商人",
+    "en": "traders",
+    "ps": "ˈtreɪdərz"
+  },
+  {
+    "m": false,
+    "s": "I didn't receive your email.",
+    "cn": "收到",
+    "en": "receive",
+    "ps": "rɪˈsiːv"
+  },
+  {
+    "m": false,
+    "s": "They found buried treasures in the cave.",
+    "cn": "宝藏",
+    "en": "treasures",
+    "ps": "ˈtreʒərz"
+  },
+  {
+    "m": false,
+    "s": "The project failed due to lack of cooperation.",
+    "cn": "合作",
+    "en": "cooperation",
+    "ps": "kuˌɑːpəˈreɪʃn"
+  },
+  {
+    "m": false,
+    "s": "The students had a cultural exchange.",
+    "cn": "交流",
+    "en": "exchange",
+    "ps": "ɪksˈtʃeɪndʒ"
+  },
+  {
+    "m": false,
+    "s": "The building has a distinctive shape.",
+    "cn": "独特的",
+    "en": "distinctive",
+    "ps": "dɪˈstɪŋktɪv"
+  },
+  {
+    "m": false,
+    "s": "I am reading a mystery novel.",
+    "cn": "小说",
+    "en": "novel",
+    "ps": "ˈnɑːvl"
+  },
+  {
+    "m": false,
+    "s": "They had a romantic dinner.",
+    "cn": "浪漫的",
+    "en": "romantic",
+    "ps": "roʊˈmæntɪk"
+  },
+  {
+    "m": false,
+    "s": "He is a professor of English literature.",
+    "cn": "文学",
+    "en": "literature",
+    "ps": "ˈlɪtrətʃʊr"
+  },
+  {
+    "m": false,
+    "s": "The piano is a keyboard instrument.",
+    "cn": "乐器",
+    "en": "instrument",
+    "ps": "ˈɪnstrəmənt"
+  },
+  {
+    "m": false,
+    "s": "Plants need water to survive.",
+    "cn": "生存",
+    "en": "survive",
+    "ps": "sərˈvaɪv"
+  },
+  {
+    "m": false,
+    "s": "The children like to run and play.",
+    "cn": "跑",
+    "en": "run ran",
+    "ps": "rʌn ræn"
+  },
+  {
+    "m": false,
+    "s": "He likes to climb mountains.",
+    "cn": "爬",
+    "en": "climb",
+    "ps": "klaɪm"
+  },
+  {
+    "m": false,
+    "s": "Is the fish still alive?",
+    "cn": "活着",
+    "en": "alive",
+    "ps": "əˈlaɪv"
+  },
+  {
+    "m": false,
+    "s": "This church was built a century ago.",
+    "cn": "世纪",
+    "en": "century",
+    "ps": "ˈsentʃəri"
+  },
+  {
+    "m": false,
+    "s": "The school organises many outdoor activities.",
+    "cn": "活动",
+    "en": "activity",
+    "ps": "ækˈtɪvəti"
+  },
+  {
+    "m": false,
+    "s": "They found some ancient ruins.",
+    "cn": "古代的",
+    "en": "ancient",
+    "ps": "ˈeɪnʃənt"
+  },
+  {
+    "m": false,
+    "s": "They will hold a meeting tomorrow.",
+    "cn": "举办；握住",
+    "en": "hold",
+    "ps": "hoʊld"
+  },
+  {
+    "m": false,
+    "s": "Modern technology is changing our lives.",
+    "cn": "现代的",
+    "en": "modern",
+    "ps": "ˈmɑːdərn"
+  },
+  {
+    "m": false,
+    "s": "Let's begin our lesson.",
+    "cn": "开始",
+    "en": "begin",
+    "ps": "bɪˈɡɪn"
+  },
+  {
+    "m": false,
+    "s": "The brand is known globally.",
+    "cn": "全球地",
+    "en": "globally",
+    "ps": "ˈɡloʊbəli"
+  },
+  {
+    "m": false,
+    "s": "What shape is the table?",
+    "cn": "形状",
+    "en": "shape",
+    "ps": "ʃeɪp"
+  },
+  {
+    "m": false,
+    "s": "What size shoes do you wear?",
+    "cn": "尺寸",
+    "en": "size",
+    "ps": "saɪz"
+  },
+  {
+    "m": false,
+    "s": "She is a well-organized person.",
+    "cn": "组织",
+    "en": "organize",
+    "ps": "ˈɔːrɡənaɪz"
+  },
+  {
+    "m": false,
+    "s": "This is a serious problem.",
+    "cn": "严重的",
+    "en": "serious",
+    "ps": "ˈsɪriəs"
+  },
+  {
+    "m": false,
+    "s": "Ice is one of the forms of water.",
+    "cn": "形式",
+    "en": "forms",
+    "ps": "fɔːrmz"
+  },
+  {
+    "m": false,
+    "s": "You must obey the rules.",
+    "cn": "规则",
+    "en": "rule",
+    "ps": "ruːl"
+  },
+  {
+    "m": false,
+    "s": "Soldiers are expected to obey orders.",
+    "cn": "遵守",
+    "en": "obey",
+    "ps": "əˈbeɪ"
+  },
+  {
+    "m": false,
+    "s": "Most plants require sunlight.",
+    "cn": "需要",
+    "en": "require",
+    "ps": "rɪˈkwaɪər"
+  },
+  {
+    "m": false,
+    "s": "What's your opinion of the movie?",
+    "cn": "观点",
+    "en": "opinion",
+    "ps": "əˈpɪnjən"
+  },
+  {
+    "m": false,
+    "s": "The city has a special charm.",
+    "cn": "魅力",
+    "en": "charm",
+    "ps": "tʃɑːrm"
+  },
+  {
+    "m": false,
+    "s": "We need to reduce waste.",
+    "cn": "减少",
+    "en": "reduce",
+    "ps": "rɪˈduːs"
+  },
+  {
+    "m": false,
+    "s": "He is a professional athlete.",
+    "cn": "运动员",
+    "en": "athlete",
+    "ps": "ˈæθliːt"
+  },
+  {
+    "m": false,
+    "s": "The climb was a big challenge.",
+    "cn": "挑战",
+    "en": "challenge",
+    "ps": "ˈtʃælɪndʒ"
+  },
+  {
+    "m": false,
+    "s": "I'm going to the market to buy fruit.",
+    "cn": "市场",
+    "en": "market",
+    "ps": "ˈmɑːrkɪt"
+  },
+  {
+    "m": false,
+    "s": "It was an embarrassing moment.",
+    "cn": "令人尴尬的",
+    "en": "embarrassing",
+    "ps": "ɪmˈbærəsɪŋ"
+  },
+  {
+    "m": false,
+    "s": "Smoking can have a bad effect on health.",
+    "cn": "影响",
+    "en": "effect",
+    "ps": "ɪˈfekt"
+  },
+  {
+    "m": false,
+    "s": "The label won't stick to the box.",
+    "cn": "粘贴；棍棒",
+    "en": "stick",
+    "ps": "stɪk"
+  },
+  {
+    "m": false,
+    "s": "Sichuan is a province in China.",
+    "cn": "省份",
+    "en": "province",
+    "ps": "ˈprɑːvɪns"
+  },
+  {
+    "m": false,
+    "s": "We aim for high quality.",
+    "cn": "质量",
+    "en": "quality",
+    "ps": "ˈkwɑːləti"
+  },
+  {
+    "m": false,
+    "s": "The car is too expensive for me.",
+    "cn": "昂贵的",
+    "en": "expensive",
+    "ps": "ɪkˈspensɪv"
+  },
+  {
+    "m": false,
+    "s": "She was born in 1995.",
+    "cn": "出生",
+    "en": "born",
+    "ps": "bɔːrn"
+  },
+  {
+    "m": false,
+    "s": "He has regular exercise.",
+    "cn": "常规的",
+    "en": "regular",
+    "ps": "ˈreɡjələr"
+  },
+  {
+    "m": false,
+    "s": "The days are getting short.",
+    "cn": "短的",
+    "en": "short",
+    "ps": "ʃɔːrt"
+  },
+  {
+    "m": false,
+    "s": "Paris is known for the Eiffel Tower.",
+    "cn": "因...闻名",
+    "en": "be known for",
+    "ps": "bi noʊn fɔːr"
+  },
+  {
+    "m": false,
+    "s": "He explained every detail of the plan.",
+    "cn": "细节",
+    "en": "detail",
+    "ps": "ˈdiːteɪl"
+  },
+  {
+    "m": false,
+    "s": "She gave a detailed account of the trip.",
+    "cn": "详细的",
+    "en": "detailed",
+    "ps": "ˈdiːteɪld"
+  },
+  {
+    "m": false,
+    "s": "Please write your name here.",
+    "cn": "写",
+    "en": "write wrote written",
+    "ps": "raɪt roʊt ˈrɪtn"
+  },
+  {
+    "m": false,
+    "s": "We are working on a new project.",
+    "cn": "项目",
+    "en": "project",
+    "ps": "ˈprɑːdʒekt"
+  },
+  {
+    "m": false,
+    "s": "What was the final score?",
+    "cn": "得分",
+    "en": "score",
+    "ps": "skɔːr"
+  },
+  {
+    "m": false,
+    "s": "The crowd began to cheer.",
+    "cn": "欢呼",
+    "en": "cheer",
+    "ps": "tʃɪr"
+  },
+  {
+    "m": false,
+    "s": "I love eating hot pot in winter.",
+    "cn": "火锅",
+    "en": "hot pot",
+    "ps": "hɑːt pɑːt"
+  },
+  {
+    "m": false,
+    "s": "The teacher praised him for his hard work.",
+    "cn": "赞扬",
+    "en": "praise",
+    "ps": "preɪz"
+  },
+  {
+    "m": false,
+    "s": "I advise you to stay at home.",
+    "cn": "建议",
+    "en": "advise",
+    "ps": "ədˈvaɪz"
+  },
+  {
+    "m": false,
+    "s": "Don't ignore the warning signs.",
+    "cn": "忽略",
+    "en": "ignore",
+    "ps": "ɪɡˈnɔːr"
+  },
+  {
+    "m": false,
+    "s": "Don't force him to do it.",
+    "cn": "强迫",
+    "en": "force",
+    "ps": "fɔːrs"
+  },
+  {
+    "m": false,
+    "s": "The band played until midnight.",
+    "cn": "乐队",
+    "en": "band",
+    "ps": "bænd"
+  },
+  {
+    "m": false,
+    "s": "The British like to talk about the weather.",
+    "cn": "英国人",
+    "en": "British",
+    "ps": "ˈbrɪtɪʃ"
+  },
+  {
+    "m": false,
+    "s": "She used tape to fix the box.",
+    "cn": "磁带；胶带",
+    "en": "tape",
+    "ps": "teɪp"
+  },
+  {
+    "m": false,
+    "s": "I am aware of the problem.",
+    "cn": "意识到",
+    "en": "aware",
+    "ps": "əˈwer"
+  },
+  {
+    "m": false,
+    "s": "Keep a record of your expenses.",
+    "cn": "记录",
+    "en": "record",
+    "ps": "ˈrekərd"
+  },
+  {
+    "m": false,
+    "s": "There is a hole in my sock.",
+    "cn": "洞",
+    "en": "hole",
+    "ps": "hoʊl"
+  },
+  {
+    "m": false,
+    "s": "We are studying Chinese culture.",
+    "cn": "文化",
+    "en": "culture",
+    "ps": "ˈkʌltʃər"
+  },
+  {
+    "m": false,
+    "s": "Write your name on a piece of paper.",
+    "cn": "纸",
+    "en": "paper",
+    "ps": "ˈpeɪpər"
+  },
+  {
+    "m": false,
+    "s": "Turn off the light when you leave.",
+    "cn": "轻的；电灯",
+    "en": "light",
+    "ps": "laɪt"
+  },
+  {
+    "m": false,
+    "s": "I remember meeting him before.",
+    "cn": "记得",
+    "en": "remember",
+    "ps": "rɪˈmembər"
+  },
+  {
+    "m": false,
+    "s": "He is a law-abiding citizen.",
+    "cn": "公民",
+    "en": "citizen",
+    "ps": "ˈsɪtɪzn"
+  },
+  {
+    "m": false,
+    "s": "The president will give a speech.",
+    "cn": "总统；校长",
+    "en": "president",
+    "ps": "ˈprezɪdənt"
+  },
+  {
+    "m": false,
+    "s": "She is smiling at the camera.",
+    "cn": "摄像机",
+    "en": "camera",
+    "ps": "ˈkæmrə"
+  },
+  {
+    "m": false,
+    "s": "The universe is vast and mysterious.",
+    "cn": "宇宙",
+    "en": "universe",
+    "ps": "ˈjuːnɪvɜːrs"
+  },
+  {
+    "m": false,
+    "s": "Tell me a story about your childhood.",
+    "cn": "故事",
+    "en": "story",
+    "ps": "ˈstɔːri"
+  },
+  {
+    "m": false,
+    "s": "What kind of material is this?",
+    "cn": "材料",
+    "en": "material",
+    "ps": "məˈtɪriəl"
+  },
+  {
+    "m": false,
+    "s": "He was a brave soldier.",
+    "cn": "勇敢的",
+    "en": "brave",
+    "ps": "breɪv"
+  },
+  {
+    "m": false,
+    "s": "Can you translate this into Chinese?",
+    "cn": "翻译",
+    "en": "translate",
+    "ps": "trænzˈleɪt"
+  }
+]

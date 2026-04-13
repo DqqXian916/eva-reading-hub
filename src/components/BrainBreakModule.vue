@@ -52,7 +52,7 @@ const games = ref([
     },
     {
     id: 'tomb',
-    name: '非自然摸金',
+    name: '非自然摸金组',
     isVue: true, // 关键：标识这是一个 Vue 组件
     icon: '🏺',
     color: '',

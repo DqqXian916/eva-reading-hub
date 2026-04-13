@@ -1,0 +1,590 @@
+[
+  {
+    "m": false,
+    "s": "I don't know how to spell this English word.",
+    "cn": "单词",
+    "en": "word",
+    "ps": "wɜːrd"
+  },
+  {
+    "m": true,
+    "s": "How are you feeling today?",
+    "cn": "怎样",
+    "en": "how",
+    "ps": "haʊ"
+  },
+  {
+    "m": true,
+    "s": "I like to add sliced cucumber to my salad.",
+    "cn": "黄瓜",
+    "en": "cucumber",
+    "ps": "ˈkjuːkʌmbər"
+  },
+  {
+    "m": false,
+    "s": "I had a long conversation with my teacher yesterday.",
+    "cn": "会议/对话",
+    "en": "conversation",
+    "ps": "ˌkɑːnvərˈseɪʃn"
+  },
+  {
+    "m": false,
+    "s": "He is a diligent student who always finishes his homework on time.",
+    "cn": "勤奋的",
+    "en": "diligent",
+    "ps": "ˈdɪlɪdʒənt"
+  },
+  {
+    "m": true,
+    "s": "The ambulance arrived quickly to take the man to the hospital.",
+    "cn": "救护车",
+    "en": "ambulance",
+    "ps": "ˈæmbjələns"
+  },
+  {
+    "m": true,
+    "s": "She tended to blush whenever she felt embarrassed.",
+    "cn": "脸红",
+    "en": "blush",
+    "ps": "blʌʃ"
+  },
+  {
+    "m": true,
+    "s": "The scent of lavender helps me relax before sleep.",
+    "cn": "薰衣草",
+    "en": "lavender",
+    "ps": "ˈlævəndər"
+  },
+  {
+    "m": true,
+    "s": "It is much warmer inside the house than on the street.",
+    "cn": "在里面",
+    "en": "inside",
+    "ps": "ˌɪnˈsaɪd"
+  },
+  {
+    "m": true,
+    "s": "Please write your name at the top of the paper.",
+    "cn": "写",
+    "en": "write",
+    "ps": "raɪt"
+  },
+  {
+    "m": false,
+    "s": "The kids are playing out in the garden.",
+    "cn": "在外面",
+    "en": "out",
+    "ps": "aʊt"
+  },
+  {
+    "m": true,
+    "s": "It’s raining, so don’t go outside without a coat.",
+    "cn": "在外面",
+    "en": "outside",
+    "ps": "ˌaʊtˈsaɪd"
+  },
+  {
+    "m": true,
+    "s": "Please stand in a straight line.",
+    "cn": "线",
+    "en": "line",
+    "ps": "laɪn"
+  },
+  {
+    "m": true,
+    "s": "The dog was trained to guard the house at night.",
+    "cn": "守卫",
+    "en": "guard",
+    "ps": "ɡɑːrd"
+  },
+  {
+    "m": true,
+    "s": "We had to wait for an hour to see the doctor.",
+    "cn": "等",
+    "en": "wait",
+    "ps": "weɪt"
+  },
+  {
+    "m": false,
+    "s": "Where do you come from?",
+    "cn": "从",
+    "en": "from",
+    "ps": "frʌm"
+  },
+  {
+    "m": true,
+    "s": "The letters 'UN' stand for the United Nations.",
+    "cn": "站立，代表",
+    "en": "stand",
+    "ps": "stænd"
+  },
+  {
+    "m": true,
+    "s": "Don't shout; I can hear you perfectly fine.",
+    "cn": "呼叫",
+    "en": "shout",
+    "ps": "ʃaʊt"
+  },
+  {
+    "m": true,
+    "s": "A flash of lightning lit up the sky.",
+    "cn": "闪光",
+    "en": "flash",
+    "ps": "flæʃ"
+  },
+  {
+    "m": true,
+    "s": "When do you plan to return from your trip?",
+    "cn": "返回",
+    "en": "return",
+    "ps": "rɪˈtɜːrn"
+  },
+  {
+    "m": true,
+    "s": "Can I borrow your pen for a second?",
+    "cn": "借",
+    "en": "borrow",
+    "ps": "ˈbɑːroʊ"
+  },
+  {
+    "m": false,
+    "s": "The crowd cheered when the player scored a goal.",
+    "cn": "人群",
+    "en": "crowd",
+    "ps": "kraʊd"
+  },
+  {
+    "m": false,
+    "s": "The bus always arrives on time.",
+    "cn": "按时",
+    "en": "on time",
+    "ps": "ɑːn taɪm"
+  },
+  {
+    "m": true,
+    "s": "You must wear a seatbelt when driving.",
+    "cn": "必须",
+    "en": "must",
+    "ps": "mʌst"
+  },
+  {
+    "m": true,
+    "s": "Yes, sir, I will finish the report right away.",
+    "cn": "先生",
+    "en": "sir",
+    "ps": "sɜːr"
+  },
+  {
+    "m": true,
+    "s": "I love eating ice cream in the hot summer.",
+    "cn": "夏天",
+    "en": "summer",
+    "ps": "ˈsʌmər"
+  },
+  {
+    "m": false,
+    "s": "What time does the movie start?",
+    "cn": "开始",
+    "en": "start",
+    "ps": "stɑːrt"
+  },
+  {
+    "m": false,
+    "s": "The plane landed safely on the dry land.",
+    "cn": "土地",
+    "en": "land",
+    "ps": "lænd"
+  },
+  {
+    "m": false,
+    "s": "The mountain landscape was absolutely beautiful.",
+    "cn": "风景",
+    "en": "landscape",
+    "ps": "ˈlændskeɪp"
+  },
+  {
+    "m": true,
+    "s": "January is usually the coldest month of the year.",
+    "cn": "一月",
+    "en": "January",
+    "ps": "ˈdʒænjuəri"
+  },
+  {
+    "m": true,
+    "s": "February is the shortest month with only 28 or 29 days.",
+    "cn": "二月",
+    "en": "February",
+    "ps": "ˈfɛbruəri"
+  },
+  {
+    "m": true,
+    "s": "March marks the beginning of spring in many places.",
+    "cn": "三月",
+    "en": "March",
+    "ps": "mɑːrtʃ"
+  },
+  {
+    "m": true,
+    "s": "April showers bring May flowers.",
+    "cn": "四月",
+    "en": "April",
+    "ps": "ˈeɪprəl"
+  },
+  {
+    "m": true,
+    "s": "We have a long holiday in May.",
+    "cn": "五月",
+    "en": "May",
+    "ps": "meɪ"
+  },
+  {
+    "m": true,
+    "s": "School usually ends in June for the summer break.",
+    "cn": "六月",
+    "en": "June",
+    "ps": "dʒuːn"
+  },
+  {
+    "m": true,
+    "s": "The weather is very hot in July.",
+    "cn": "七月",
+    "en": "July",
+    "ps": "dʒuˈlaɪ"
+  },
+  {
+    "m": true,
+    "s": "August is a popular month for going to the beach.",
+    "cn": "八月",
+    "en": "August",
+    "ps": "ˈɔːɡəst"
+  },
+  {
+    "m": true,
+    "s": "The new school year starts in September.",
+    "cn": "九月",
+    "en": "September",
+    "ps": "sɛpˈtɛmbər"
+  },
+  {
+    "m": true,
+    "s": "The leaves start to change color in October.",
+    "cn": "十月",
+    "en": "October",
+    "ps": "ɑːkˈtoʊbər"
+  },
+  {
+    "m": true,
+    "s": "November is when we celebrate Thanksgiving.",
+    "cn": "十一月",
+    "en": "November",
+    "ps": "noʊˈvɛmbər"
+  },
+  {
+    "m": true,
+    "s": "December is the last month of the year.",
+    "cn": "十二月",
+    "en": "December",
+    "ps": "dɪˈsɛmbər"
+  },
+  {
+    "m": false,
+    "s": "Please remember to lock the door before you leave.",
+    "cn": "记得",
+    "en": "remember",
+    "ps": "rɪˈmɛmbər"
+  },
+  {
+    "m": false,
+    "s": "He is a very fast runner.",
+    "cn": "快的",
+    "en": "fast",
+    "ps": "fæst"
+  },
+  {
+    "m": false,
+    "s": "Most people prefer tea over coffee here.",
+    "cn": "最",
+    "en": "most",
+    "ps": "moʊst"
+  },
+  {
+    "m": false,
+    "s": "The football match was very exciting to watch.",
+    "cn": "令人激动的",
+    "en": "exciting",
+    "ps": "ɪkˈsaɪtɪŋ"
+  },
+  {
+    "m": false,
+    "s": "The first part of the book is more interesting than the second.",
+    "cn": "部分",
+    "en": "part",
+    "ps": "pɑːrt"
+  },
+  {
+    "m": false,
+    "s": "She is the best student in our class.",
+    "cn": "最好的",
+    "en": "best",
+    "ps": "bɛst"
+  },
+  {
+    "m": false,
+    "s": "He is a doctor, and his father was a doctor too.",
+    "cn": "是",
+    "en": "is was",
+    "ps": "ɪz wəz"
+  },
+  {
+    "m": false,
+    "s": "Team spirit is very important in sports.",
+    "cn": "精神",
+    "en": "spirit",
+    "ps": "ˈspɪrɪt"
+  },
+  {
+    "m": false,
+    "s": "Everyone started to cheer when the band walked on stage.",
+    "cn": "欢呼",
+    "en": "cheer",
+    "ps": "tʃɪr"
+  },
+  {
+    "m": false,
+    "s": "The music was so loud that I couldn't hear you.",
+    "cn": "大声的",
+    "en": "loud",
+    "ps": "laʊd"
+  },
+  {
+    "m": false,
+    "s": "I have to get up early tomorrow morning.",
+    "cn": "不得不",
+    "en": "have to",
+    "ps": "hæv tu"
+  },
+  {
+    "m": false,
+    "s": "An ant is a very small but strong insect.",
+    "cn": "昆虫",
+    "en": "insect",
+    "ps": "ˈɪnsɛkt"
+  },
+  {
+    "m": false,
+    "s": "He painted the garden fence white.",
+    "cn": "栅栏",
+    "en": "fence",
+    "ps": "fɛns"
+  },
+  {
+    "m": false,
+    "s": "I found a coin on the floor yesterday.",
+    "cn": "发现",
+    "en": "find found",
+    "ps": "faɪnd faʊnd"
+  },
+  {
+    "m": false,
+    "s": "History is a very interesting subject to study.",
+    "cn": "有趣的",
+    "en": "interesting",
+    "ps": "ˈɪntrəstɪŋ"
+  },
+  {
+    "m": false,
+    "s": "The leaf fell slowly from the tree.",
+    "cn": "树叶",
+    "en": "leaf",
+    "ps": "liːf"
+  },
+  {
+    "m": false,
+    "s": "I spent the whole day cleaning my room.",
+    "cn": "全部的，所有",
+    "en": "whole",
+    "ps": "hoʊl"
+  },
+  {
+    "m": false,
+    "s": "The pirate was searching for hidden treasure.",
+    "cn": "宝藏",
+    "en": "treasure",
+    "ps": "ˈtrɛʒər"
+  },
+  {
+    "m": false,
+    "s": "She wrote a long letter to her grandmother.",
+    "cn": "写",
+    "en": "write wrote",
+    "ps": "raɪt roʊt"
+  },
+  {
+    "m": false,
+    "s": "Tell me a story before I go to sleep.",
+    "cn": "故事",
+    "en": "story",
+    "ps": "ˈstɔːri"
+  },
+  {
+    "m": false,
+    "s": "It's nice to share your toys with others.",
+    "cn": "分享",
+    "en": "share",
+    "ps": "ʃer"
+  },
+  {
+    "m": false,
+    "s": "This is the first time I've been to London.",
+    "cn": "第一",
+    "en": "first",
+    "ps": "fɜːrst"
+  },
+  {
+    "m": false,
+    "s": "He finished the race in second place.",
+    "cn": "第二",
+    "en": "second",
+    "ps": "ˈsɛkənd"
+  },
+  {
+    "m": false,
+    "s": "This is the third time I have called him today.",
+    "cn": "第三",
+    "en": "third",
+    "ps": "θɜːrd"
+  },
+  {
+    "m": false,
+    "s": "The office is on the fourth floor.",
+    "cn": "第四",
+    "en": "fourth",
+    "ps": "fɔːrθ"
+  },
+  {
+    "m": false,
+    "s": "It’s my little brother's fifth birthday today.",
+    "cn": "第五",
+    "en": "fifth",
+    "ps": "fɪfθ"
+  },
+  {
+    "m": false,
+    "s": "Friday is the sixth day of the week if you start with Sunday.",
+    "cn": "第六",
+    "en": "sixth",
+    "ps": "sɪksθ"
+  },
+  {
+    "m": false,
+    "s": "July is the seventh month of the year.",
+    "cn": "第七",
+    "en": "seventh",
+    "ps": "ˈsɛvnθ"
+  },
+  {
+    "m": false,
+    "s": "He lives in the eighth house on this street.",
+    "cn": "第八",
+    "en": "eighth",
+    "ps": "eɪtθ"
+  },
+  {
+    "m": false,
+    "s": "September is the ninth month of the year.",
+    "cn": "第九",
+    "en": "ninth",
+    "ps": "naɪnθ"
+  },
+  {
+    "m": false,
+    "s": "Our school anniversary is on the tenth of October.",
+    "cn": "第十",
+    "en": "tenth",
+    "ps": "tɛnθ"
+  },
+  {
+    "m": false,
+    "s": "Today is the eleventh day of the month.",
+    "cn": "第十一",
+    "en": "eleventh",
+    "ps": "ɪˈlɛvnθ"
+  },
+  {
+    "m": false,
+    "s": "There are twelve eggs in a dozen; this is the twelfth.",
+    "cn": "第十二",
+    "en": "twelfth",
+    "ps": "twɛlfθ"
+  },
+  {
+    "m": false,
+    "s": "She is celebrating her thirteenth birthday today.",
+    "cn": "第十三",
+    "en": "thirteenth",
+    "ps": "ˌθɜːrˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "King Louis XIV is also known as the fourteenth king named Louis.",
+    "cn": "第十四",
+    "en": "fourteenth",
+    "ps": "ˌfɔːrˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "The middle of the month is around the fifteenth.",
+    "cn": "第十五",
+    "en": "fifteenth",
+    "ps": "ˌfɪfˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "He was the sixteenth person to join the club.",
+    "cn": "第十六",
+    "en": "sixteenth",
+    "ps": "ˌsɪksˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "She moved to this city when she was in her seventeenth year.",
+    "cn": "第十七",
+    "en": "seventeenth",
+    "ps": "ˌsɛvnˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "The exhibition is on the eighteenth floor.",
+    "cn": "第十八",
+    "en": "eighteenth",
+    "ps": "ˌeɪˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "The nineteenth century saw many great inventions.",
+    "cn": "第十九",
+    "en": "nineteenth",
+    "ps": "ˌnaɪnˈtiːnθ"
+  },
+  {
+    "m": false,
+    "s": "We are living in the twenty-first century, not the twentieth.",
+    "cn": "第二十",
+    "en": "twentieth",
+    "ps": "ˈtwɛntiəθ"
+  },
+  {
+    "m": false,
+    "s": "The shop is celebrating its twenty-first anniversary.",
+    "cn": "第二十一",
+    "en": "twenty-first",
+    "ps": "ˌtwɛnti ˈfɜːrst"
+  },
+  {
+    "m": false,
+    "s": "He finished the marathon in twenty-second place.",
+    "cn": "第二十二",
+    "en": "twenty-second",
+    "ps": "ˌtwɛnti ˈsɛkənd"
+  }
+]

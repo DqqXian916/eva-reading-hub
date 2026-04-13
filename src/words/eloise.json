@@ -1,0 +1,499 @@
+[
+  {
+    "m": false,
+    "s": "School starts in September.",
+    "cn": "九月",
+    "en": "september",
+    "ps": "sepˈtembər"
+  },
+  {
+    "m": false,
+    "s": "What is the date today?",
+    "cn": "日期",
+    "en": "date",
+    "ps": "deɪt"
+  },
+  {
+    "m": false,
+    "s": "I remember your name.",
+    "cn": "记得",
+    "en": "remember",
+    "ps": "rɪˈmembər"
+  },
+  {
+    "m": false,
+    "s": "Don't let them intimidate you.",
+    "cn": "恐吓；威胁",
+    "en": "intimidate",
+    "ps": "ɪnˈtɪmɪdeɪt"
+  },
+  {
+    "m": false,
+    "s": "He left an hour ago.",
+    "cn": "在...之前",
+    "en": "ago",
+    "ps": "əˈɡoʊ"
+  },
+  {
+    "m": false,
+    "s": "I like eating cucumber.",
+    "cn": "黄瓜",
+    "en": "cucumber",
+    "ps": "ˈkjuːkʌmbər"
+  },
+  {
+    "m": false,
+    "s": "Paris is a European city.",
+    "cn": "欧洲人；欧洲的",
+    "en": "European",
+    "ps": "ˌjʊrəˈpiːən"
+  },
+  {
+    "m": false,
+    "s": "What is your phone number?",
+    "cn": "数字",
+    "en": "number",
+    "ps": "ˈnʌmbər"
+  },
+  {
+    "m": false,
+    "s": "It's easy to make friends here.",
+    "cn": "交朋友",
+    "en": "make friends",
+    "ps": "meɪk frendz"
+  },
+  {
+    "m": false,
+    "s": "I like eating hot pot.",
+    "cn": "锅；壶",
+    "en": "pot",
+    "ps": "pɑːt"
+  },
+  {
+    "m": false,
+    "s": "Open your book to page ten.",
+    "cn": "页",
+    "en": "page",
+    "ps": "peɪdʒ"
+  },
+  {
+    "m": false,
+    "s": "I read English every day.",
+    "cn": "每天",
+    "en": "every day",
+    "ps": "ˈevri deɪ"
+  },
+  {
+    "m": false,
+    "s": "I really like this book.",
+    "cn": "真正地",
+    "en": "really",
+    "ps": "ˈriːəli"
+  },
+  {
+    "m": false,
+    "s": "The clown is very funny.",
+    "cn": "有趣的",
+    "en": "funny",
+    "ps": "ˈfʌni"
+  },
+  {
+    "m": false,
+    "s": "Don't laugh at others.",
+    "cn": "笑",
+    "en": "laugh",
+    "ps": "læf"
+  },
+  {
+    "m": false,
+    "s": "I usually read at night.",
+    "cn": "在晚上",
+    "en": "at night",
+    "ps": "æt naɪt"
+  },
+  {
+    "m": false,
+    "s": "The elephant is very large.",
+    "cn": "大的",
+    "en": "large",
+    "ps": "lɑːrdʒ"
+  },
+  {
+    "m": false,
+    "s": "The weather will change soon.",
+    "cn": "改变",
+    "en": "change",
+    "ps": "tʃeɪndʒ"
+  },
+  {
+    "m": false,
+    "s": "The cake is delicious.",
+    "cn": "美味的",
+    "en": "delicious",
+    "ps": "dɪˈlɪʃəs"
+  },
+  {
+    "m": false,
+    "s": "He is good at swimming.",
+    "cn": "擅长",
+    "en": "good at",
+    "ps": "ɡʊd æt"
+  },
+  {
+    "m": false,
+    "s": "Life is full of surprises.",
+    "cn": "生活；生命",
+    "en": "life",
+    "ps": "laɪf"
+  },
+  {
+    "m": false,
+    "s": "I spend time on my hobbies.",
+    "cn": "花费",
+    "en": "spend",
+    "ps": "spend"
+  },
+  {
+    "m": false,
+    "s": "She felt sad after the news.",
+    "cn": "难过的",
+    "en": "sad",
+    "ps": "sæd"
+  },
+  {
+    "m": false,
+    "s": "Monday is a busy day.",
+    "cn": "星期一",
+    "en": "Monday",
+    "ps": "ˈmʌndeɪ"
+  },
+  {
+    "m": false,
+    "s": "I have a party on Friday.",
+    "cn": "星期五",
+    "en": "Friday",
+    "ps": "ˈfraɪdeɪ"
+  },
+  {
+    "m": false,
+    "s": "We go hiking on Saturday.",
+    "cn": "星期六",
+    "en": "Saturday",
+    "ps": "ˈsætərdeɪ"
+  },
+  {
+    "m": false,
+    "s": "I rest on Sunday.",
+    "cn": "星期日",
+    "en": "Sunday",
+    "ps": "ˈsʌndeɪ"
+  },
+  {
+    "m": false,
+    "s": "Why are you late?",
+    "cn": "为什么",
+    "en": "why",
+    "ps": "waɪ"
+  },
+  {
+    "m": false,
+    "s": "How do you go to school?",
+    "cn": "如何；怎么样",
+    "en": "how",
+    "ps": "haʊ"
+  },
+  {
+    "m": false,
+    "s": "My father reads the newspaper.",
+    "cn": "报纸",
+    "en": "newspaper",
+    "ps": "ˈnuːzpeɪpər"
+  },
+  {
+    "m": false,
+    "s": "What is in the box?",
+    "cn": "什么",
+    "en": "what",
+    "ps": "wʌt"
+  },
+  {
+    "m": false,
+    "s": "Apple is my favourite fruit.",
+    "cn": "最喜欢的",
+    "en": "favourite",
+    "ps": "ˈfeɪvərɪt"
+  },
+  {
+    "m": false,
+    "s": "Turn left at the corner.",
+    "cn": "左边",
+    "en": "left",
+    "ps": "left"
+  },
+  {
+    "m": false,
+    "s": "Use your right hand.",
+    "cn": "右边",
+    "en": "right",
+    "ps": "raɪt"
+  },
+  {
+    "m": false,
+    "s": "He is excited about the trip.",
+    "cn": "兴奋的",
+    "en": "excited",
+    "ps": "ɪkˈsaɪtɪd"
+  },
+  {
+    "m": false,
+    "s": "I am bored with this movie.",
+    "cn": "感到无聊的",
+    "en": "bored",
+    "ps": "bɔːrd"
+  },
+  {
+    "m": false,
+    "s": "I want some water.",
+    "cn": "想要",
+    "en": "want",
+    "ps": "wɑːnt"
+  },
+  {
+    "m": false,
+    "s": "He was a teacher.",
+    "cn": "是（am/is的过去式）",
+    "en": "was",
+    "ps": "wəz"
+  },
+  {
+    "m": false,
+    "s": "I'm late because of the rain.",
+    "cn": "因为",
+    "en": "because",
+    "ps": "bɪˈkəz"
+  },
+  {
+    "m": false,
+    "s": "Who is that girl?",
+    "cn": "谁",
+    "en": "who",
+    "ps": "huː"
+  },
+  {
+    "m": false,
+    "s": "Where is the library?",
+    "cn": "哪里",
+    "en": "where",
+    "ps": "wer"
+  },
+  {
+    "m": false,
+    "s": "The pencil is very short.",
+    "cn": "短的；矮的",
+    "en": "short",
+    "ps": "ʃɔːrt"
+  },
+  {
+    "m": false,
+    "s": "I like it too.",
+    "cn": "也；太",
+    "en": "too",
+    "ps": "tuː"
+  },
+  {
+    "m": false,
+    "s": "Put on your clothes.",
+    "cn": "衣服",
+    "en": "clothes",
+    "ps": "kloʊðz"
+  },
+  {
+    "m": false,
+    "s": "Let's go to the shop.",
+    "cn": "商店；购物",
+    "en": "shop",
+    "ps": "ʃɑːp"
+  },
+  {
+    "m": false,
+    "s": "I have already finished.",
+    "cn": "已经",
+    "en": "already",
+    "ps": "ɔːlˈredi"
+  },
+  {
+    "m": false,
+    "s": "I need your help.",
+    "cn": "需要",
+    "en": "need",
+    "ps": "niːd"
+  },
+  {
+    "m": false,
+    "s": "That is my house.",
+    "cn": "那个",
+    "en": "that",
+    "ps": "ðæt"
+  },
+  {
+    "m": false,
+    "s": "Those are my books.",
+    "cn": "那些",
+    "en": "those",
+    "ps": "ðoʊz"
+  },
+  {
+    "m": false,
+    "s": "Today is Monday, but yesterday was Sunday.",
+    "cn": "是（及过去式）",
+    "en": "is was",
+    "ps": "ɪz wəz"
+  },
+  {
+    "m": false,
+    "s": "Sit down, please.",
+    "cn": "下",
+    "en": "down",
+    "ps": "daʊn"
+  },
+  {
+    "m": false,
+    "s": "The mountain is very high.",
+    "cn": "高的",
+    "en": "high",
+    "ps": "haɪ"
+  },
+  {
+    "m": false,
+    "s": "This task is very easy.",
+    "cn": "简单的",
+    "en": "easy",
+    "ps": "ˈiːzi"
+  },
+  {
+    "m": false,
+    "s": "The plane flew higher and higher.",
+    "cn": "更高的",
+    "en": "higher",
+    "ps": "ˈhaɪər"
+  },
+  {
+    "m": false,
+    "s": "Children like to play outside.",
+    "cn": "玩，踢",
+    "en": "play",
+    "ps": "pleɪ"
+  },
+  {
+    "m": false,
+    "s": "I walk to school every day.",
+    "cn": "走",
+    "en": "walk",
+    "ps": "wɔːk"
+  },
+  {
+    "m": false,
+    "s": "They are playing football.",
+    "cn": "他们，她们，它们",
+    "en": "they",
+    "ps": "ðeɪ"
+  },
+  {
+    "m": false,
+    "s": "This is our classroom.",
+    "cn": "我们的",
+    "en": "our",
+    "ps": "ˈaʊər"
+  },
+  {
+    "m": false,
+    "s": "Can you skate on the ice?",
+    "cn": "滑冰",
+    "en": "skate",
+    "ps": "skeɪt"
+  },
+  {
+    "m": false,
+    "s": "Birds can fly in the sky.",
+    "cn": "飞",
+    "en": "fly",
+    "ps": "flaɪ"
+  },
+  {
+    "m": false,
+    "s": "Please wait for a moment.",
+    "cn": "等",
+    "en": "wait",
+    "ps": "weɪt"
+  },
+  {
+    "m": false,
+    "s": "Can you jump over the fence?",
+    "cn": "跳",
+    "en": "jump",
+    "ps": "dʒʌmp"
+  },
+  {
+    "m": false,
+    "s": "Monkeys like to climb trees.",
+    "cn": "爬",
+    "en": "climb",
+    "ps": "klaɪm"
+  },
+  {
+    "m": false,
+    "s": "Don't fight with your friends.",
+    "cn": "打架",
+    "en": "fight",
+    "ps": "faɪt"
+  },
+  {
+    "m": false,
+    "s": "I sleep eight hours a night.",
+    "cn": "睡觉",
+    "en": "sleep",
+    "ps": "sliːp"
+  },
+  {
+    "m": false,
+    "s": "I have an apple for lunch.",
+    "cn": "有，吃",
+    "en": "have",
+    "ps": "hæv"
+  },
+  {
+    "m": false,
+    "s": "She will teach us English.",
+    "cn": "教",
+    "en": "teach",
+    "ps": "tiːtʃ"
+  },
+  {
+    "m": false,
+    "s": "The book is on the table.",
+    "cn": "在...上，在...时候",
+    "en": "on",
+    "ps": "ɑːn"
+  },
+  {
+    "m": false,
+    "s": "My parents work in a hospital.",
+    "cn": "工作",
+    "en": "work",
+    "ps": "wɜːrk"
+  },
+  {
+    "m": false,
+    "s": "Would you like some water to drink?",
+    "cn": "喝",
+    "en": "drink",
+    "ps": "drɪŋk"
+  },
+  {
+    "m": false,
+    "s": "Please stop the car.",
+    "cn": "停",
+    "en": "stop",
+    "ps": "stɑːp"
+  }
+]

@@ -1,0 +1,464 @@
+[
+  {
+    "m": true,
+    "s": "He can speak Russian fluently because he lived in Moscow.",
+    "cn": "俄罗斯的；俄语",
+    "en": "Russian",
+    "ps": "ˈrʌʃən"
+  },
+  {
+    "m": false,
+    "s": "The solution to this math problem is actually quite simple.",
+    "cn": "简单的",
+    "en": "simple",
+    "ps": "ˈsɪmpəl"
+  },
+  {
+    "m": true,
+    "s": "I accidentally cut my finger while cooking dinner.",
+    "cn": "手指",
+    "en": "finger",
+    "ps": "ˈfɪŋɡər"
+  },
+  {
+    "m": true,
+    "s": "We watched an interesting documentary film last night.",
+    "cn": "电影",
+    "en": "film",
+    "ps": "fɪlm"
+  },
+  {
+    "m": true,
+    "s": "She loves to dance to her favorite music in her room.",
+    "cn": "跳舞",
+    "en": "dance",
+    "ps": "dæns"
+  },
+  {
+    "m": true,
+    "s": "The nurse was very kind and took great care of the patients.",
+    "cn": "护士",
+    "en": "nurse",
+    "ps": "nɜrs"
+  },
+  {
+    "m": false,
+    "s": "My uncle owns a large farm with many cows and sheep.",
+    "cn": "农场",
+    "en": "farm",
+    "ps": "fɑrm"
+  },
+  {
+    "m": false,
+    "s": "Social media has changed the way people communicate.",
+    "cn": "社会的",
+    "en": "social",
+    "ps": "ˈsoʊʃəl"
+  },
+  {
+    "m": true,
+    "s": "Please join us for dinner at our house this Friday.",
+    "cn": "我们",
+    "en": "us",
+    "ps": "əs"
+  },
+  {
+    "m": true,
+    "s": "If you don't know the way, you should ask someone for help.",
+    "cn": "问；请求",
+    "en": "ask",
+    "ps": "æsk"
+  },
+  {
+    "m": true,
+    "s": "Let's meet at the little cafe around the corner.",
+    "cn": "咖啡馆",
+    "en": "cafe",
+    "ps": "kæˈfeɪ"
+  },
+  {
+    "m": false,
+    "s": "Wait a bit, I'm almost ready to go.",
+    "cn": "一点",
+    "en": "bit",
+    "ps": "bɪt"
+  },
+  {
+    "m": false,
+    "s": "You are so lucky to have such a supportive family.",
+    "cn": "幸运的",
+    "en": "lucky",
+    "ps": "ˈlʌki"
+  },
+  {
+    "m": true,
+    "s": "I like to add a slice of lemon to my tea.",
+    "cn": "柠檬",
+    "en": "lemon",
+    "ps": "ˈlɛmən"
+  },
+  {
+    "m": true,
+    "s": "He stayed in bed all day because he felt ill.",
+    "cn": "生病的",
+    "en": "ill",
+    "ps": "ɪl"
+  },
+  {
+    "m": true,
+    "s": "Would you like to have tea or coffee?",
+    "cn": "或者",
+    "en": "or",
+    "ps": "ɔr"
+  },
+  {
+    "m": false,
+    "s": "Modern communication makes it easy to talk to people far away.",
+    "cn": "交流；通信",
+    "en": "communication",
+    "ps": "kəˌmjunəˈkeɪʃən"
+  },
+  {
+    "m": false,
+    "s": "Please do not smoke inside the building.",
+    "cn": "吸烟",
+    "en": "smoke",
+    "ps": "smoʊk"
+  },
+  {
+    "m": false,
+    "s": "I had a long chat with my old friend on the phone.",
+    "cn": "聊天；闲聊",
+    "en": "chat",
+    "ps": "tʃæt"
+  },
+  {
+    "m": true,
+    "s": "The light in the living room is too bright.",
+    "cn": "轻的；电灯",
+    "en": "light",
+    "ps": "laɪt"
+  },
+  {
+    "m": false,
+    "s": "The road ahead is blocked due to the heavy snow.",
+    "cn": "向前；在前面",
+    "en": "ahead",
+    "ps": "əˈhɛd"
+  },
+  {
+    "m": false,
+    "s": "He is a master of martial arts after years of practice.",
+    "cn": "主人/大师",
+    "en": "master",
+    "ps": "ˈmæstər"
+  },
+  {
+    "m": false,
+    "s": "A security guard stands at the entrance of the bank.",
+    "cn": "守卫；警卫；保卫",
+    "en": "guard",
+    "ps": "ɡɑrd"
+  },
+  {
+    "m": false,
+    "s": "I lost my keys and couldn't get into my apartment.",
+    "cn": "丢失的；迷路的",
+    "en": "lost",
+    "ps": "lɔst"
+  },
+  {
+    "m": false,
+    "s": "The natural landscape of the mountains is breathtaking.",
+    "cn": "景观；风景",
+    "en": "landscape",
+    "ps": "ˈlændˌskeɪp"
+  },
+  {
+    "m": false,
+    "s": "Many people visit the ancient temple to pray.",
+    "cn": "庙宇",
+    "en": "temple",
+    "ps": "ˈtɛmpəl"
+  },
+  {
+    "m": false,
+    "s": "Could you lend me your umbrella for a few minutes?",
+    "cn": "借给",
+    "en": "lend",
+    "ps": "lɛnd"
+  },
+  {
+    "m": true,
+    "s": "The dog loves to dig holes in the backyard.",
+    "cn": "挖掘",
+    "en": "dig",
+    "ps": "dɪɡ"
+  },
+  {
+    "m": false,
+    "s": "We carved a scary face into a pumpkin for Halloween.",
+    "cn": "南瓜",
+    "en": "pumpkin",
+    "ps": "ˈpʌmpkɪn"
+  },
+  {
+    "m": false,
+    "s": "Don't be lazy; you need to finish your chores.",
+    "cn": "懒惰的",
+    "en": "lazy",
+    "ps": "ˈleɪzi"
+  },
+  {
+    "m": true,
+    "s": "Let's go to the cinema to see the new action movie.",
+    "cn": "电影院",
+    "en": "cinema",
+    "ps": "ˈsɪnəmə"
+  },
+  {
+    "m": false,
+    "s": "My grandmother just celebrated her fifty-fifth birthday.",
+    "cn": "五十",
+    "en": "fifty",
+    "ps": "ˈfɪfti"
+  },
+  {
+    "m": false,
+    "s": "The zipper on my jacket is stuck and won't move.",
+    "cn": "拉链",
+    "en": "zipper",
+    "ps": "ˈzɪpər"
+  },
+  {
+    "m": false,
+    "s": "Thanksgiving is a time for family gatherings and big meals.",
+    "cn": "感恩节",
+    "en": "thanksgiving",
+    "ps": "ˌθæŋksˈɡɪvɪŋ"
+  },
+  {
+    "m": true,
+    "s": "Pandas spend most of their time eating bamboo.",
+    "cn": "竹子",
+    "en": "bamboo",
+    "ps": "ˌbæmˈbu"
+  },
+  {
+    "m": false,
+    "s": "They sat in the front row to get a better view of the stage.",
+    "cn": "一行；一排",
+    "en": "row",
+    "ps": "roʊ"
+  },
+  {
+    "m": false,
+    "s": "We heard a wolf howling in the distance at night.",
+    "cn": "狼",
+    "en": "wolf",
+    "ps": "wʊlf"
+  },
+  {
+    "m": false,
+    "s": "That designer handbag is far too expensive for me.",
+    "cn": "昂贵的",
+    "en": "expensive",
+    "ps": "ɪkˈspɛnsɪv"
+  },
+  {
+    "m": true,
+    "s": "I exercise every morning to keep myself healthy.",
+    "cn": "每个",
+    "en": "every",
+    "ps": "ˈɛvri"
+  },
+  {
+    "m": true,
+    "s": "Eating fresh vegetable is good for your digestion.",
+    "cn": "蔬菜",
+    "en": "vegetable",
+    "ps": "ˈvɛdʒtəbəl"
+  },
+  {
+    "m": false,
+    "s": "the earthquake caused a lot of damage to the city.",
+    "cn": "地震",
+    "en": "earthquake",
+    "ps": "ˈɜːrkθkweɪk"
+  },
+  {
+    "m": false,
+    "s": "we usually have turkey for dinner on thanksgiving.",
+    "cn": "火鸡",
+    "en": "turkey",
+    "ps": "ˈtɜːrki"
+  },
+  {
+    "m": false,
+    "s": "don't worry, we have plenty of time to finish the work.",
+    "cn": "大量",
+    "en": "plenty",
+    "ps": "ˈplenti"
+  },
+  {
+    "m": false,
+    "s": "he carried the heavy bag on his shoulder.",
+    "cn": "肩膀",
+    "en": "shoulder",
+    "ps": "ˈʃoʊldər"
+  },
+  {
+    "m": false,
+    "s": "thank you for your kindness and support.",
+    "cn": "仁慈；善良",
+    "en": "kindness",
+    "ps": "ˈkaɪndnəs"
+  },
+  {
+    "m": false,
+    "s": "the teacher will punish students who break the rules.",
+    "cn": "惩罚",
+    "en": "punish",
+    "ps": "ˈpʌnɪʃ"
+  },
+  {
+    "m": false,
+    "s": "the dove is a symbol of peace.",
+    "cn": "标志；象征",
+    "en": "symbol",
+    "ps": "ˈsɪmbl"
+  },
+  {
+    "m": false,
+    "s": "the giant panda is a national treasure of china.",
+    "cn": "国家的；民族的",
+    "en": "national",
+    "ps": "ˈnæʃnəl"
+  },
+  {
+    "m": false,
+    "s": "i'd like a burger and some fish and chips.",
+    "cn": "炸薯条",
+    "en": "chip",
+    "ps": "tʃɪp"
+  },
+  {
+    "m": false,
+    "s": "i always feel hungry and want a snack in the afternoon.",
+    "cn": "小吃",
+    "en": "snack",
+    "ps": "snæk"
+  },
+  {
+    "m": false,
+    "s": "the earth is just a small part of the universe.",
+    "cn": "宇宙",
+    "en": "universe",
+    "ps": "ˈjuːnɪvɜːrs"
+  },
+  {
+    "m": false,
+    "s": "i am taking an online english course this summer.",
+    "cn": "课程；过程",
+    "en": "course",
+    "ps": "kɔːrs"
+  },
+  {
+    "m": false,
+    "s": "it is necessary to bring an umbrella on a rainy day.",
+    "cn": "必需的",
+    "en": "necessary",
+    "ps": "ˈnesəsəri"
+  },
+  {
+    "m": false,
+    "s": "children should learn how to behave well in public.",
+    "cn": "表现",
+    "en": "behave",
+    "ps": "bɪˈheɪv"
+  },
+  {
+    "m": false,
+    "s": "the green grapes are a bit sour.",
+    "cn": "酸的",
+    "en": "sour",
+    "ps": "ˈsaʊər"
+  },
+  {
+    "m": false,
+    "s": "we went on a guided tour of the museum.",
+    "cn": "参观；旅行",
+    "en": "tour",
+    "ps": "tʊr"
+  },
+  {
+    "m": false,
+    "s": "this building is of great historical importance.",
+    "cn": "历史的",
+    "en": "historical",
+    "ps": "hɪˈstɔːrɪkl"
+  },
+  {
+    "m": false,
+    "s": "the discovery of fire changed human history.",
+    "cn": "发现",
+    "en": "discovery",
+    "ps": "dɪˈskʌvəri"
+  },
+  {
+    "m": false,
+    "s": "what kind of material is this dress made of?",
+    "cn": "材料",
+    "en": "material",
+    "ps": "məˈtɪriəl"
+  },
+  {
+    "m": false,
+    "s": "i can't find a word to describe my feelings.",
+    "cn": "单词",
+    "en": "word",
+    "ps": "wɜːrd"
+  },
+  {
+    "m": false,
+    "s": "she has long brown hair.",
+    "cn": "棕色（的）",
+    "en": "brown",
+    "ps": "braʊn"
+  },
+  {
+    "m": false,
+    "s": "my aunt lives in a small town near the sea.",
+    "cn": "阿姨；姑母",
+    "en": "aunt",
+    "ps": "ænt"
+  },
+  {
+    "m": false,
+    "s": "it's time to start our meeting.",
+    "cn": "开始",
+    "en": "start",
+    "ps": "stɑːrt"
+  },
+  {
+    "m": false,
+    "s": "the movie had a very happy ending.",
+    "cn": "结尾；结束",
+    "en": "ending",
+    "ps": "ˈendɪŋ"
+  },
+  {
+    "m": false,
+    "s": "coffee beans are used to make coffee.",
+    "cn": "豆；豆荚",
+    "en": "bean",
+    "ps": "biːn"
+  },
+  {
+    "m": false,
+    "s": "the lightning gave a sudden flash in the dark sky.",
+    "cn": "闪光；闪光灯",
+    "en": "flash",
+    "ps": "flæʃ"
+  }
+]

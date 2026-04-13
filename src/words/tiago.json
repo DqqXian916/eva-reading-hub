@@ -1,0 +1,314 @@
+[
+  {
+    "m": false,
+    "s": "It will probably rain this afternoon, so take an umbrella.",
+    "cn": "可能",
+    "en": "probably"
+  },
+  {
+    "m": false,
+    "s": "Can you describe what the lost bag looks like?",
+    "cn": "描述",
+    "en": "describe"
+  },
+  {
+    "m": false,
+    "s": "In my opinion, this is the best movie of the year.",
+    "cn": "观点",
+    "en": "opinion"
+  },
+  {
+    "m": false,
+    "s": "They love to travel to different countries every summer.",
+    "cn": "旅行",
+    "en": "travel"
+  },
+  {
+    "m": false,
+    "s": "Success comes to those who work hard.",
+    "cn": "努力的，坚硬的",
+    "en": "hard"
+  },
+  {
+    "m": false,
+    "s": "Cheetahs are the fast animals on land.",
+    "cn": "快速的",
+    "en": "fast"
+  },
+  {
+    "m": false,
+    "s": "I am taking a history course this semester.",
+    "cn": "课程",
+    "en": "course"
+  },
+  {
+    "m": false,
+    "s": "Please remind me to call my mother tonight.",
+    "cn": "提醒，使想起",
+    "en": "remind"
+  },
+  {
+    "m": false,
+    "s": "The brave firefighter saved the cat from the tree.",
+    "cn": "勇敢的",
+    "en": "brave"
+  },
+  {
+    "m": false,
+    "s": "My parents are very strict about my bedtime.",
+    "cn": "严厉的",
+    "en": "strict"
+  },
+  {
+    "m": false,
+    "s": "She managed the difficult situation very well.",
+    "cn": "情境",
+    "en": "situation"
+  },
+  {
+    "m": false,
+    "s": "His sudden visit was a pleasant surprise.",
+    "cn": "惊喜",
+    "en": "surprise"
+  },
+  {
+    "m": false,
+    "s": "We took a ferry to cross the river.",
+    "cn": "轮渡",
+    "en": "ferry"
+  },
+  {
+    "m": false,
+    "s": "She writes in her diary every night before bed.",
+    "cn": "日记",
+    "en": "diary"
+  },
+  {
+    "m": false,
+    "s": "The most interesting feature of this phone is its camera.",
+    "cn": "特征",
+    "en": "feature"
+  },
+  {
+    "m": false,
+    "s": "He won first prize in the singing contest.",
+    "cn": "音乐会/竞赛",
+    "en": "contest"
+  },
+  {
+    "m": false,
+    "s": "Finish your homework, and then you can play games.",
+    "cn": "然后",
+    "en": "then"
+  },
+  {
+    "m": false,
+    "s": "Does the school allow students to use phones in class?",
+    "cn": "允许",
+    "en": "allow"
+  },
+  {
+    "m": false,
+    "s": "I have never seen such a beautiful sunset before.",
+    "cn": "这样的",
+    "en": "such"
+  },
+  {
+    "m": false,
+    "s": "He prefers to live alone in a quiet village.",
+    "cn": "独自的",
+    "en": "alone"
+  },
+  {
+    "m": false,
+    "s": "The heavy rain might cause a flood in this area.",
+    "cn": "造成",
+    "en": "cause"
+  },
+  {
+    "m": false,
+    "s": "Don't forget to take your umbrella with you.",
+    "cn": "雨伞",
+    "en": "umbrella"
+  },
+  {
+    "m": false,
+    "s": "We had a wonderful time at the party yesterday.",
+    "cn": "精彩的",
+    "en": "wonderful"
+  },
+  {
+    "m": false,
+    "s": "You should visit the Great Wall when you go to Beijing.",
+    "cn": "拜访",
+    "en": "visit"
+  },
+  {
+    "m": false,
+    "s": "I feel very happy when I am with my friends.",
+    "cn": "感觉",
+    "en": "feel"
+  },
+  {
+    "m": false,
+    "s": "We should all work together to protect our environment.",
+    "cn": "环境",
+    "en": "environment"
+  },
+  {
+    "m": false,
+    "s": "I need some help with this heavy box.",
+    "cn": "需要",
+    "en": "need"
+  },
+  {
+    "m": false,
+    "s": "The internet is a very useful source of information.",
+    "cn": "有用的",
+    "en": "useful"
+  },
+  {
+    "m": false,
+    "s": "I really appreciate your help during the project.",
+    "cn": "感激",
+    "en": "appreciate"
+  },
+  {
+    "m": false,
+    "s": "A butterfly is a type of beautiful insect.",
+    "cn": "昆虫",
+    "en": "insect"
+  },
+  {
+    "m": false,
+    "s": "The cat likes to chase mice in the garden.",
+    "cn": "追逐",
+    "en": "chase"
+  },
+  {
+    "m": false,
+    "s": "We should support our local farmers by buying their fruit.",
+    "cn": "当地的",
+    "en": "local"
+  },
+  {
+    "m": false,
+    "s": "Do you have enough money to buy the tickets?",
+    "cn": "足够的",
+    "en": "enough"
+  },
+  {
+    "m": false,
+    "s": "They plan to climb the mountain next weekend.",
+    "cn": "爬山",
+    "en": "climb"
+  },
+  {
+    "m": false,
+    "s": "Try to avoid eating too much junk food.",
+    "cn": "避免",
+    "en": "avoid"
+  },
+  {
+    "m": false,
+    "s": "Be careful not to break the glass vase.",
+    "cn": "摔/打破",
+    "en": "break broke"
+  },
+  {
+    "m": false,
+    "s": "The invention of the light bulb changed the world.",
+    "cn": "发明",
+    "en": "invention"
+  },
+  {
+    "m": false,
+    "s": "It was careless of him to leave his keys in the door.",
+    "cn": "无忧无虑的/粗心的",
+    "en": "careless"
+  },
+  {
+    "m": false,
+    "s": "He has a bad cough and needs to see a doctor.",
+    "cn": "咳嗽",
+    "en": "cough"
+  },
+  {
+    "m": false,
+    "s": "The bright flame of the candle lit up the dark room.",
+    "cn": "火焰",
+    "en": "flame"
+  },
+  {
+    "m": false,
+    "s": "Wearing a mask can help prevent the spread of germs.",
+    "cn": "口罩",
+    "en": "mask"
+  },
+  {
+    "m": false,
+    "s": "The flu is caused by a common virus.",
+    "cn": "病毒",
+    "en": "virus"
+  },
+  {
+    "m": false,
+    "s": "Smoking is very harmful to your health.",
+    "cn": "有害的",
+    "en": "harmful"
+  },
+  {
+    "m": false,
+    "s": "May I borrow your dictionary for a moment?",
+    "cn": "借",
+    "en": "borrow"
+  },
+  {
+    "m": false,
+    "s": "If you don't know the word, look it up in the dictionary.",
+    "cn": "词典",
+    "en": "dictionary"
+  },
+  {
+    "m": false,
+    "s": "You need to practice playing the piano every day.",
+    "cn": "练习",
+    "en": "practice"
+  },
+  {
+    "m": false,
+    "s": "I'm afraid I can't come to your party on Saturday.",
+    "cn": "恐怕",
+    "en": "afraid"
+  },
+  {
+    "m": false,
+    "s": "Please don't forget to turn off the lights when you leave.",
+    "cn": "忘记",
+    "en": "forget"
+  },
+  {
+    "m": false,
+    "s": "The children were asked to decide which game to play.",
+    "cn": "决定",
+    "en": "decide"
+  },
+  {
+    "m": false,
+    "s": "If you have any question, please raise your hand.",
+    "cn": "问题",
+    "en": "question"
+  },
+  {
+    "m": false,
+    "s": "Please answer the following questions after reading.",
+    "cn": "接下来的",
+    "en": "following"
+  },
+  {
+    "m": false,
+    "s": "Take this medicine three times a day after meals.",
+    "cn": "药",
+    "en": "medicine"
+  }
+]
