@@ -19,7 +19,7 @@ const configInputRefs = ref([]) // 用于引用管理员端的输入框
 // --- 图片浮动预览状态 ---
 const floatImgUrl = ref(null)
 const floatPos = reactive({ x: 100, y: 100 })
-const floatScale = ref(1)
+const floatScale = ref(3)
 const isDragging = ref(false)
 let dragOffset = { x: 0, y: 0 }
 // 定义 ref 绑定到 DOM
@@ -120,7 +120,7 @@ const scrollToAnswer = (n) => {
 
 const openFloatImg = (url) => {
     floatImgUrl.value = url
-    floatScale.value = 1 // 重置缩放
+    floatScale.value = 3 // 重置缩放
 }
 
 const closeFloatImg = () => {
@@ -131,7 +131,8 @@ const closeFloatImg = () => {
 const handleWheel = (e) => {
     e.preventDefault()
     const delta = e.deltaY > 0 ? -0.1 : 0.1
-    floatScale.value = Math.max(0.2, Math.min(3, floatScale.value + delta))
+    // 限制范围在 2.0 (200%) 到 5.0 (500%)
+    floatScale.value = Math.max(2, Math.min(5, floatScale.value + delta))
 }
 
 // 拖拽处理
@@ -220,7 +221,7 @@ const checkAnswers = () => {
 </script>
 
 <template>
-   <div :class="['cloze-app-container', { 'is-full-screen': isFullScreen }]">
+    <div :class="['cloze-app-container', { 'is-full-screen': isFullScreen }]">
         <aside :class="['cloze-sidebar', { 'is-collapsed': listCollapsed }]">
             <div class="sidebar-inner-content">
                 <div class="sidebar-header">
@@ -244,7 +245,7 @@ const checkAnswers = () => {
                         <div class="card-main-content">
                             <div class="item-index-box">{{ String(idx + 1).padStart(2, '0') }}</div>
                             <div class="item-info">
-                                <div class="item-title">{{ q.title}}</div>
+                                <div class="item-title">{{ q.title }}</div>
                                 <div class="item-meta">🧩 {{ (q.answers || []).length }} Gaps</div>
                             </div>
                         </div>
@@ -262,9 +263,10 @@ const checkAnswers = () => {
             </button>
         </aside>
         <main class="cloze-viewport">
-             <button class="fullscreen-toggle-btn" :class="{ 'is-admin-hidden': isAdding || isEditing }" @click="handleToggleFull">
-        {{ isFullScreen ? ' ↙' : ' ↗' }}
-    </button>
+            <button class="fullscreen-toggle-btn" :class="{ 'is-admin-hidden': isAdding || isEditing }"
+                @click="handleToggleFull">
+                {{ isFullScreen ? ' ↙' : ' ↗' }}
+            </button>
             <div v-if="selectedQuiz && !isAdding" class="practice-layout">
                 <div class="reading-section card-base animate-in">
                     <div class="section-top">
@@ -379,20 +381,19 @@ const checkAnswers = () => {
                 </div>
             </div>
         </main>
-        <div v-if="floatImgUrl" class="float-img-window"
-            :style="{ left: floatPos.x + 'px', top: floatPos.y + 'px', transform: `scale(${floatScale})` }"
-            @wheel="handleWheel">
+     <div v-if="floatImgUrl" class="float-img-window"
+    :style="{ left: floatPos.x + 'px', top: floatPos.y + 'px', transform: `scale(${floatScale})` }"
+    @wheel="handleWheel">
 
-            <div class="float-controls" @mousedown="startDrag">
-                <div class="drag-hint">⠿ DRAG</div>
-                <button class="close-float-mini" @click="closeFloatImg">✕</button>
-                <div class="zoom-badge">{{ Math.round(floatScale * 100) }}%</div>
-            </div>
+    <button class="close-float-mini" @click.stop="closeFloatImg" title="关闭预览">✕</button>
+    <div class="drag-overlay" @mousedown="startDrag">
+        <div class="drag-hint">⠿ DRAG</div>
+    </div>
 
-            <div class="float-body">
-                <img :src="floatImgUrl" draggable="false" />
-            </div>
-        </div>
+    <div class="float-body">
+        <img :src="floatImgUrl" draggable="false" />
+    </div>
+</div>
     </div>
 </template>
 
@@ -743,7 +744,8 @@ const checkAnswers = () => {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* 确保按钮之间有间距 */
+    gap: 8px;
+    /* 确保按钮之间有间距 */
 }
 
 /* 修正了之前过大的 padding */
@@ -780,19 +782,23 @@ const checkAnswers = () => {
 .btn-secondary {
     width: 100%;
     height: 40px;
-    
+
     /* 核心对齐修复 */
     display: flex;
-    align-items: center;      /* 垂直居中 */
-    justify-content: center;   /* 水平居中 */
-    line-height: 1;           /* 消除行高干扰 */
-    
+    align-items: center;
+    /* 垂直居中 */
+    justify-content: center;
+    /* 水平居中 */
+    line-height: 1;
+    /* 消除行高干扰 */
+
     font-size: 14px;
     font-weight: 800;
     border-radius: 14px;
     cursor: pointer;
     transition: all 0.2s;
-    box-sizing: border-box;    /* 极其重要：确保边框不撑大高度 */
+    box-sizing: border-box;
+    /* 极其重要：确保边框不撑大高度 */
 }
 
 /* 核对答案按钮 */
@@ -806,13 +812,17 @@ const checkAnswers = () => {
 .btn-secondary {
     background: #fff;
     color: #64748b;
-    border: 2px solid #f1f5f9; /* 2px边框会被 box-sizing 包含在40px内 */
-    padding: 0;                /* 移除可能的默认内边距 */
+    border: 2px solid #f1f5f9;
+    /* 2px边框会被 box-sizing 包含在40px内 */
+    padding: 0;
+    /* 移除可能的默认内边距 */
 }
 
 /* 视觉微调：如果字体本身导致偏下，可以加一个极小的负偏移 */
-.btn-secondary:active, .btn-secondary {
-    padding-bottom: 1px; /* 有时字体的渲染基准线偏上，可以微调 padding */
+.btn-secondary:active,
+.btn-secondary {
+    padding-bottom: 1px;
+    /* 有时字体的渲染基准线偏上，可以微调 padding */
 }
 
 :deep(.gap-pill) {
@@ -1037,28 +1047,28 @@ const checkAnswers = () => {
 }
 
 .fancy-textarea {
-    flex: 1;
-    min-height: 0;
-    /* 允许 textarea 在 flex 下收缩 */
-    overflow-y: auto;
-}
-
-.fancy-textarea {
     flex: 2;
     /* 给予文本框更多空间 */
     min-height: 200px;
+    flex: 1;
+    /* 给输入框分配权重 */
+    min-height: 150px;
+    overflow-y: auto;
+    border: none;
+    padding: 20px;
+    background: #fafafa;
+    resize: none;
+    outline: none;
+    font-family: inherit;
 }
 
 .preview-content {
+    /* 关键：允许预览区域在 flex 布局下收缩并产生滚动条 */
     flex: 1;
-    padding: 20px 30px;
+    overflow-y: auto;
+    padding: 30px;
     background: #fff;
-}
-
-/* 确保预览时的 article-body 缩放比例适中 */
-.preview-area .article-body {
-    font-size: 17px;
-    opacity: 0.9;
+    /* 继承自定义滚动条样式 */
 }
 
 /* --- 管理员编辑器专用样式 (仅影响 isAdding 状态) --- */
@@ -1169,7 +1179,11 @@ const checkAnswers = () => {
 /* 确保预览时的 article-body 缩放比例适中 */
 .preview-area .article-body {
     font-size: 17px;
-    opacity: 0.9;
+    line-height: 1.8;
+    color: #334155;
+    /* 确保长文本换行 */
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* --- 优化后的空状态样式 --- */
@@ -1417,23 +1431,6 @@ const checkAnswers = () => {
     /* 防止长单词撑破布局 */
 }
 
-/* 浮动窗口基础样式 */
-.float-img-window {
-    position: fixed;
-    z-index: 9999;
-    width: 350px;
-    /* 初始宽度 */
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.1s ease-out;
-    /* 缩放时更丝滑 */
-}
-
 .float-header {
     padding: 8px 12px;
     background: #1e293b;
@@ -1492,18 +1489,19 @@ const checkAnswers = () => {
 .float-img-window {
     position: fixed;
     z-index: 9999;
-    width: 320px;
+    width: 180px; 
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-radius: 8px; /* 减小圆角，更显精致 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    /* 保证图片圆角 */
-    transition: transform 0.1s ease-out, box-shadow 0.3s;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    transform-origin: center center; 
+    transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    pointer-events: auto;
 }
 
 .float-img-window:hover {
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 
 /* 悬浮操作层：默认透明 */
@@ -1512,70 +1510,60 @@ const checkAnswers = () => {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    height: 32px;
+    /* 固定控制条高度，防止随图片撑大 */
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.2);
+    /* 增加一层半透明背景，方便看清控制键 */
     opacity: 0;
-    background: rgba(0, 0, 0, 0.1);
-    /* 淡淡的遮罩感 */
     transition: opacity 0.2s;
     cursor: move;
-    z-index: 10;
+    z-index: 100;
+    box-sizing: border-box;
+    /* 确保 padding 不撑开容器 */
 }
 
 .float-img-window:hover .float-controls {
     opacity: 1;
 }
 
-/* 拖拽文字提示 */
-.drag-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    pointer-events: none;
-}
-
 /* 迷你关闭按钮 */
 .close-float-mini {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
+    top: 2px;    /* 紧贴右上角 */
+    right: 2px;
+    width: 8px; /* 尺寸缩小到 16px */
+    height: 8px;
     border-radius: 50%;
     border: none;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    font-size: 10px;
+    background: rgba(0, 0, 0, 0.4); /* 默认半透明深色 */
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 5px; /* X 号极小 */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: 0.2s;
+    z-index: 110; /* 确保在最上层 */
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    padding: 0;
+}
+
+/* 悬停在窗口上时，按钮淡入 */
+.float-img-window:hover .close-float-mini {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .close-float-mini:hover {
-    background: #ff4d4f;
+background: #ef4444; /* 醒目的红色 */
     color: #fff;
     transform: scale(1.1);
-}
-
-/* 缩放比例标牌 */
-.zoom-badge {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    padding: 2px 8px;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    border-radius: 4px;
-    font-size: 10px;
-    font-family: monospace;
 }
 
 .float-body {
@@ -1588,6 +1576,8 @@ const checkAnswers = () => {
     width: 100%;
     height: auto;
     display: block;
+    /* 防止图片自带间距 */
+    vertical-align: middle;
 }
 
 /* --- 优化后的答题卡反馈样式 --- */
@@ -1613,27 +1603,6 @@ const checkAnswers = () => {
     font-weight: bold;
 }
 
-.ans-label {
-    font-size: 10px;
-    color: #ef4444;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-right: 6px;
-    opacity: 0.7;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 .icon-v {
     color: #52c41a;
 }
@@ -1642,19 +1611,17 @@ const checkAnswers = () => {
     color: #ff4d4f;
 }
 
-/* 弹出动画 */
-@keyframes popIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+/* --- 3. 透明的拖拽蒙层 --- */
+.drag-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    cursor: move; /* 提示可拖拽 */
+    z-index: 100; /* 夹在图片和按钮之间 */
 }
-
 /* 6. 正确状态的小优化 */
 .input-wrapper.is-correct {
     border-color: #52c41a;
@@ -1718,6 +1685,7 @@ const checkAnswers = () => {
     cursor: default;
     background: transparent;
 }
+
 .title-input-field {
     width: 100%;
     border: none;
@@ -1744,11 +1712,13 @@ const checkAnswers = () => {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 /* 全屏切换按钮 */
 .fullscreen-toggle-btn {
     position: absolute;
     top: 25px;
-    right: 35px; /* 避开滚动条位置 */
+    right: 35px;
+    /* 避开滚动条位置 */
     width: 25px;
     height: 25px;
     border-radius: 12px;
@@ -1761,7 +1731,8 @@ const checkAnswers = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100; /* 确保在最上层 */
+    z-index: 100;
+    /* 确保在最上层 */
     transition: all 0.3s ease;
 }
 
@@ -1775,10 +1746,13 @@ const checkAnswers = () => {
 
 /* 全屏时的内容区域微调 */
 .is-full-screen .article-body {
-    max-width: 900px; /* 全屏时限制阅读宽度，防止文字太长行导致阅读疲劳 */
+    max-width: 900px;
+    /* 全屏时限制阅读宽度，防止文字太长行导致阅读疲劳 */
     margin: 0 auto;
-    font-size: 22px; /* 全屏大字模式 */
+    font-size: 22px;
+    /* 全屏大字模式 */
 }
+
 /* 当全屏类名激活时 */
 .cloze-app-container.is-full-screen {
     position: fixed !important;
@@ -1787,7 +1761,8 @@ const checkAnswers = () => {
     width: 100vw;
     height: 100vh;
     z-index: 2000;
-    background: #ffffff !important; /* 防止全屏后背景变黑或透明 */
+    background: #ffffff !important;
+    /* 防止全屏后背景变黑或透明 */
     display: flex;
 }
 
@@ -1795,7 +1770,7 @@ const checkAnswers = () => {
 .is-full-screen .article-body {
     max-width: 900px;
     margin: 0 auto;
-    font-size: 22px; 
+    font-size: 22px;
     line-height: 2;
 }
 
@@ -1803,8 +1778,45 @@ const checkAnswers = () => {
 .is-full-screen .toggle-trigger {
     display: none;
 }
+
 /* 当处于管理员/编辑模式时，强行隐藏按钮 */
 .fullscreen-toggle-btn.is-admin-hidden {
     display: none !important;
 }
+
+/* --- 修复编辑器预览区滚动问题 --- */
+.editor-pane.preview-area {
+    /* 确保预览面板本身不产生滚动，而是内部内容滚动 */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 统一编辑器左右两边的高度对齐 */
+.editor-pane.edit-area {
+    overflow: hidden;
+    /* 内部由 textarea 和 answer-grid 各自滚动 */
+}
+
+/* 拖拽文字提示 (可选，如果觉得多余可以删掉 HTML 段落) */
+.drag-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 鼠标按下准备拖拽时，显示提示文本 */
+.float-img-window:active .drag-hint {
+    opacity: 1;
+}
+
 </style>
