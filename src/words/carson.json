@@ -1,0 +1,702 @@
+[
+  {
+    "m": false,
+    "s": "The valley lies beneath the mountains.",
+    "cn": "在...之下",
+    "en": "beneath",
+    "ps": "bɪˈniːθ"
+  },
+  {
+    "m": false,
+    "s": "Gravity keeps our feet on the ground.",
+    "cn": "重力；引力",
+    "en": "gravity",
+    "ps": "ˈɡrævəti"
+  },
+  {
+    "m": false,
+    "s": "Fever is a common symptom of a cold.",
+    "cn": "症状",
+    "en": "symptom",
+    "ps": "ˈsɪmptəm"
+  },
+  {
+    "m": false,
+    "s": "She used a soft cloth to polish the table.",
+    "cn": "擦亮；磨光",
+    "en": "polish",
+    "ps": "ˈpɑːlɪʃ"
+  },
+  {
+    "m": false,
+    "s": "The soldiers tried to capture the city.",
+    "cn": "俘获；夺取",
+    "en": "capture",
+    "ps": "ˈkæptʃər"
+  },
+  {
+    "m": false,
+    "s": "Children must be accompanied by an adult.",
+    "cn": "陪伴；伴随",
+    "en": "accompany",
+    "ps": "əˈkʌmpəni"
+  },
+  {
+    "m": false,
+    "s": "We need to reduce our spending.",
+    "cn": "减少；缩小",
+    "en": "reduce",
+    "ps": "rɪˈduːs"
+  },
+  {
+    "m": false,
+    "s": "The project cost a huge amount of money.",
+    "cn": "数量；总额",
+    "en": "amount",
+    "ps": "əˈmaʊnt"
+  },
+  {
+    "m": false,
+    "s": "The literal meaning of the word is quite simple.",
+    "cn": "照字面的；逐字的",
+    "en": "literal",
+    "ps": "ˈlɪtərəl"
+  },
+  {
+    "m": false,
+    "s": "The government is trying to foster economic growth.",
+    "cn": "培养；促进",
+    "en": "foster",
+    "ps": "ˈfɔːstər"
+  },
+  {
+    "m": false,
+    "s": "The prize money was divided equally.",
+    "cn": "相等地；同样地",
+    "en": "equally",
+    "ps": "ˈiːkwəli"
+  },
+  {
+    "m": false,
+    "s": "The two companies agreed to cooperate.",
+    "cn": "合作",
+    "en": "cooperate",
+    "ps": "kuːˈɑːpəreɪt"
+  },
+  {
+    "m": false,
+    "s": "The residents of the apartment complained about the noise.",
+    "cn": "居民",
+    "en": "resident",
+    "ps": "ˈrezɪdənt"
+  },
+  {
+    "m": false,
+    "s": "We should share our ideas with each other.",
+    "cn": "分享；部分",
+    "en": "share",
+    "ps": "ʃer"
+  },
+  {
+    "m": false,
+    "s": "All participants in the race will get a medal.",
+    "cn": "参与者",
+    "en": "participant",
+    "ps": "pɑːrˈtɪsɪpənt"
+  },
+  {
+    "m": false,
+    "s": "The country suffered from a severe drought.",
+    "cn": "严重的；严厉的",
+    "en": "severe",
+    "ps": "sɪˈvɪr"
+  },
+  {
+    "m": false,
+    "s": "You need to book your tickets in advance.",
+    "cn": "提前",
+    "en": "in advance",
+    "ps": "ɪn ədˈvæns"
+  },
+  {
+    "m": false,
+    "s": "Reading helps improve your comprehension skills.",
+    "cn": "理解；理解力",
+    "en": "comprehension",
+    "ps": "ˌkɑːmprɪˈhenʃn"
+  },
+  {
+    "m": false,
+    "s": "Price is a major factor in our decision.",
+    "cn": "因素",
+    "en": "factor",
+    "ps": "ˈfæktər"
+  },
+  {
+    "m": false,
+    "s": "The city offers many types of entertainment.",
+    "cn": "娱乐",
+    "en": "entertainment",
+    "ps": "ˌentərˈteɪnmənt"
+  },
+  {
+    "m": false,
+    "s": "Generally, it is warmer in the south.",
+    "cn": "通常地；普遍地",
+    "en": "generally",
+    "ps": "ˈdʒenrəli"
+  },
+  {
+    "m": false,
+    "s": "The hotel is private property.",
+    "cn": "财产；属性",
+    "en": "property",
+    "ps": "ˈprɑːpərti"
+  },
+  {
+    "m": false,
+    "s": "We need to consider every aspect of the problem.",
+    "cn": "方面；外观",
+    "en": "aspect",
+    "ps": "ˈæspekt"
+  },
+  {
+    "m": false,
+    "s": "The knot was loose and easily untied.",
+    "cn": "松的",
+    "en": "loose",
+    "ps": "luːs"
+  },
+  {
+    "m": false,
+    "s": "Parking here is illegal.",
+    "cn": "非法的",
+    "en": "illegal",
+    "ps": "ɪˈliːɡl"
+  },
+  {
+    "m": false,
+    "s": "He gave a vivid description of the scene.",
+    "cn": "生动的",
+    "en": "vivid",
+    "ps": "ˈvɪvɪd"
+  },
+  {
+    "m": false,
+    "s": "I don't want to be a burden to my family.",
+    "cn": "负担",
+    "en": "burden",
+    "ps": "ˈbɜːrdn"
+  },
+  {
+    "m": false,
+    "s": "They found buried treasure in the cave.",
+    "cn": "金银财宝；珍藏",
+    "en": "treasure",
+    "ps": "ˈtreʒər"
+  },
+  {
+    "m": false,
+    "s": "Loud noises scare the baby.",
+    "cn": "惊吓",
+    "en": "scare",
+    "ps": "sker"
+  },
+  {
+    "m": false,
+    "s": "The police had to seize the evidence.",
+    "cn": "抓住；没收",
+    "en": "seize",
+    "ps": "siːz"
+  },
+  {
+    "m": false,
+    "s": "Payment is due at the end of the month.",
+    "cn": "付款",
+    "en": "payment",
+    "ps": "ˈpeɪmənt"
+  },
+  {
+    "m": false,
+    "s": "The admission procedure is quite simple.",
+    "cn": "程序；步骤",
+    "en": "procedure",
+    "ps": "prəˈsiːdʒər"
+  },
+  {
+    "m": false,
+    "s": "Can you give me a quote for the repairs?",
+    "cn": "引用；报价",
+    "en": "quote",
+    "ps": "kwoʊt"
+  },
+  {
+    "m": false,
+    "s": "This model is superior to the old one.",
+    "cn": "优越的；上级的",
+    "en": "superior",
+    "ps": "suːˈpɪriər"
+  },
+  {
+    "m": false,
+    "s": "His voice began to tremble with emotion.",
+    "cn": "颤抖",
+    "en": "tremble",
+    "ps": "ˈtrembl"
+  },
+  {
+    "m": false,
+    "s": "What format should I use for the report?",
+    "cn": "格式",
+    "en": "format",
+    "ps": "ˈfɔːrmæt"
+  },
+  {
+    "m": false,
+    "s": "Fresh air is fundamental to good health.",
+    "cn": "基本的；根本的",
+    "en": "fundamental",
+    "ps": "ˌfʌndəˈmentl"
+  },
+  {
+    "m": false,
+    "s": "His speech failed to arouse any interest.",
+    "cn": "唤醒；引起",
+    "en": "arouse",
+    "ps": "əˈraʊz"
+  },
+  {
+    "m": false,
+    "s": "A long walk always gives me an appetite.",
+    "cn": "食欲；胃口",
+    "en": "appetite",
+    "ps": "ˈæpɪtaɪt"
+  },
+  {
+    "m": false,
+    "s": "The court decided to reverse the decision.",
+    "cn": "颠倒；反转",
+    "en": "reverse",
+    "ps": "rɪˈvɜːrs"
+  },
+  {
+    "m": false,
+    "s": "The hotel is available at a moderate price.",
+    "cn": "适度的；中等的",
+    "en": "moderate",
+    "ps": "ˈmɑːdərət"
+  },
+  {
+    "m": false,
+    "s": "Stealing is a serious offence.",
+    "cn": "犯罪；过错",
+    "en": "offence",
+    "ps": "əˈfens"
+  },
+  {
+    "m": false,
+    "s": "The skin around the eyes is very delicate.",
+    "cn": "精美的；易碎的",
+    "en": "delicate",
+    "ps": "ˈdelɪkət"
+  },
+  {
+    "m": false,
+    "s": "I could barely see through the fog.",
+    "cn": "仅仅；几乎不",
+    "en": "barely",
+    "ps": "ˈberli"
+  },
+  {
+    "m": false,
+    "s": "The island is a tropical paradise.",
+    "cn": "天堂",
+    "en": "paradise",
+    "ps": "ˈpærədaɪs"
+  },
+  {
+    "m": false,
+    "s": "Use a calculator to calculate the total.",
+    "cn": "计算",
+    "en": "calculate",
+    "ps": "ˈkælkjuleɪt"
+  },
+  {
+    "m": false,
+    "s": "The government plans to reform the tax system.",
+    "cn": "改革；改良",
+    "en": "reform",
+    "ps": "rɪˈfɔːrm"
+  },
+  {
+    "m": false,
+    "s": "He was unconscious for several hours.",
+    "cn": "潜意识的；无意识的",
+    "en": "unconscious",
+    "ps": "ʌnˈkɑːnʃəs"
+  },
+  {
+    "m": false,
+    "s": "Our honeymoon was an unforgettable experience.",
+    "cn": "难忘的",
+    "en": "unforgettable",
+    "ps": "ˌʌnfərˈɡetəbl"
+  },
+  {
+    "m": false,
+    "s": "Many people are skeptical about the new law.",
+    "cn": "怀疑的",
+    "en": "skeptical",
+    "ps": "ˈskeptɪkl"
+  },
+  {
+    "m": false,
+    "s": "It takes time to accustom yourself to a new climate.",
+    "cn": "使习惯于",
+    "en": "accustom",
+    "ps": "əˈkʌstəm"
+  },
+  {
+    "m": false,
+    "s": "The cool air was a stimulus to more work.",
+    "cn": "刺激；激励",
+    "en": "stimulus",
+    "ps": "ˈstɪmjələs"
+  },
+  {
+    "m": false,
+    "s": "At the end, let me summarize the main points.",
+    "cn": "总结",
+    "en": "summarize",
+    "ps": "ˈsʌməraɪz"
+  },
+  {
+    "m": false,
+    "s": "Don't ride your bike on the pavement.",
+    "cn": "人行道",
+    "en": "pavement",
+    "ps": "ˈpeɪvmənt"
+  },
+  {
+    "m": false,
+    "s": "The country entered a period of prosperity.",
+    "cn": "繁荣",
+    "en": "prosperity",
+    "ps": "prɑːˈsperəti"
+  },
+  {
+    "m": false,
+    "s": "The brothers resemble each other very much.",
+    "cn": "像；类似",
+    "en": "resemble",
+    "ps": "rɪˈzembl"
+  },
+  {
+    "m": false,
+    "s": "What do you do in your spare time?",
+    "cn": "业余时间",
+    "en": "spare time",
+    "ps": "sper taɪm"
+  },
+  {
+    "m": false,
+    "s": "They are in the final stage of the project.",
+    "cn": "阶段；舞台",
+    "en": "stage",
+    "ps": "steɪdʒ"
+  },
+  {
+    "m": false,
+    "s": "He is a highly trained professional.",
+    "cn": "受过训练的",
+    "en": "trained",
+    "ps": "treɪnd"
+  },
+  {
+    "m": false,
+    "s": "The musician played a beautiful melody.",
+    "cn": "音乐家",
+    "en": "musician",
+    "ps": "mjuˈzɪʃn"
+  },
+  {
+    "m": false,
+    "s": "The band gave a great performance.",
+    "cn": "表演；执行",
+    "en": "performance",
+    "ps": "pərˈfɔːrməns"
+  },
+  {
+    "m": false,
+    "s": "I heard a strange sound outside.",
+    "cn": "声音",
+    "en": "sound",
+    "ps": "saʊnd"
+  },
+  {
+    "m": false,
+    "s": "The river flows into the sea.",
+    "cn": "流动",
+    "en": "flow",
+    "ps": "floʊ"
+  },
+  {
+    "m": false,
+    "s": "I feel nervous before exams.",
+    "cn": "紧张的",
+    "en": "nervous",
+    "ps": "ˈnɜːrvəs"
+  },
+  {
+    "m": false,
+    "s": "Can you play any musical instrument?",
+    "cn": "仪器；乐器",
+    "en": "instrument",
+    "ps": "ˈɪnstrəmənt"
+  },
+  {
+    "m": false,
+    "s": "She has a well-paid job in finance.",
+    "cn": "薪水高的",
+    "en": "well-paid",
+    "ps": "ˌwel ˈpeɪd"
+  },
+  {
+    "m": false,
+    "s": "Being a doctor is a very demanding job.",
+    "cn": "苛求的；吃力的",
+    "en": "demanding",
+    "ps": "dɪˈmændɪŋ"
+  },
+  {
+    "m": false,
+    "s": "It's dangerous to walk home alone at night.",
+    "cn": "危险的",
+    "en": "dangerous",
+    "ps": "ˈdeɪndʒərəs"
+  },
+  {
+    "m": false,
+    "s": "It was a moment I will never forget.",
+    "cn": "时刻；瞬间",
+    "en": "moment",
+    "ps": "ˈmoʊmənt"
+  },
+  {
+    "m": false,
+    "s": "Don't ignore the warning signs.",
+    "cn": "忽略；不理会",
+    "en": "ignore",
+    "ps": "ɪɡˈnɔːr"
+  },
+  {
+    "m": false,
+    "s": "The audience clapped loudly.",
+    "cn": "观众；听众",
+    "en": "audience",
+    "ps": "ˈɔːdiəns"
+  },
+  {
+    "m": false,
+    "s": "Don't forget to lock the door.",
+    "cn": "忘记",
+    "en": "forget",
+    "ps": "fərˈɡet"
+  },
+  {
+    "m": false,
+    "s": "The museum has a collection of modern sculpture.",
+    "cn": "雕塑",
+    "en": "sculpture",
+    "ps": "ˈskʌlptʃər"
+  },
+  {
+    "m": false,
+    "s": "He earns a good salary.",
+    "cn": "薪水",
+    "en": "salary",
+    "ps": "ˈsæləri"
+  },
+  {
+    "m": false,
+    "s": "The pirate hid the treasure on the island.",
+    "cn": "海盗",
+    "en": "pirate",
+    "ps": "ˈpaɪrət"
+  },
+  {
+    "m": false,
+    "s": "It's hard to resist the temptation of chocolate.",
+    "cn": "抵制；反抗",
+    "en": "resist",
+    "ps": "rɪˈzɪst"
+  },
+  {
+    "m": false,
+    "s": "He was a man of noble character.",
+    "cn": "高尚的；贵族的",
+    "en": "noble",
+    "ps": "ˈnoʊbl"
+  },
+  {
+    "m": false,
+    "s": "I can relate to your feelings.",
+    "cn": "联系；叙述",
+    "en": "relate",
+    "ps": "rɪˈleɪt"
+  },
+  {
+    "m": false,
+    "s": "There is a tendency for prices to rise.",
+    "cn": "倾向；趋势",
+    "en": "tendency",
+    "ps": "ˈtendənsi"
+  },
+  {
+    "m": false,
+    "s": "She decided to devote her life to charity.",
+    "cn": "致力于",
+    "en": "devote",
+    "ps": "dɪˈvoʊt"
+  },
+  {
+    "m": false,
+    "s": "Tickets are available at the box office.",
+    "cn": "可获得的；有空的",
+    "en": "available",
+    "ps": "əˈveɪləbl"
+  },
+  {
+    "m": false,
+    "s": "A brave deed deserves reward.",
+    "cn": "行为；契约",
+    "en": "deed",
+    "ps": "diːd"
+  },
+  {
+    "m": false,
+    "s": "The sun sank below the horizon.",
+    "cn": "地平线",
+    "en": "horizon",
+    "ps": "həˈraɪzn"
+  },
+  {
+    "m": false,
+    "s": "There is a distinct smell of gas.",
+    "cn": "明显的；独特的",
+    "en": "distinct",
+    "ps": "dɪˈstɪŋkt"
+  },
+  {
+    "m": false,
+    "s": "The wool sweater will shrink if you wash it in hot water.",
+    "cn": "萎缩；收缩",
+    "en": "shrink",
+    "ps": "ʃrɪŋk"
+  },
+  {
+    "m": false,
+    "s": "The street is for pedestrians only.",
+    "cn": "行人",
+    "en": "pedestrian",
+    "ps": "pəˈdestriən"
+  },
+  {
+    "m": false,
+    "s": "The country decided to declare independence.",
+    "cn": "宣布；声明",
+    "en": "declare",
+    "ps": "dɪˈkler"
+  },
+  {
+    "m": false,
+    "s": "What is your current address?",
+    "cn": "当前的；水流",
+    "en": "current",
+    "ps": "ˈkɜːrənt"
+  },
+  {
+    "m": false,
+    "s": "The medicine works effectively.",
+    "cn": "有效地",
+    "en": "effectively",
+    "ps": "ɪˈfektɪvli"
+  },
+  {
+    "m": false,
+    "s": "Please fill out the job application.",
+    "cn": "申请；应用",
+    "en": "application",
+    "ps": "ˌæplɪˈkeɪʃn"
+  },
+  {
+    "m": false,
+    "s": "She is dedicated to the pursuit of happiness.",
+    "cn": "追求",
+    "en": "pursuit",
+    "ps": "pərˈsuːt"
+  },
+  {
+    "m": false,
+    "s": "The shop sells a variety of goods.",
+    "cn": "各种各样",
+    "en": "a variety of",
+    "ps": "ə vəˈraɪəti əv"
+  },
+  {
+    "m": false,
+    "s": "This task requires great concentration.",
+    "cn": "集中；浓度",
+    "en": "concentration",
+    "ps": "ˌkɑːnsnˈtreɪʃn"
+  },
+  {
+    "m": false,
+    "s": "I've seen that movie several times.",
+    "cn": "几个的",
+    "en": "several",
+    "ps": "ˈsevrəl"
+  },
+  {
+    "m": false,
+    "s": "Please confirm your reservation.",
+    "cn": "确认",
+    "en": "confirm",
+    "ps": "kənˈfɜːrm"
+  },
+  {
+    "m": false,
+    "s": "The trip was very educational.",
+    "cn": "教育的",
+    "en": "educational",
+    "ps": "ˌedʒuˈkeɪʃənl"
+  },
+  {
+    "m": false,
+    "s": "Don't assume anything without proof.",
+    "cn": "假设；承担",
+    "en": "assume",
+    "ps": "əˈsuːm"
+  },
+  {
+    "m": false,
+    "s": "The project failed for lack of money.",
+    "cn": "缺乏",
+    "en": "lack",
+    "ps": "læk"
+  },
+  {
+    "m": false,
+    "s": "She has confidence in her ability.",
+    "cn": "信心",
+    "en": "confidence",
+    "ps": "ˈkɑːnfɪdəns"
+  },
+  {
+    "m": false,
+    "s": "Art helps develop children's creativity.",
+    "cn": "创造力",
+    "en": "creativity",
+    "ps": "ˌkriːeɪˈtɪvəti"
+  }
+]

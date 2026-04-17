@@ -1,6 +1,6 @@
 [
   {
-    "m": false,
+    "m": true,
     "s": "I don't know how to spell this English word.",
     "cn": "单词",
     "en": "word",
@@ -21,14 +21,14 @@
     "ps": "ˈkjuːkʌmbər"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I had a long conversation with my teacher yesterday.",
     "cn": "会议/对话",
     "en": "conversation",
     "ps": "ˌkɑːnvərˈseɪʃn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He is a diligent student who always finishes his homework on time.",
     "cn": "勤奋的",
     "en": "diligent",
@@ -70,7 +70,7 @@
     "ps": "raɪt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The kids are playing out in the garden.",
     "cn": "在外面",
     "en": "out",
@@ -322,14 +322,14 @@
     "ps": "pɑːrt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "She is the best student in our class.",
     "cn": "最好的",
     "en": "best",
     "ps": "bɛst"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He is a doctor, and his father was a doctor too.",
     "cn": "是",
     "en": "is was",
@@ -420,7 +420,7 @@
     "ps": "raɪt roʊt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Tell me a story before I go to sleep.",
     "cn": "故事",
     "en": "story",
@@ -441,42 +441,42 @@
     "ps": "fɜːrst"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He finished the race in second place.",
     "cn": "第二",
     "en": "second",
     "ps": "ˈsɛkənd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "This is the third time I have called him today.",
     "cn": "第三",
     "en": "third",
     "ps": "θɜːrd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The office is on the fourth floor.",
     "cn": "第四",
     "en": "fourth",
     "ps": "fɔːrθ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "It’s my little brother's fifth birthday today.",
     "cn": "第五",
     "en": "fifth",
     "ps": "fɪfθ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Friday is the sixth day of the week if you start with Sunday.",
     "cn": "第六",
     "en": "sixth",
     "ps": "sɪksθ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "July is the seventh month of the year.",
     "cn": "第七",
     "en": "seventh",
@@ -586,5 +586,68 @@
     "cn": "第二十二",
     "en": "twenty-second",
     "ps": "ˌtwɛnti ˈsɛkənd"
+  },
+  {
+    "m": false,
+    "s": "Could you help me spell your name, please?",
+    "cn": "拼写",
+    "en": "spell",
+    "ps": "spel"
+  },
+  {
+    "m": false,
+    "s": "I bought some groceries yesterday.",
+    "cn": "昨天",
+    "en": "yesterday",
+    "ps": "ˈjestərdeɪ"
+  },
+  {
+    "m": false,
+    "s": "I need to finish my work before I can go out.",
+    "cn": "完成",
+    "en": "finish",
+    "ps": "ˈfɪnɪʃ"
+  },
+  {
+    "m": false,
+    "s": "The kid is playing with his toys.",
+    "cn": "小孩",
+    "en": "kid",
+    "ps": "kɪd"
+  },
+  {
+    "m": false,
+    "s": "The soccer player ran across the field.",
+    "cn": "玩家/运动员",
+    "en": "player",
+    "ps": "ˈpleɪər"
+  },
+  {
+    "m": false,
+    "s": "Keep a score of the game.",
+    "cn": "得分",
+    "en": "score",
+    "ps": "skɔːr"
+  },
+  {
+    "m": false,
+    "s": "Our team scored a goal in the last minute.",
+    "cn": "进球/目标",
+    "en": "goal",
+    "ps": "ɡoʊl"
+  },
+  {
+    "m": false,
+    "s": "What time does the train arrive?",
+    "cn": "到达",
+    "en": "arrive",
+    "ps": "əˈraɪv"
+  },
+  {
+    "m": false,
+    "s": "Let's go to see a movie tonight.",
+    "cn": "电影",
+    "en": "movie",
+    "ps": "ˈmuːvi"
   }
 ]

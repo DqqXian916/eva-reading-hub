@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
     quizzes: { type: Array, default: () => [] },
@@ -16,6 +16,14 @@ const listCollapsed = ref(false)
 const userAnswers = reactive({})
 const inputRefs = ref([])
 const configInputRefs = ref([]) // 用于引用管理员端的输入框
+// --- 图片浮动预览状态 ---
+const floatImgUrl = ref(null)
+const floatPos = reactive({ x: 100, y: 100 })
+const floatScale = ref(1)
+const isDragging = ref(false)
+let dragOffset = { x: 0, y: 0 }
+// 定义 ref 绑定到 DOM
+const editorTextareaRef = ref(null)
 
 const form = reactive({
     id: null,
@@ -53,6 +61,44 @@ const focusInput = (index) => {
     }
 }
 
+const handlePaste = async (event) => {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+
+    for (const item of items) {
+        // 检查是否为图片
+        if (item.type.indexOf('image') !== -1) {
+            event.preventDefault(); // 只有是图片时才阻止默认行为，避免干扰普通文本粘贴
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const base64 = e.target.result;
+                // 自动换行包裹图片，体验更好
+                insertTextAtCursor(`\n![图片](${base64})\n`);
+            };
+            reader.readAsDataURL(blob);
+        }
+    }
+};
+
+const insertTextAtCursor = (text) => {
+    const el = editorTextareaRef.value; // 使用 ref 获取 DOM
+    if (!el) return;
+
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const originalText = form.cloze_text;
+
+    // 更新响应式数据
+    form.cloze_text = originalText.substring(0, start) + text + originalText.substring(end);
+
+    // 必须在下一次 DOM 更新后恢复光标位置
+    nextTick(() => {
+        el.selectionStart = el.selectionEnd = start + text.length;
+        el.focus();
+    });
+};
+
 const scrollToAnswer = (n) => {
     const target = configInputRefs.value[n - 1]
     if (target) {
@@ -67,19 +113,82 @@ const scrollToAnswer = (n) => {
     }
 }
 
+const openFloatImg = (url) => {
+    floatImgUrl.value = url
+    floatScale.value = 1 // 重置缩放
+}
+
+const closeFloatImg = () => {
+    floatImgUrl.value = null
+}
+
+// 缩放处理
+const handleWheel = (e) => {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    floatScale.value = Math.max(0.2, Math.min(3, floatScale.value + delta))
+}
+
+// 拖拽处理
+const startDrag = (e) => {
+    // 排除掉点击关闭按钮的触发
+    if (e.target.classList.contains('close-float-mini')) return;
+    isDragging.value = true;
+    dragOffset.x = e.clientX - floatPos.x;
+    dragOffset.y = e.clientY - floatPos.y;
+    // 拖动时增加一点透明度反馈
+    e.currentTarget.parentElement.style.opacity = '0.8';
+    const onDrag = (e) => {
+        if (!isDragging.value) return;
+        floatPos.x = e.clientX - dragOffset.x;
+        floatPos.y = e.clientY - dragOffset.y;
+    };
+    const stopDrag = () => {
+        isDragging.value = false;
+        document.querySelector('.float-img-window').style.opacity = '1';
+        window.removeEventListener('mousemove', onDrag);
+        window.removeEventListener('mouseup', stopDrag);
+    };
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDrag);
+};
+const onDrag = (e) => {
+    if (!isDragging.value) return
+    floatPos.x = e.clientX - dragOffset.x
+    floatPos.y = e.clientY - dragOffset.y
+}
+
+const stopDrag = () => {
+    isDragging.value = false
+    window.removeEventListener('mousemove', onDrag)
+    window.removeEventListener('mouseup', stopDrag)
+}
+
 onMounted(() => {
     window.addEventListener('focus-gap', (e) => focusInput(e.detail - 1))
     window.addEventListener('scroll-to-ans', (e) => scrollToAnswer(e.detail))
     window.dispatchEvent(new CustomEvent('init-view'))
+    window.addEventListener('open-float-img', (e) => openFloatImg(e.detail))
 })
+
+const insertImageTemplate = () => {
+    const template = '![图片描述](这里粘贴图片URL)';
+    // 简单实现：直接加在末尾
+    form.cloze_text += `\n${template}\n`;
+    // 高级实现建议使用 textarea 的 selectionStart 获取光标位置插入
+}
 
 // 修改 renderedText 的事件派发逻辑
 const renderedText = computed(() => {
-    const text = isAdding.value ? form.cloze_text : (selectedQuiz.value?.cloze_text || '')
+    let text = isAdding.value ? form.cloze_text : (selectedQuiz.value?.cloze_text || '')
     if (!text) return '<p class="empty-hint">等待内容录入...</p>'
 
+    // 1. 先处理图片 Markdown: ![alt](url) -> <img src="url" />
+    // 找到 renderedText 里的 replace 部分，添加 onclick
+    text = text.replace(/!\[.*?\]\((.*?)\)/g,
+        '<img src="$1" class="embedded-img" onclick="window.dispatchEvent(new CustomEvent(\'open-float-img\', {detail: \'$1\'}))" />')
+    // 2. 再处理填空占位符 {{n}}
     return text.replace(/\{\{(\d+)\}\}/g, (match, p1) => {
-        // 如果是编辑模式，派发 scroll-to-ans；如果是练习模式，派发 focus-gap
         const eventName = isAdding.value ? 'scroll-to-ans' : 'focus-gap'
         return `<span class="gap-pill" onclick="window.dispatchEvent(new CustomEvent('${eventName}', {detail: ${p1}}))">(${p1})</span>`
     })
@@ -139,7 +248,6 @@ const isUserCorrect = (n) => {
                 <span class="arrow-icon">{{ listCollapsed ? '❯' : '❮' }}</span>
             </button>
         </aside>
-
         <main class="cloze-viewport">
             <div v-if="selectedQuiz && !isAdding" class="practice-layout">
                 <div class="reading-section card-base animate-in">
@@ -193,8 +301,8 @@ const isUserCorrect = (n) => {
             <div v-else-if="isAdding" class="editor-layout animate-in">
                 <div class="editor-top-bar">
                     <div class="editor-info">
-                                <h2>{{ form.id ? '编辑练习' : '新增练习' }}</h2>
-                                <span class="editor-tag">CLOZE EDITOR</span>
+                        <h2>{{ form.id ? '编辑练习' : '新增练习' }}</h2>
+                        <span class="editor-tag">CLOZE EDITOR</span>
                     </div>
                     <div class="editor-actions">
                         <button class="btn-cancel" @click="isAdding = false">取消</button>
@@ -203,9 +311,12 @@ const isUserCorrect = (n) => {
                 </div>
                 <div class="editor-split-container">
                     <div class="editor-pane edit-area card-base">
-                        <div class="pane-label">文章录入 (Markdown)</div>
-                        <textarea v-model="form.cloze_text" placeholder="录入文章，用 {{1}} 表示第1个空格..."
-                            class="fancy-textarea"></textarea>
+                        <div class="pane-label">
+                            文章录入 (Markdown)
+                            <span @click="insertImageTemplate" style="cursor:pointer; float:right;">🖼️ 插入图片</span>
+                        </div>
+                        <textarea ref="editorTextareaRef" v-model="form.cloze_text" @paste="handlePaste"
+                            placeholder="录入文章，用 {{1}} 表示第1个空格..." class="fancy-textarea"></textarea>
 
                         <div class="answer-config-panel">
                             <div class="pane-label">配置正确答案 ({{ gapCount }}个)</div>
@@ -247,6 +358,20 @@ const isUserCorrect = (n) => {
                 </div>
             </div>
         </main>
+        <div v-if="floatImgUrl" class="float-img-window"
+            :style="{ left: floatPos.x + 'px', top: floatPos.y + 'px', transform: `scale(${floatScale})` }"
+            @wheel="handleWheel">
+
+            <div class="float-controls" @mousedown="startDrag">
+                <div class="drag-hint">⠿ DRAG</div>
+                <button class="close-float-mini" @click="closeFloatImg">✕</button>
+                <div class="zoom-badge">{{ Math.round(floatScale * 100) }}%</div>
+            </div>
+
+            <div class="float-body">
+                <img :src="floatImgUrl" draggable="false" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -309,7 +434,7 @@ const isUserCorrect = (n) => {
 }
 
 .edit-area {
-   display: flex;
+    display: flex;
     flex-direction: column;
     flex: 1;
 }
@@ -449,8 +574,10 @@ const isUserCorrect = (n) => {
 .practice-layout {
     display: flex;
     gap: 20px;
-    flex: 1;      /* 占用 viewport 剩余所有空间 */
-    min-height: 0; /* 极其重要：允许子元素收缩，防止被内容撑开 */
+    flex: 1;
+    /* 占用 viewport 剩余所有空间 */
+    min-height: 0;
+    /* 极其重要：允许子元素收缩，防止被内容撑开 */
 }
 
 .card-base {
@@ -482,8 +609,9 @@ const isUserCorrect = (n) => {
 }
 
 .reading-scroll {
-   flex: 1;       /* 核心：吸收剩余高度 */
-    overflow-y: auto; 
+    flex: 1;
+    /* 核心：吸收剩余高度 */
+    overflow-y: auto;
     padding: 30px 50px;
 }
 
@@ -494,7 +622,7 @@ const isUserCorrect = (n) => {
 }
 
 .answer-section {
-   width: 280px;
+    width: 280px;
     flex-shrink: 0;
     display: flex;
 }
@@ -502,8 +630,10 @@ const isUserCorrect = (n) => {
 .answer-card {
     flex: 1;
     display: flex;
-    flex-direction: column; /* 纵向排列 Head, Body, Foot */
-    min-height: 0;         /* 极其重要 */
+    flex-direction: column;
+    /* 纵向排列 Head, Body, Foot */
+    min-height: 0;
+    /* 极其重要 */
 }
 
 .card-head {
@@ -582,14 +712,17 @@ const isUserCorrect = (n) => {
 }
 
 .card-body {
-    flex: 1;               /* 核心：让答案列表吸收所有剩余高度 */
-    overflow-y: auto;      /* 这里是唯一的滚动点 */
+    flex: 1;
+    /* 核心：让答案列表吸收所有剩余高度 */
+    overflow-y: auto;
+    /* 这里是唯一的滚动点 */
     padding: 16px;
 }
 
 /* 4. 锁定底部，减小 Padding */
 .card-foot {
-   flex-shrink: 0;        /* 确保底部按钮不被压缩 */
+    flex-shrink: 0;
+    /* 确保底部按钮不被压缩 */
     padding: 12px;
 }
 
@@ -759,7 +892,7 @@ const isUserCorrect = (n) => {
 
 /* --- 管理员编辑器专用样式 (仅影响 isAdding 状态) --- */
 .editor-layout {
-   flex: 1;
+    flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -823,7 +956,8 @@ const isUserCorrect = (n) => {
     flex: 1;
     display: flex;
     gap: 20px;
-    min-height: 0; /* 防止编辑器撑开整页 */
+    min-height: 0;
+    /* 防止编辑器撑开整页 */
 }
 
 .editor-pane {
@@ -843,8 +977,9 @@ const isUserCorrect = (n) => {
 }
 
 .fancy-textarea {
-    flex: 1; 
-    min-height: 0; /* 允许 textarea 在 flex 下收缩 */
+    flex: 1;
+    min-height: 0;
+    /* 允许 textarea 在 flex 下收缩 */
     overflow-y: auto;
 }
 
@@ -1097,7 +1232,8 @@ const isUserCorrect = (n) => {
 
 /* 管理员答案配置面板 */
 .answer-config-panel {
-    height: 40%; /* 或者使用 flex: 0.8 */
+    height: 40%;
+    /* 或者使用 flex: 0.8 */
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -1109,7 +1245,8 @@ const isUserCorrect = (n) => {
 
 .answer-grid {
     flex: 1;
-    overflow-y: auto; /* 答案过长时在此内部滚动 */
+    overflow-y: auto;
+    /* 答案过长时在此内部滚动 */
 }
 
 .config-row {
@@ -1187,5 +1324,205 @@ const isUserCorrect = (n) => {
 
 .scroll-y:hover::-webkit-scrollbar-thumb {
     background: #cbd5e1;
+}
+
+.config-input.auto-height {
+    resize: vertical;
+    /* 允许手动拉伸高度 */
+    min-height: 36px;
+    line-height: 1.5;
+    padding-top: 8px;
+    white-space: pre-wrap;
+    /* 核心：保留换行符 */
+}
+
+:deep(.embedded-img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 10px 0;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 找到 .article-body，添加以下属性 */
+.article-body {
+    font-size: 19px;
+    line-height: 2.2;
+    color: #334155;
+
+    /* 核心修改：保留空格和换行符 */
+    white-space: pre-wrap;
+    word-break: break-word;
+    /* 防止长单词撑破布局 */
+}
+
+/* 浮动窗口基础样式 */
+.float-img-window {
+    position: fixed;
+    z-index: 9999;
+    width: 350px;
+    /* 初始宽度 */
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.1s ease-out;
+    /* 缩放时更丝滑 */
+}
+
+.float-header {
+    padding: 8px 12px;
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    /* 提示可拖拽 */
+    user-select: none;
+}
+
+.drag-handle {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.close-float {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-float:hover {
+    background: #ef4444;
+}
+
+.float-footer {
+    padding: 4px 12px;
+    font-size: 10px;
+    color: #94a3b8;
+    background: #fff;
+    border-top: 1px solid #f1f5f9;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* 增强原有的图片样式，增加点击提示 */
+:deep(.embedded-img) {
+    cursor: zoom-in;
+    transition: 0.3s;
+}
+
+:deep(.embedded-img:hover) {
+    filter: brightness(0.9);
+    outline: 3px solid #52c41a;
+}
+/* 极简容器 */
+.float-img-window {
+    position: fixed;
+    z-index: 9999;
+    width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    overflow: hidden; /* 保证图片圆角 */
+    transition: transform 0.1s ease-out, box-shadow 0.3s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.float-img-window:hover {
+    box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+
+/* 悬浮操作层：默认透明 */
+.float-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.1); /* 淡淡的遮罩感 */
+    transition: opacity 0.2s;
+    cursor: move;
+    z-index: 10;
+}
+
+.float-img-window:hover .float-controls {
+    opacity: 1;
+}
+
+/* 拖拽文字提示 */
+.drag-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+/* 迷你关闭按钮 */
+.close-float-mini {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: 0.2s;
+}
+
+.close-float-mini:hover {
+    background: #ff4d4f;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* 缩放比例标牌 */
+.zoom-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: monospace;
+}
+
+.float-body {
+    width: 100%;
+    line-height: 0; /* 消除图片下方的微小间隙 */
+}
+
+.float-body img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 </style>

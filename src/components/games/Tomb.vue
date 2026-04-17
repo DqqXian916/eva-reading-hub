@@ -65,7 +65,7 @@
 
       <div v-if="!gameState.active && !gameState.finished" id="start-overlay">
         <div class="start-content">
-          <h1 class="title-main">摸金行动：代号ALICE</h1>
+          <h1 class="title-main">摸金行动</h1>
           <button class="start-action-btn" @click="startGame">开始摸金</button>
         </div>
       </div>
