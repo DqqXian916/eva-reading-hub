@@ -3,11 +3,11 @@ import { ref, computed, reactive, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
     quizzes: { type: Array, default: () => [] },
-    canEdit: { type: Boolean, default: true }
+    canEdit: { type: Boolean, default: true },
+    isFullScreen: { type: Boolean, default: false } // 接收父组件传入的全屏状态
 })
 
-const emit = defineEmits(['save', 'delete'])
-
+const emit = defineEmits(['save', 'delete', 'toggleFull']) // 增加 toggleFull 事件
 // --- 状态控制 ---
 const selectedQuiz = ref(null)
 const isAdding = ref(false)
@@ -24,10 +24,14 @@ const isDragging = ref(false)
 let dragOffset = { x: 0, y: 0 }
 // 定义 ref 绑定到 DOM
 const editorTextareaRef = ref(null)
+const handleToggleFull = () => {
+    emit('toggleFull')
+}
 
 const form = reactive({
     id: null,
     cloze_text: '',
+    title: '', // 1. 确保初始值有 title
     answers: [],
     category: '短文填空'
 })
@@ -36,7 +40,8 @@ const form = reactive({
 const startAdd = () => {
     selectedQuiz.value = null
     isAdding.value = true
-    Object.assign(form, { id: null, cloze_text: '', answers: [], category: '短文填空' })
+    // 2. 重置时清空 title
+    Object.assign(form, { id: null, title: '', cloze_text: '', answers: [], category: '短文填空' })
 }
 
 const openQuiz = (q) => {
@@ -204,10 +209,18 @@ const isUserCorrect = (n) => {
     const user = userAnswers[n]?.trim().toLowerCase()
     return user === correct
 }
+
+const checkAnswers = () => {
+    isChecked.value = true;
+    // 强制失去焦点，让所有的 input 样式统一渲染
+    if (document.activeElement) {
+        document.activeElement.blur();
+    }
+}
 </script>
 
 <template>
-    <div class="cloze-app-container">
+   <div :class="['cloze-app-container', { 'is-full-screen': isFullScreen }]">
         <aside :class="['cloze-sidebar', { 'is-collapsed': listCollapsed }]">
             <div class="sidebar-inner-content">
                 <div class="sidebar-header">
@@ -231,7 +244,7 @@ const isUserCorrect = (n) => {
                         <div class="card-main-content">
                             <div class="item-index-box">{{ String(idx + 1).padStart(2, '0') }}</div>
                             <div class="item-info">
-                                <div class="item-title">{{ q.cloze_text.substring(0, 20) }}...</div>
+                                <div class="item-title">{{ q.title}}</div>
                                 <div class="item-meta">🧩 {{ (q.answers || []).length }} Gaps</div>
                             </div>
                         </div>
@@ -249,6 +262,9 @@ const isUserCorrect = (n) => {
             </button>
         </aside>
         <main class="cloze-viewport">
+             <button class="fullscreen-toggle-btn" :class="{ 'is-admin-hidden': isAdding || isEditing }" @click="handleToggleFull">
+        {{ isFullScreen ? ' ↙' : ' ↗' }}
+    </button>
             <div v-if="selectedQuiz && !isAdding" class="practice-layout">
                 <div class="reading-section card-base animate-in">
                     <div class="section-top">
@@ -276,22 +292,24 @@ const isUserCorrect = (n) => {
                                     'is-wrong': isChecked && !isUserCorrect(n - 1)
                                 }]">
                                     <span class="input-prefix">({{ n }})</span>
-                                    <input :ref="el => inputRefs[n - 1] = el" v-model="userAnswers[n - 1]"
-                                        :disabled="isChecked" class="gap-input">
+
+                                    <input v-if="!isChecked || isUserCorrect(n - 1)" :ref="el => inputRefs[n - 1] = el"
+                                        v-model="userAnswers[n - 1]" :disabled="isChecked" class="gap-input"
+                                        :class="{ 'user-correct-text': isChecked && isUserCorrect(n - 1) }">
+
+                                    <div v-else class="wrong-and-corrected-text">
+                                        {{ selectedQuiz.answers[n - 1] }}
+                                    </div>
 
                                     <div v-if="isChecked" class="status-indicator">
                                         <span v-if="isUserCorrect(n - 1)" class="icon-v">✓</span>
                                         <span v-else class="icon-x">✕</span>
                                     </div>
-
-                                    <div v-if="isChecked && !isUserCorrect(n - 1)" class="ans-popup">
-                                        {{ selectedQuiz.answers[n - 1] }}
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-foot">
-                            <button v-if="!isChecked" class="btn-primary" @click="isChecked = true">核对答案</button>
+                            <button v-if="!isChecked" class="btn-primary" @click="checkAnswers">核对答案</button>
                             <button v-else class="btn-secondary" @click="isChecked = false">重新练习</button>
                         </div>
                     </div>
@@ -311,6 +329,9 @@ const isUserCorrect = (n) => {
                 </div>
                 <div class="editor-split-container">
                     <div class="editor-pane edit-area card-base">
+                        <div class="pane-label">练习标题 (Title)</div>
+                        <input v-model="form.title" class="title-input-field"
+                            placeholder="输入练习标题，例如：Unit 3 Grammar Focus" />
                         <div class="pane-label">
                             文章录入 (Markdown)
                             <span @click="insertImageTemplate" style="cursor:pointer; float:right;">🖼️ 插入图片</span>
@@ -695,9 +716,6 @@ const isUserCorrect = (n) => {
     border-radius: 10px;
 }
 
-.input-row {
-    margin-bottom: 8px;
-}
 
 .gap-input {
     flex: 1;
@@ -721,9 +739,11 @@ const isUserCorrect = (n) => {
 
 /* 4. 锁定底部，减小 Padding */
 .card-foot {
-    flex-shrink: 0;
-    /* 确保底部按钮不被压缩 */
     padding: 12px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* 确保按钮之间有间距 */
 }
 
 /* 修正了之前过大的 padding */
@@ -753,6 +773,46 @@ const isUserCorrect = (n) => {
     border-radius: 14px;
     font-weight: 800;
     cursor: pointer;
+}
+
+/* 统一基础样式 */
+.btn-primary,
+.btn-secondary {
+    width: 100%;
+    height: 40px;
+    
+    /* 核心对齐修复 */
+    display: flex;
+    align-items: center;      /* 垂直居中 */
+    justify-content: center;   /* 水平居中 */
+    line-height: 1;           /* 消除行高干扰 */
+    
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;    /* 极其重要：确保边框不撑大高度 */
+}
+
+/* 核对答案按钮 */
+.btn-primary {
+    background: #1e293b;
+    color: #fff;
+    border: none;
+}
+
+/* 重新练习按钮 */
+.btn-secondary {
+    background: #fff;
+    color: #64748b;
+    border: 2px solid #f1f5f9; /* 2px边框会被 box-sizing 包含在40px内 */
+    padding: 0;                /* 移除可能的默认内边距 */
+}
+
+/* 视觉微调：如果字体本身导致偏下，可以加一个极小的负偏移 */
+.btn-secondary:active, .btn-secondary {
+    padding-bottom: 1px; /* 有时字体的渲染基准线偏上，可以微调 padding */
 }
 
 :deep(.gap-pill) {
@@ -1427,6 +1487,7 @@ const isUserCorrect = (n) => {
     filter: brightness(0.9);
     outline: 3px solid #52c41a;
 }
+
 /* 极简容器 */
 .float-img-window {
     position: fixed;
@@ -1434,14 +1495,15 @@ const isUserCorrect = (n) => {
     width: 320px;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-    overflow: hidden; /* 保证图片圆角 */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    /* 保证图片圆角 */
     transition: transform 0.1s ease-out, box-shadow 0.3s;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .float-img-window:hover {
-    box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
 }
 
 /* 悬浮操作层：默认透明 */
@@ -1452,7 +1514,8 @@ const isUserCorrect = (n) => {
     right: 0;
     bottom: 0;
     opacity: 0;
-    background: rgba(0, 0, 0, 0.1); /* 淡淡的遮罩感 */
+    background: rgba(0, 0, 0, 0.1);
+    /* 淡淡的遮罩感 */
     transition: opacity 0.2s;
     cursor: move;
     z-index: 10;
@@ -1472,7 +1535,7 @@ const isUserCorrect = (n) => {
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     pointer-events: none;
 }
 
@@ -1492,7 +1555,7 @@ const isUserCorrect = (n) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: 0.2s;
 }
 
@@ -1517,12 +1580,231 @@ const isUserCorrect = (n) => {
 
 .float-body {
     width: 100%;
-    line-height: 0; /* 消除图片下方的微小间隙 */
+    line-height: 0;
+    /* 消除图片下方的微小间隙 */
 }
 
 .float-body img {
     width: 100%;
     height: auto;
     display: block;
+}
+
+/* --- 优化后的答题卡反馈样式 --- */
+
+/* 1. 调整容器，为弹出层提供定位基准 */
+.input-row {
+    margin-bottom: 12px;
+    /* 稍微增加间距给气泡留空间 */
+}
+
+/* 2. 错误状态下的输入框 */
+.input-wrapper.is-wrong {
+    border-color: #fecaca;
+    /* 浅红色边框 */
+    background: #fff;
+    /* 保持白色，避免太花哨 */
+}
+
+/* 5. 状态图标动画 */
+.status-indicator {
+    margin-left: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.ans-label {
+    font-size: 10px;
+    color: #ef4444;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-right: 6px;
+    opacity: 0.7;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.icon-v {
+    color: #52c41a;
+}
+
+.icon-x {
+    color: #ff4d4f;
+}
+
+/* 弹出动画 */
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 6. 正确状态的小优化 */
+.input-wrapper.is-correct {
+    border-color: #52c41a;
+    background: #f6ffed;
+}
+
+/* 修改输入框基础容器，增加过渡效果 */
+.input-wrapper {
+    min-height: 44px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* 答错时的容器：背景给极浅的红，衬托红色的字 */
+.input-wrapper.is-wrong {
+    background: #fff5f5;
+    border-color: #feb2b2;
+}
+
+/* 答错后显示的正确答案文本：醒目的红色 */
+.wrong-and-corrected-text {
+    flex: 1;
+    color: #e53e3e;
+    /* 强烈的红色提示纠错 */
+    font-size: 14px;
+    font-weight: 800;
+    padding: 10px 0;
+    animation: fadeInFast 0.3s ease-out;
+}
+
+/* 答对时的输入框：文字可以变成深绿色或保持原样 */
+.user-correct-text {
+    color: #38a169 !important;
+    /* 答对了变成深绿色 */
+    -webkit-text-fill-color: #38a169;
+    /* 兼容部分浏览器禁用的 input 颜色 */
+    opacity: 1 !important;
+    /* 确保禁用后颜色依然清晰 */
+}
+
+/* 答对时的容器背景 */
+.input-wrapper.is-correct {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+}
+
+/* 快速淡入动画 */
+@keyframes fadeInFast {
+    from {
+        opacity: 0;
+        transform: translateY(2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 禁用状态下的 input 默认颜色修复 (针对 Chrome) */
+.gap-input:disabled {
+    cursor: default;
+    background: transparent;
+}
+.title-input-field {
+    width: 100%;
+    border: none;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1e293b;
+    outline: none;
+    background: #fff;
+}
+
+.title-input-field::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+}
+
+/* 侧边栏标题显示优化 */
+.item-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #334155;
+    /* 限制单行，防止标题过长撑破卡片 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* 全屏切换按钮 */
+.fullscreen-toggle-btn {
+    position: absolute;
+    top: 25px;
+    right: 35px; /* 避开滚动条位置 */
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    color: #64748b;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100; /* 确保在最上层 */
+    transition: all 0.3s ease;
+}
+
+.fullscreen-toggle-btn:hover {
+    background: #fff;
+    color: #52c41a;
+    border-color: #52c41a;
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.15);
+    transform: translateY(-2px);
+}
+
+/* 全屏时的内容区域微调 */
+.is-full-screen .article-body {
+    max-width: 900px; /* 全屏时限制阅读宽度，防止文字太长行导致阅读疲劳 */
+    margin: 0 auto;
+    font-size: 22px; /* 全屏大字模式 */
+}
+/* 当全屏类名激活时 */
+.cloze-app-container.is-full-screen {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    background: #ffffff !important; /* 防止全屏后背景变黑或透明 */
+    display: flex;
+}
+
+/* 全屏时让练习区域居中，字号变大，更有沉浸感 */
+.is-full-screen .article-body {
+    max-width: 900px;
+    margin: 0 auto;
+    font-size: 22px; 
+    line-height: 2;
+}
+
+/* 全屏时隐藏侧边栏的触发箭头，防止干扰 */
+.is-full-screen .toggle-trigger {
+    display: none;
+}
+/* 当处于管理员/编辑模式时，强行隐藏按钮 */
+.fullscreen-toggle-btn.is-admin-hidden {
+    display: none !important;
 }
 </style>

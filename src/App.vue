@@ -294,7 +294,9 @@ const saveQuiz = async (quizData) => {
 const saveClozeQuiz = async (clozeData) => {
   try {
     let res;
+    // 1. 在 payload 中明确加入 title 字段
     const payload = {
+      title: clozeData.title || '',    // 新增：保存练习标题
       cloze_text: clozeData.cloze_text, // 包含 {{1}} 占位符的短文
       answers: clozeData.answers,       // 存储正确答案的数组或对象
       category: clozeData.category,
@@ -302,8 +304,10 @@ const saveClozeQuiz = async (clozeData) => {
     }
 
     if (clozeData.id) {
+      // 更新逻辑
       res = await supabase.from('cloze_quizzes').update(payload).eq('id', clozeData.id)
     } else {
+      // 插入逻辑：确保包含 student_id
       res = await supabase.from('cloze_quizzes').insert([{
         ...payload,
         student_id: currentStudent.value.id
@@ -311,10 +315,18 @@ const saveClozeQuiz = async (clozeData) => {
     }
 
     if (res.error) throw res.error
+    
     alert("✅ 短文填空保存成功")
+    
+    // 刷新列表数据
     await fetchClozeQuizzes(currentStudent.value.id)
+    
+    // 建议：如果是新增成功，可以在这里关闭编辑模式
+    // isAdding.value = false 
+    
   } catch (e) {
-    alert(e.message)
+    console.error("Save Error:", e)
+    alert("保存失败：" + e.message)
   }
 }
 
@@ -343,7 +355,13 @@ const deleteQuiz = async (id) => {
   }
 }
 
-onMounted(fetchStudents)
+// 必须：处理用户按 Esc 键退出的情况，保证变量同步
+onMounted(() => {
+    fetchStudents() // 你原有的代码
+    document.addEventListener('fullscreenchange', () => {
+        isFullScreen.value = !!document.fullscreenElement
+    })
+})
 
 // 4. 阅读模式关键函数
 const openReading = (reading) => {
@@ -414,6 +432,21 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
     isLoading.value = false
   }
 }
+const toggleFullScreen = () => {
+    // 逻辑：如果当前不是全屏状态，就请求全屏
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+            isFullScreen.value = true
+        }).catch(err => {
+            console.error(`全屏启动失败: ${err.message}`)
+        })
+    } else {
+        // 如果已经是全屏，就退出
+        document.exitFullscreen()
+        isFullScreen.value = false
+    }
+}
+
 </script>
 
 <template>
@@ -485,8 +518,13 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
         </template>
 
         <template v-else-if="activeModule === 'cloze'">
-          <ClozeModule :student="currentStudent" :quizzes="studentClozeQuizzes" :canEdit="isAdminMode"
-            @save="saveClozeQuiz" @delete="deleteClozeQuiz" />
+          <ClozeModule 
+  :student="currentStudent" 
+  :quizzes="studentClozeQuizzes" 
+  :canEdit="isAdminMode"
+  :isFullScreen="isFullScreen" @save="saveClozeQuiz" 
+  @delete="deleteClozeQuiz" 
+  @toggleFull="toggleFullScreen" />
         </template>
 
         <template v-else-if="activeModule === 'vocab-test'">
