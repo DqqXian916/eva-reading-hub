@@ -74,7 +74,6 @@
     <div v-if="!gameStarted || isFinished" class="overlay">
       <div v-if="!gameStarted" class="glass-modal">
         <h1 class="glitch-text" data-text="RESONANCE">RESONANCE</h1>
-        <p class="sub-text">慢慢来，比较快<br>先听、后看、再弹奏</p>
         <div class="start-hint">点击任意处开启学习</div>
       </div>
       
