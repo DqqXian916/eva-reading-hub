@@ -1,0 +1,212 @@
+[
+  {
+    "m": false,
+    "s": "I'm late because of the rain.",
+    "cn": "因为",
+    "en": "because",
+    "ps": "bɪˈkəz"
+  },
+  {
+    "m": false,
+    "s": "Health is very important.",
+    "cn": "重要的",
+    "en": "important",
+    "ps": "ɪmˈpɔːrtnt"
+  },
+  {
+    "m": false,
+    "s": "We must protect the environment.",
+    "cn": "环境",
+    "en": "environment",
+    "ps": "ɪnˈvaɪrənmənt"
+  },
+  {
+    "m": true,
+    "s": "Monday is a busy day.",
+    "cn": "星期一",
+    "en": "Monday",
+    "ps": "ˈmʌndeɪ"
+  },
+  {
+    "m": true,
+    "s": "Tuesday comes after Monday.",
+    "cn": "星期二",
+    "en": "Tuesday",
+    "ps": "ˈtuːzdeɪ"
+  },
+  {
+    "m": true,
+    "s": "We have English on Wednesday.",
+    "cn": "星期三",
+    "en": "Wednesday",
+    "ps": "ˈwenzdeɪ"
+  },
+  {
+    "m": true,
+    "s": "Thursday is the fourth day of the week.",
+    "cn": "星期四",
+    "en": "Thursday",
+    "ps": "ˈθɜːrzdeɪ"
+  },
+  {
+    "m": true,
+    "s": "I have a party on Friday.",
+    "cn": "星期五",
+    "en": "Friday",
+    "ps": "ˈfraɪdeɪ"
+  },
+  {
+    "m": true,
+    "s": "We go hiking on Saturday.",
+    "cn": "星期六",
+    "en": "Saturday",
+    "ps": "ˈsætərdeɪ"
+  },
+  {
+    "m": true,
+    "s": "I rest on Sunday.",
+    "cn": "星期日",
+    "en": "Sunday",
+    "ps": "ˈsʌndeɪ"
+  },
+  {
+    "m": false,
+    "s": "It is a sunny day.",
+    "cn": "天",
+    "en": "day",
+    "ps": "deɪ"
+  },
+  {
+    "m": false,
+    "s": "I have a new bike.",
+    "cn": "新的",
+    "en": "new",
+    "ps": "nuː"
+  },
+  {
+    "m": false,
+    "s": "The nurse is very kind.",
+    "cn": "护士",
+    "en": "nurse",
+    "ps": "nɜːrs"
+  },
+  {
+    "m": false,
+    "s": "He is a famous author.",
+    "cn": "作者",
+    "en": "author",
+    "ps": "ˈɔːθər"
+  },
+  {
+    "m": false,
+    "s": "I want some water.",
+    "cn": "想要",
+    "en": "want",
+    "ps": "wɑːnt"
+  },
+  {
+    "m": false,
+    "s": "I want to learn English.",
+    "cn": "学习",
+    "en": "learn",
+    "ps": "lɜːrn"
+  },
+  {
+    "m": false,
+    "s": "I like to swim in summer.",
+    "cn": "游泳",
+    "en": "swim",
+    "ps": "swɪm"
+  },
+  {
+    "m": false,
+    "s": "I go to school by bicycle.",
+    "cn": "自行车",
+    "en": "bicycle",
+    "ps": "ˈbaɪsɪkl"
+  },
+  {
+    "m": false,
+    "s": "You are my best friend.",
+    "cn": "最好的",
+    "en": "best",
+    "ps": "best"
+  },
+  {
+    "m": false,
+    "s": "The box is very heavy.",
+    "cn": "重的",
+    "en": "heavy",
+    "ps": "ˈhevi"
+  },
+  {
+    "m": false,
+    "s": "He is excited about the trip.",
+    "cn": "兴奋的",
+    "en": "excited",
+    "ps": "ɪkˈsaɪtɪd"
+  },
+  {
+    "m": false,
+    "s": "What are your weekend plans?",
+    "cn": "周末",
+    "en": "weekend",
+    "ps": "ˈwiːkend"
+  },
+  {
+    "m": false,
+    "s": "The book is on the table.",
+    "cn": "桌子",
+    "en": "table",
+    "ps": "ˈteɪbl"
+  },
+  {
+    "m": false,
+    "s": "There is no space in the car.",
+    "cn": "空间",
+    "en": "space",
+    "ps": "speɪs"
+  },
+  {
+    "m": false,
+    "s": "The frog is green.",
+    "cn": "青蛙",
+    "en": "frog",
+    "ps": "frɔːɡ"
+  },
+  {
+    "m": false,
+    "s": "I enjoy cooking for my family.",
+    "cn": "烹饪",
+    "en": "cooking",
+    "ps": "ˈkʊkɪŋ"
+  },
+  {
+    "m": false,
+    "s": "Can you lift this bag?",
+    "cn": "抬；举起",
+    "en": "lift",
+    "ps": "lɪft"
+  },
+  {
+    "m": false,
+    "s": "I have enough time.",
+    "cn": "足够的",
+    "en": "enough",
+    "ps": "ɪˈnʌf"
+  },
+  {
+    "m": false,
+    "s": "The room is big enough for us.",
+    "cn": "足够大",
+    "en": "big enough",
+    "ps": "bɪɡ ɪˈnʌf"
+  },
+  {
+    "m": false,
+    "s": "I enjoy doing sports.",
+    "cn": "喜欢做某事",
+    "en": "enjoy doing",
+    "ps": "ɪnˈdʒɔɪ ˈduːɪŋ"
+  }
+]

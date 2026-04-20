@@ -1,42 +1,77 @@
 <template>
   <div class="game-wrapper">
     <div id="game-view">
+      <div v-if="!gameState.roleSelected" id="start-overlay">
+        <div class="start-content">
+          <h1 class="title-main">摸金行动</h1>
+          <div class="role-selector">
+            <div class="role-card" :class="{ active: gameState.currentRole === 'alice' }" @click="gameState.currentRole = 'alice'">
+              <div class="role-preview alice-box"></div>
+              <div class="role-info">
+                <span class="role-name">ALICE</span>
+                <span class="role-tag">均衡型</span>
+              </div>
+            </div>
+            <div class="role-card" :class="{ active: gameState.currentRole === 'allen' }" @click="gameState.currentRole = 'allen'">
+              <div class="role-preview allen-box"></div>
+              <div class="role-info">
+                <span class="role-name">ALLEN</span>
+                <span class="role-tag">敏捷型</span>
+              </div>
+            </div>
+          </div>
+          <button class="start-action-btn" @click="confirmRole">确认出发</button>
+        </div>
+      </div>
+
       <div v-if="gameState.active && !gameState.finished" id="hud">
-        <div class="hud-item cyan-glow">探员: ALICE | O2: {{ Math.floor(gameState.ox) }}%</div>
+        <div class="hud-item" :style="{ color: gameState.roleStats[gameState.currentRole].theme, textShadow: `0 0 8px ${gameState.roleStats[gameState.currentRole].theme}` }">
+          AGENT: {{ gameState.roleStats[gameState.currentRole].name }} | O2: {{ Math.floor(gameState.ox) }}%
+        </div>
         <div class="hud-item gold-glow">圣物回收: {{ gameState.count }} / 10</div>
       </div>
 
       <div id="world" :style="{ transform: `translateX(${gameState.wx}px)` }">
         <div class="floor-line"></div>
         <div v-for="(item, index) in treasures" :key="index" class="treasure"
-          :style="{ left: item.x + 'px', opacity: item.collected ? 0 : 1 }">
-          <div class="relic-visual-box" :class="{ 'is-broken': item.broken }"
-            :style="{ '--glow-color': item.broken ? '#333' : item.rarityColor }">
+  :style="{ 
+    left: item.x + 'px', 
+    transform: `translateY(${item.y}px)`, 
+    opacity: item.collected ? 0 : 1 
+  }">
+  
+  <div v-if="item.y < 0" class="float-platform"></div>
 
-            <div class="relic-icon">{{ item.broken ? '💨' : item.icon }}</div>
-
-            <div class="relic-texture-overlay"></div>
-
-            <div v-if="!item.broken" class="relic-aura"></div>
-          </div>
-          <div v-if="gameState.nearItem === item && !gameState.showTerminal" class="interact-hint">
-            <template v-if="!item.broken">
-              <span class="key-box">SPACE</span> 鉴定「{{ item.relicName }}」
-            </template>
-
-            <template v-else>
-              <span style="color: #ff4d4d;">⚠️ 密钥已锁定，该圣物已损毁</span>
-            </template>
-          </div>
-        </div>
+  <div class="relic-visual-box" :class="{ 'is-broken': item.broken }"
+    :style="{ '--glow-color': item.broken ? '#333' : item.rarityColor }">
+    <div class="relic-icon">{{ item.broken ? '💨' : item.icon }}</div>
+    <div v-if="!item.broken" class="relic-aura"></div>
+  </div>
+  
+  <div v-if="gameState.nearItem === item && !gameState.showTerminal" class="interact-hint">
+    <span class="key-box">SPACE</span> 鉴定
+  </div>
+</div>
       </div>
 
       <div id="alice-sprite" v-if="gameState.active && !gameState.finished"
-        :style="{ left: (gameState.px + gameState.wx) + 'px', transform: `scaleX(${gameState.facingLeft ? -1 : 1})` }"
-        :class="{ 'walking': gameState.moving }">
-        <div class="alice-hair-flow"></div>
-        <div class="alice-body-pixel"></div>
+       :style="{ 
+          left: (gameState.px + gameState.wx) + 'px', 
+          bottom: (18 + (gameState.py * -0.1)) + '%', // 将物理位移映射为百分比或像素
+          transform: `scaleX(${gameState.facingLeft ? -1 : 1})` 
+        }"
+        :class="{ 'walking': gameState.moving && !gameState.isJumping, 'jumping': gameState.isJumping }">
         <div class="alice-tank-pixel"></div>
+        
+        <template v-if="gameState.currentRole === 'alice'">
+          <div class="alice-hair-flow"></div>
+          <div class="alice-body-pixel"></div>
+        </template>
+        
+        <template v-else>
+          <div class="allen-hair-pixel"></div>
+          <div class="allen-body-pixel"></div>
+        </template>
       </div>
 
       <transition name="pop">
@@ -105,14 +140,42 @@
 import { ref, reactive, nextTick, onMounted } from 'vue';
 
 const props = defineProps({ wordList: { type: Array, default: () => [] } });
-const gameState = reactive({ px: 400, wx: 0, ox: 100, count: 0, active: false, finished: false, moving: false, facingLeft: false, showTerminal: false, nearItem: null, currentTarget: null, inputError: false, attempts: 0 });
 const treasures = ref([]);
 const inventory = ref([]);
 const userInput = ref("");
 const wordInput = ref(null);
 const keys = {};
 
+const gameState = reactive({ 
+  px: 400, wx: 0, ox: 100, count: 0, 
+  active: false, 
+  roleSelected: false,
+  finished: false, 
+  moving: false, 
+  facingLeft: false, 
+  showTerminal: false, 
+  nearItem: null, 
+  currentTarget: null, 
+  inputError: false, 
+  attempts: 0,
+  currentRole: 'alice',
+  py: 0,        // 新增：角色的 Y 轴偏移 (0 为地面)
+  vy: 0,        // 新增：垂直速度
+  isJumping: false,
+  roleStats: {
+    alice: { name: 'ALICE', speed: 6.5, jumpPower: -15, oxRate: 0.008, theme: '#4a90e2' },
+    allen: { name: 'ALLEN', speed: 8.5, jumpPower: -18, oxRate: 0.012, theme: '#94a3b8' } // 艾伦跳得更高
+  }
+});
+
+const confirmRole = () => {
+  gameState.roleSelected = true;
+  startGame();
+};
+
 const relicMeta = [
+  { name: "英语卷子", icon: "📜", color: "#4deeea" }, // 新增：带有浅蓝色科技感的试卷
+  { name: "飞天神龙像", icon: "🐉", color: "#bc13fe" }, // 新增：紫色神龙
   { name: "大内金樽", icon: "🏺", color: "#ffd700" },
   { name: "焦尾古琴", icon: "🪕", color: "#d4a373" },
   { name: "足金元宝", icon: "💰", color: "#ffcc00" },
@@ -146,7 +209,18 @@ const initTreasures = () => {
   const words = [...source].sort(() => Math.random() - 0.5).slice(0, 10);
   treasures.value = words.map((w, i) => {
     const meta = relicMeta[i % relicMeta.length];
-    return { ...w, relicName: meta.name, icon: meta.icon, rarityColor: meta.color, x: 800 + i * 600, collected: false };
+    // 新增：y 坐标。0 是地面，-120 到 -180 是高台高度
+    const isHigh = Math.random() > 0.5; 
+    const yPos = isHigh ? -150 : 0; 
+    return { 
+      ...w, 
+      relicName: meta.name, 
+      icon: meta.icon, 
+      rarityColor: meta.color, 
+      x: 800 + i * 600, 
+      y: yPos, // 存储垂直高度
+      collected: false 
+    };
   });
 };
 
@@ -155,18 +229,39 @@ const resetGame = () => location.reload();
 
 const gameLoop = () => {
   if (!gameState.active || gameState.finished) return;
+  const stats = gameState.roleStats[gameState.currentRole];
+  // --- 横向移动控制 ---
   gameState.moving = (keys['KeyD'] || keys['ArrowRight'] || keys['KeyA'] || keys['ArrowLeft']) && !gameState.showTerminal;
   if (!gameState.showTerminal) {
-    if (keys['KeyD'] || keys['ArrowRight']) { gameState.px += 6.5; gameState.facingLeft = false; }
-    if (keys['KeyA'] || keys['ArrowLeft']) { gameState.px -= 6.5; gameState.facingLeft = true; }
+    if (keys['KeyD'] || keys['ArrowRight']) { gameState.px += stats.speed; gameState.facingLeft = false; }
+    if (keys['KeyA'] || keys['ArrowLeft']) { gameState.px -= stats.speed; gameState.facingLeft = true; }
+    
+    // --- 跳跃控制 (按下 W 或 上箭头，且不在空中) ---
+    if ((keys['KeyW'] || keys['ArrowUp']) && !gameState.isJumping) {
+      gameState.vy = stats.jumpPower;
+      gameState.isJumping = true;
+    }
   }
+
+  // --- 垂直物理引擎 ---
+  gameState.vy += 0.8; // 重力加速度
+  gameState.py += gameState.vy;
+  if (gameState.py >= 0) { // 触地检测
+    gameState.py = 0;
+    gameState.vy = 0;
+    gameState.isJumping = false;
+  }
+  // 视角跟随
   gameState.wx = Math.min(0, -gameState.px + 400);
-  gameState.ox -= 0.008;
+  // 氧气消耗
+  gameState.ox -= stats.oxRate;
   if (gameState.ox <= 0) { gameState.finished = true; gameState.ox = 0; }
+  // 碰撞/交互检测 (增加 Y 轴高度判断，防止在空中也能交互)
   gameState.nearItem = treasures.value.find(t => 
   !t.collected && 
-  !t.broken && // 确保不会对已经坏掉的圣物弹出提示
-  Math.abs(gameState.px - t.x) < 70
+  !t.broken && 
+  Math.abs(gameState.px - t.x) < 70 && 
+  Math.abs(gameState.py - t.y) < 60 // 玩家的 Y 坐标必须接近圣物的 Y 坐标
 ) || null;
   requestAnimationFrame(gameLoop);
 };
@@ -378,6 +473,24 @@ input {
   letter-spacing: 4px;
 }
 
+/* 针对试卷颜色的特殊光晕效果 */
+.relic-visual-box[style*="#4deeea"] .relic-aura {
+  border-radius: 4px; /* 让光晕方一点，更像纸张 */
+  box-shadow: 0 0 15px #4deeea;
+  animation: paper-scan 2s infinite alternate;
+}
+
+@keyframes paper-scan {
+  0% {
+    clip-path: inset(0 0 80% 0); /* 模拟扫描线从上往下 */
+    opacity: 0.2;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0.6;
+  }
+}
+
 .start-action-btn:hover {
   background: #ffcc00;
   color: #000;
@@ -508,7 +621,7 @@ input {
 }
 
 .retry-btn-fancy {
-  padding: 12px 30px;
+  padding: 6px 30px;
   background: transparent;
   border: 1px solid #ffcc00;
   color: #ffcc00;
@@ -702,5 +815,163 @@ input.input-error-shake {
 .relic-visual-box.broken {
   filter: grayscale(1);
   opacity: 0.4;
+}
+
+.role-selector {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.role-card {
+  width: 150px;
+  padding: 20px;
+  background: #111;
+  border: 2px solid #333;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.role-card.active {
+  border-color: #ffcc00;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+  transform: scale(1.1);
+}
+
+.role-info {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.role-name {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.role-tag {
+  color: #666;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+/* 角色像素样式 */
+.alice-box { width: 30px; height: 40px; background: #4a90e2; margin: 0 auto; }
+/* --- 艾伦专属外观：西装与银发 --- */
+
+/* 1. 银灰色短发 - 层次感设计 */
+.allen-hair-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 16px;
+  top: 0px;
+  /* 使用不同深度的灰色模拟发型轮廓 */
+  box-shadow: 
+    0px 0px #cbd5e1, 4px 0px #f8fafc, 8px 0px #94a3b8, /* 顶层发丝 */
+    0px 4px #cbd5e1, 4px 4px #cbd5e1, 8px 4px #94a3b8, /* 中层 */
+    -4px 4px #94a3b8; /* 侧边鬓角 */
+}
+
+/* 2. 深色西装 - 重点在于中间的白衬衫 V 字区 */
+.allen-body-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 16px;
+  box-shadow: 
+    /* 脸部/颈部 */
+    0px 8px #ffe0bd, 4px 8px #ffe0bd,
+    
+    /* 西装外套与白衬衫 (白衬衫在 4px 12px 处体现) */
+    -4px 12px #1e293b, 0px 12px #ffffff, 4px 12px #ffffff, 8px 12px #1e293b, 
+    -4px 16px #1e293b, 0px 16px #1e293b, 4px 16px #1e293b, 8px 16px #1e293b,
+    
+    /* 躯干 */
+    -4px 20px #1e293b, 0px 20px #1e293b, 4px 20px #1e293b, 8px 20px #1e293b,
+    0px 24px #1e293b, 4px 24px #1e293b,
+    
+    /* 西装裤 */
+    0px 32px #0f172a, 4px 32px #0f172a,
+    0px 36px #000, 4px 36px #000; /* 皮鞋 */
+}
+
+/* 3. 修改选择界面预览框的颜色 */
+.allen-box { 
+  width: 30px; 
+  height: 40px; 
+  background: #1e293b; /* 深蓝灰色西装基调 */
+  border-top: 8px solid #cbd5e1; /* 银发顶端 */
+  margin:0 auto;
+  position: relative;
+}
+.allen-box::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 11px;
+  width: 8px;
+  height: 6px;
+  background: white; /* 预览图里的衬衫细节 */
+}
+/* 移除在空中时的走路摇晃动画 */
+.walking:not(.jumping) {
+  animation: bob-move 0.15s infinite alternate;
+}
+
+/* 跳跃时的姿态微调（可选） */
+.jumping .alice-body-pixel, 
+.jumping .allen-body-pixel {
+  transform: translateY(-2px); /* 向上提一下身子 */
+}
+
+/* 调整精灵图原始定位，确保 transform 生效 */
+#alice-sprite {
+  position: absolute;
+  bottom: 18%; /* 地面基准线 */
+  width: 44px;
+  height: 80px;
+  z-index: 500;
+  transition: transform 0.05s linear; /* 极短的过渡让物理位移更平滑 */
+}
+.float-platform {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #444, transparent);
+}
+
+/* 让高空的圣物有一点上下漂浮的动画感 */
+.treasure[style*="translateY(-"] {
+  animation: float-hover 2s infinite ease-in-out;
+}
+
+@keyframes float-hover {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -10px; }
+}
+
+/* 为神龙像增加特殊的紫色光晕 */
+.relic-visual-box[style*="#bc13fe"] .relic-aura {
+  border: 2px solid #bc13fe;
+  box-shadow: 0 0 20px #bc13fe;
+  animation: dragon-breathe 1.5s infinite alternate; /* 呼吸频率更快 */
+}
+
+@keyframes dragon-breathe {
+  from {
+    transform: scale(0.8);
+    opacity: 0.3;
+    filter: hue-rotate(0deg);
+  }
+  to {
+    transform: scale(1.3);
+    opacity: 0.7;
+    filter: hue-rotate(45deg); /* 产生微小的颜色偏移，更有灵动感 */
+  }
 }
 </style>
