@@ -7,6 +7,7 @@ import WordHackerGame from './games/WordHacker.vue'
 import GuZhengGame from './games/GuZheng.vue'
 import TombGame from './games/Tomb.vue'
 import PianoGame from './games/Piano.vue'
+import ShootGame from './games/Shoot.vue'
 
 // 1. 接收 canEdit 权限
 const props = defineProps(['student', 'canEdit'])
@@ -72,7 +73,18 @@ const games = ref([
             wordList: [], // 同样由后端注入
             goal: 20
         }
-    }
+    },
+    {
+        id: 'shot', // 唯一 ID
+        name: '极速突围', // 
+        isVue: true,
+        icon: '💥', // 
+        color: '#ff3e3e',
+        config: {
+            wordList: [], 
+            goal: 20
+        }
+    },
 ])
 
 const activeGame = ref(null)
@@ -223,6 +235,16 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
+                            <ShootGame v-if="activeGame.id === 'shot'" 
+                                    :wordList="activeGame.config.wordList"
+                                    :key="props.student.id" 
+                                    :goal="activeGame.config.goal" 
+                                    :canEdit="canEdit" 
+                                    @updateConfig="(newWords) => $emit('saveConfig', {
+                                        studentId: props.student.id,
+                                        wordList: newWords,
+                                        goal: activeGame.config.goal
+                                    })" />
                         </template>
 
                         <template v-else>
