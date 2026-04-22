@@ -24,7 +24,7 @@ const confirmBtn = ref(null) // 定义按钮引用
 const studentClozeQuizzes = ref([])
 const studentVocabTests = ref([]) // 存储词汇评估记录
 const currentWordList = ref([])
-
+const isNavVisible = ref(true) // 控制顶栏显示/隐藏
 const sidebarCollapsed = ref(false)
 const listPanelCollapsed = ref(false)
 const viewMode = ref('welcome')    // welcome | list | edit | reading
@@ -451,32 +451,40 @@ const toggleFullScreen = () => {
 
 <template>
   <div :class="['app-shell', isAdminMode ? 'admin-theme' : 'student-theme']">
+<div 
+  class="nav-stealth-trigger" 
+  :class="{ 'is-folded': !isNavVisible }"
+  @click="isNavVisible = !isNavVisible"
+>
+  <div class="trigger-indicator"></div>
+</div>
+<Transition name="slide-nav">
+      <header v-if="isNavVisible" class="top-nav">
+        <div class="nav-brand">
+          <span class="brand-icon">⚡</span>
+          <span class="brand-name">EVA ENGLISH</span>
+        </div>
+        <nav class="nav-center">
+          <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
+            @click="activeModule = 'vocab-test'">📊 词汇评估</button>
+          <button :class="['module-tab', { active: activeModule === 'words' }]" @click="activeModule = 'words'">🗂️
+            单词复习</button>
+          <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
+            单选训练</button>
+          <button :class="['module-tab', { active: activeModule === 'reading' }]" @click="activeModule = 'reading'">📖
+            阅读训练</button>
+          <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
+            短文填空</button>
+          <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
+            @click="activeModule = 'brain-break'">🎮 换个脑子</button>
+        </nav>
+        <div class="nav-right">
+          <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
+        </div>
+      </header>
+    </Transition>
 
-    <header class="top-nav">
-      <div class="nav-brand">
-        <span class="brand-icon">⚡</span>
-        <span class="brand-name">EVA ENGLISH</span>
-      </div>
-      <nav class="nav-center">
-        <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
-          @click="activeModule = 'vocab-test'">📊 词汇评估</button>
-        <button :class="['module-tab', { active: activeModule === 'words' }]" @click="activeModule = 'words'">🗂️
-          单词复习</button>
-        <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
-          单选训练</button>
-        <button :class="['module-tab', { active: activeModule === 'reading' }]" @click="activeModule = 'reading'">📖
-          阅读训练</button>
-        <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
-          短文填空</button>
-        <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
-          @click="activeModule = 'brain-break'">🎮 换个脑子</button>
-      </nav>
-      <div class="nav-right">
-        <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
-      </div>
-    </header>
-
-    <div class="main-body">
+    <div class="main-body" :style="{ height: isNavVisible ? 'calc(100vh - var(--nav-h))' : '100vh' }">
       <Sidebar :students="students" :currentStudent="currentStudent" :collapsed="sidebarCollapsed"
         :canEdit="isAdminMode" @select="(s) => { currentStudent = s; }" @add="handleAddNewStudent"
         @deleteStudent="handleDeleteStudent" @toggle="sidebarCollapsed = !sidebarCollapsed" />
@@ -892,5 +900,64 @@ body {
   /* 蓝色光晕提示已聚焦 */
   transform: scale(1.02);
   /* 微微放大 */
+}
+/* --- 极致隐蔽的感应式触发器 --- */
+.nav-stealth-trigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px; /* 顶部感应高度 */
+  z-index: 1001;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+/* 即使在折叠状态下，也只显示一条极细的线 */
+.trigger-indicator {
+  width: 40px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 0 0 4px 4px;
+  opacity: 0; /* 平时完全隐藏 */
+  transition: all 0.3s;
+  transform: translateY(-2px);
+}
+
+/* 鼠标悬浮在顶部边缘时，指示器显现 */
+.nav-stealth-trigger:hover .trigger-indicator {
+  opacity: 0.6;
+  transform: translateY(0);
+  height: 6px;
+  width: 80px;
+}
+
+/* 当导航栏已经折叠时，指示器保持微弱可见，作为一个“触点”提示 */
+.nav-stealth-trigger.is-folded .trigger-indicator {
+  opacity: 0.2;
+  width: 60px;
+}
+
+/* 折叠状态下悬浮，变亮提示可以点击 */
+.nav-stealth-trigger.is-folded:hover .trigger-indicator {
+  opacity: 1;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+/* 顶栏动画保持一致 */
+.slide-nav-enter-active,
+.slide-nav-leave-active {
+  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* 增加一点点弹性感 */
+}
+
+.slide-nav-enter-from,
+.slide-nav-leave-to {
+  transform: translateY(-100%);
+}
+
+.main-body {
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>
