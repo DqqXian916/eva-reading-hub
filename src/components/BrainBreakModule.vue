@@ -8,6 +8,7 @@ import GuZhengGame from './games/GuZheng.vue'
 import TombGame from './games/Tomb.vue'
 import PianoGame from './games/Piano.vue'
 import ShootGame from './games/Shoot.vue'
+import CarCrashGame from './games/CarCrash.vue'
 
 // 1. 接收 canEdit 权限
 const props = defineProps(['student', 'canEdit'])
@@ -81,7 +82,18 @@ const games = ref([
         icon: '💥', // 
         color: '#ff3e3e',
         config: {
-            wordList: [], 
+            wordList: [],
+            goal: 20
+        }
+    },
+    {
+        id: 'car-crash',
+        name: '赛博冲撞',
+        isVue: true,
+        icon: '🏎️',
+        color: '#00d2ff', 
+        config: {
+            wordList: [], // 由后端注入
             goal: 20
         }
     },
@@ -235,16 +247,18 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
-                            <ShootGame v-if="activeGame.id === 'shot'" 
-                                    :wordList="activeGame.config.wordList"
-                                    :key="props.student.id" 
-                                    :goal="activeGame.config.goal" 
-                                    :canEdit="canEdit" 
-                                    @updateConfig="(newWords) => $emit('saveConfig', {
-                                        studentId: props.student.id,
-                                        wordList: newWords,
-                                        goal: activeGame.config.goal
-                                    })" />
+                            <ShootGame v-if="activeGame.id === 'shot'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <CarCrashGame v-if="activeGame.id === 'car-crash'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
                         </template>
 
                         <template v-else>

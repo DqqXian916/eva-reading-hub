@@ -1,6 +1,6 @@
 [
   {
-    "m": false,
+    "m": true,
     "s": "The valley lies beneath the mountains.",
     "cn": "在...之下",
     "en": "beneath",
@@ -35,14 +35,14 @@
     "ps": "ˈkæptʃər"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Children must be accompanied by an adult.",
     "cn": "陪伴；伴随",
     "en": "accompany",
     "ps": "əˈkʌmpəni"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We need to reduce our spending.",
     "cn": "减少；缩小",
     "en": "reduce",
@@ -161,7 +161,7 @@
     "ps": "ˈæspekt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The knot was loose and easily untied.",
     "cn": "松的",
     "en": "loose",
@@ -698,5 +698,271 @@
     "cn": "创造力",
     "en": "creativity",
     "ps": "ˌkriːeɪˈtɪvəti"
+  },
+  {
+    "m": true,
+    "s": "The village is located in a quiet valley.",
+    "cn": "山谷",
+    "en": "valley",
+    "ps": "ˈvæli"
+  },
+  {
+    "m": true,
+    "s": "My feet are sore after walking all day.",
+    "cn": "脚",
+    "en": "feet",
+    "ps": "fiːt"
+  },
+  {
+    "m": true,
+    "s": "It's a common mistake among beginners.",
+    "cn": "普遍的；共同的",
+    "en": "common",
+    "ps": "ˈkɑːmən"
+  },
+  {
+    "m": true,
+    "s": "He has a high fever and needs to rest.",
+    "cn": "发烧",
+    "en": "fever",
+    "ps": "ˈfiːvər"
+  },
+  {
+    "m": true,
+    "s": "The cat has very soft fur.",
+    "cn": "软的",
+    "en": "soft",
+    "ps": "sɔːft"
+  },
+  {
+    "m": true,
+    "s": "This shirt is made of high-quality cloth.",
+    "cn": "布料",
+    "en": "cloth",
+    "ps": "klɔːθ"
+  },
+  {
+    "m": true,
+    "s": "I missed the chance to meet him.",
+    "cn": "机会",
+    "en": "chance",
+    "ps": "tʃæns"
+  },
+  {
+    "m": true,
+    "s": "The city is famous for its modern architecture.",
+    "cn": "建筑",
+    "en": "architecture",
+    "ps": "ˈɑːrkɪtektʃər"
+  },
+  {
+    "m": true,
+    "s": "In theory, the plan should work perfectly.",
+    "cn": "理论",
+    "en": "theory",
+    "ps": "ˈθɪəri"
+  },
+  {
+    "m": true,
+    "s": "She is working on a new research project.",
+    "cn": "项目",
+    "en": "project",
+    "ps": "ˈprɑːdʒekt"
+  },
+  {
+    "m": true,
+    "s": "They often engage in social activities.",
+    "cn": "参与",
+    "en": "engage in",
+    "ps": "ɪnˈɡeɪdʒ ɪn"
+  },
+  {
+    "m": true,
+    "s": "The architect designed the new museum.",
+    "cn": "建筑师；设计师",
+    "en": "architect",
+    "ps": "ˈɑːrkɪtekt"
+  },
+  {
+    "m": true,
+    "s": "He gave us some professional advice.",
+    "cn": "专业的",
+    "en": "professional",
+    "ps": "prəˈfeʃənl"
+  },
+  {
+    "m": true,
+    "s": "The company plans to acquire its competitor.",
+    "cn": "获得；收购",
+    "en": "acquire",
+    "ps": "əˈkwaɪər"
+  },
+  {
+    "m": true,
+    "s": "He will demonstrate how to use the machine.",
+    "cn": "展示；演示",
+    "en": "demonstrate",
+    "ps": "ˈdemənstreɪt"
+  },
+  {
+    "m": true,
+    "s": "It's hard to distinguish between the two colors.",
+    "cn": "辨别",
+    "en": "distinguish",
+    "ps": "dɪˈstɪŋɡwɪʃ"
+  },
+  {
+    "m": true,
+    "s": "Physical exercise is good for your health.",
+    "cn": "物理的；身体的",
+    "en": "physical",
+    "ps": "ˈfɪzɪkl"
+  },
+  {
+    "m": true,
+    "s": "New technology can increase productivity.",
+    "cn": "产出；生产力",
+    "en": "productivity",
+    "ps": "ˌproʊdʌkˈtɪvəti"
+  },
+  {
+    "m": true,
+    "s": "We need to work more efficiently.",
+    "cn": "高效地",
+    "en": "efficiently",
+    "ps": "ɪˈfɪʃntli"
+  },
+  {
+    "m": true,
+    "s": "Can you manage to finish the work on time?",
+    "cn": "管理；设法",
+    "en": "manage",
+    "ps": "ˈmænɪdʒ"
+  },
+  {
+    "m": true,
+    "s": "His music has a great influence on me.",
+    "cn": "影响",
+    "en": "influence",
+    "ps": "ˈɪnfluəns"
+  },
+  {
+    "m": true,
+    "s": "The government will grant them permission.",
+    "cn": "拨款；授予",
+    "en": "grant",
+    "ps": "ɡrænt"
+  },
+  {
+    "m": true,
+    "s": "We need a new approach to solve this problem.",
+    "cn": "方法；途径",
+    "en": "approach",
+    "ps": "əˈproʊtʃ"
+  },
+  {
+    "m": true,
+    "s": "She played a leading role in the movie.",
+    "cn": "角色",
+    "en": "role",
+    "ps": "roʊl"
+  },
+  {
+    "m": true,
+    "s": "The school decided to adopt a new teaching method.",
+    "cn": "采取；收养",
+    "en": "adopt",
+    "ps": "əˈdɑːpt"
+  },
+  {
+    "m": true,
+    "s": "The police are investigating the cause of the fire.",
+    "cn": "原因",
+    "en": "cause",
+    "ps": "kɔːz"
+  },
+  {
+    "m": true,
+    "s": "The price of oil has begun to decline.",
+    "cn": "下降；减少",
+    "en": "decline",
+    "ps": "dɪˈklaɪn"
+  },
+  {
+    "m": true,
+    "s": "Her popularity grew after the concert.",
+    "cn": "普及；人气",
+    "en": "popularity",
+    "ps": "ˌpɑːpjuˈlærəti"
+  },
+  {
+    "m": true,
+    "s": "Football is a very popular sport.",
+    "cn": "运动",
+    "en": "sport",
+    "ps": "spɔːrt"
+  },
+  {
+    "m": true,
+    "s": "She is a native speaker of English.",
+    "cn": "本地的",
+    "en": "native",
+    "ps": "ˈneɪtɪv"
+  },
+  {
+    "m": true,
+    "s": "Unfortunately, I can't come to your party.",
+    "cn": "不幸地",
+    "en": "unfortunately",
+    "ps": "ʌnˈfɔːrtʃənətli"
+  },
+  {
+    "m": true,
+    "s": "The fire will destroy the entire building.",
+    "cn": "毁灭；破坏",
+    "en": "destroy",
+    "ps": "dɪˈstrɔɪ"
+  },
+  {
+    "m": true,
+    "s": "The country began to export more cars.",
+    "cn": "导出；出口",
+    "en": "export",
+    "ps": "ˈekspɔːrt"
+  },
+  {
+    "m": true,
+    "s": "The plants died because the soil was too dry.",
+    "cn": "干旱的；干燥的",
+    "en": "dry",
+    "ps": "draɪ"
+  },
+  {
+    "m": true,
+    "s": "Air pollution is a serious problem in big cities.",
+    "cn": "污染",
+    "en": "pollution",
+    "ps": "pəˈluːʃn"
+  },
+  {
+    "m": true,
+    "s": "The arrival of the train was delayed.",
+    "cn": "到达",
+    "en": "arrival",
+    "ps": "əˈraɪvl"
+  },
+  {
+    "m": true,
+    "s": "The hunters followed the tracks of the deer.",
+    "cn": "捕猎人",
+    "en": "hunters",
+    "ps": "ˈhʌntərz"
+  },
+  {
+    "m": true,
+    "s": "Please ensure that all the windows are closed.",
+    "cn": "确保",
+    "en": "ensure",
+    "ps": "ɪnˈʃʊr"
   }
 ]

@@ -105,7 +105,7 @@
     "ps": "weɪt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Where do you come from?",
     "cn": "从",
     "en": "from",
@@ -147,14 +147,14 @@
     "ps": "ˈbɑːroʊ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The crowd cheered when the player scored a goal.",
     "cn": "人群",
     "en": "crowd",
     "ps": "kraʊd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The bus always arrives on time.",
     "cn": "按时",
     "en": "on time",
@@ -287,7 +287,7 @@
     "ps": "dɪˈsɛmbər"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Please remember to lock the door before you leave.",
     "cn": "记得",
     "en": "remember",
@@ -649,5 +649,110 @@
     "cn": "电影",
     "en": "movie",
     "ps": "ˈmuːvi"
+  },
+  {
+    "m": false,
+    "s": "Our body needs protein to build and repair muscles.",
+    "cn": "蛋白质",
+    "en": "protein",
+    "ps": "ˈproʊtiːn"
+  },
+  {
+    "m": false,
+    "s": "I'm trying to eat fewer carbs and more vegetables.",
+    "cn": "碳水",
+    "en": "carb",
+    "ps": "kɑːrb"
+  },
+  {
+    "m": false,
+    "s": "Vegetables and fruits are high in fiber.",
+    "cn": "纤维",
+    "en": "fiber",
+    "ps": "ˈfaɪbər"
+  },
+  {
+    "m": false,
+    "s": "I like to have pancakes with syrup for breakfast.",
+    "cn": "薄饼，烙饼",
+    "en": "pancake",
+    "ps": "ˈpænkeɪk"
+  },
+  {
+    "m": false,
+    "s": "The smell of frying bacon woke me up.",
+    "cn": "培根",
+    "en": "bacon",
+    "ps": "ˈbeɪkən"
+  },
+  {
+    "m": false,
+    "s": "The artist wanted to create something unique.",
+    "cn": "创造",
+    "en": "create",
+    "ps": "kriˈeɪt"
+  },
+  {
+    "m": false,
+    "s": "We are going to a new Italian restaurant tonight.",
+    "cn": "饭店，餐厅",
+    "en": "restaurant",
+    "ps": "ˈrestrɑːnt"
+  },
+  {
+    "m": false,
+    "s": "He is my business partner.",
+    "cn": "伙伴",
+    "en": "partner",
+    "ps": "ˈpɑːrtnər"
+  },
+  {
+    "m": false,
+    "s": "Could we have the menu, please?",
+    "cn": "菜单",
+    "en": "menu",
+    "ps": "ˈmenjuː"
+  },
+  {
+    "m": false,
+    "s": "We need to review the lesson before the exam.",
+    "cn": "复习",
+    "en": "review",
+    "ps": "rɪˈvjuː"
+  },
+  {
+    "m": false,
+    "s": "I usually have yoghurt with fruit for snack.",
+    "cn": "酸奶",
+    "en": "yoghurt",
+    "ps": "ˈjoʊɡərt"
+  },
+  {
+    "m": false,
+    "s": "This is a very quiet place to study.",
+    "cn": "地方",
+    "en": "place",
+    "ps": "pleɪs"
+  },
+  {
+    "m": false,
+    "s": "They plan to climb the mountain tomorrow.",
+    "cn": "爬",
+    "en": "climb",
+    "ps": "klaɪm"
+  },
+  {
+    "m": false,
+    "s": "We want to sail across the lake.",
+    "cn": "划船/航行",
+    "en": "sail",
+    "ps": "seɪl"
+  },
+  {
+    "m": false,
+    "s": "It’s a small town but it has everything we need.",
+    "cn": "城镇",
+    "en": "town",
+    "ps": "taʊn"
   }
 ]
