@@ -1,25 +1,18 @@
-真的非常抱歉！在精简代码逻辑的时候，我把触发“喵喵”叫的那行代码删掉了。
-
-现在我已经把 `playMeow()` 重新插回了正确的位置：就在 **`isRight` 为 `true` 的那一刻**。同时，我也微调了 `playMeow` 的音频参数，让声音听起来更清脆治愈一些。
-
-这是包含**所有音效逻辑、完整猫咪结构、空状态样式以及结算界面样式**的最终修复版：
-
-```vue
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { useGameStore } from '../../stores/gameStore'; // 1. 引入 store
 
 const props = defineProps({
-  wordList: { type: Array, default: () => [] },
-  goal: { type: Number, default: 30 },
   canEdit: Boolean
 });
 
-const emit = defineEmits(['updateConfig']);
+const emit = defineEmits(['updateConfig', 'saveConfig']);
+// 2. 实例化 Store
+const gameStore = useGameStore();
 
 // --- 状态管理 ---
 const hasChecked = ref(false); 
 const isRightAnswer = ref(false); 
-const words = ref(props.wordList || []);
 const hp = ref(5); 
 const favor = ref(0);
 const combo = ref(0);
@@ -41,23 +34,27 @@ const isShaking = ref(false);
 // --- 音频引擎 ---
 const initAudio = () => { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); };
 
-// 找回并优化的猫叫声逻辑
+const handleSaveConfig = () => {
+  try {
+    const newWords = JSON.parse(configText.value);
+    // 1. 更新本地 Store
+    gameStore.updateConfig(newWords, gameStore.goal);
+    // 2. 核心：通知父组件（BrainBreak）存入 Supabase
+    emit('updateConfig', newWords); 
+    showAdmin.value = false;
+    resetGame();
+  } catch (e) {
+    alert('JSON格式错误: ' + e.message);
+  }
+};
+
+// 修改后的本地音频播放逻辑
 const playMeow = () => {
-  initAudio();
-  const now = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'triangle'; // 三角波，声音更温润
-  osc.frequency.setValueAtTime(380, now);
-  osc.frequency.exponentialRampToValueAtTime(520, now + 0.1);
-  osc.frequency.exponentialRampToValueAtTime(450, now + 0.3);
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(now + 0.4);
+  const audio = new Audio('/audio/meow.mp3'); 
+  audio.volume = 0.5; // 设置音量
+  audio.play().catch(e => {
+    console.warn("音频播放失败，可能是由于用户未交互:", e);
+  });
 };
 
 const speak = (text) => {
@@ -77,13 +74,13 @@ const handleMainBtnClick = () => {
 };
 
 const nextQuestion = () => {
-  if (words.value.length === 0) return;
+  if (gameStore.wordList.length === 0) return;
   hasChecked.value = false;
   isRightAnswer.value = false;
   userInput.value = '';
   isComboAnim.value = false;
   feedbackMsg.value = '';
-  currentIdx.value = Math.floor(Math.random() * words.value.length);
+  currentIdx.value = Math.floor(Math.random() * gameStore.wordList.length);
   const modes = ['E2C', 'C2E', 'SPELL'];
   mode.value = modes[Math.floor(Math.random() * modes.length)];
   nextTick(() => { if (inputRef.value) inputRef.value.focus(); speak(currentWord.value.en); });
@@ -91,31 +88,46 @@ const nextQuestion = () => {
 
 const handleCheck = () => {
   if (hasChecked.value || !userInput.value.trim()) return;
-  const normalize = (str) => str.toLowerCase().trim().replace(/[（）()]/g, '').replace(/[.。…\s]/g, '').replace(/[；;，,]/g, '|');
-  const val = normalize(userInput.value);
-  const originalCn = currentWord.value.cn;
+  // 1. 标准化处理：去掉首尾空格、转小写
+  const inputVal = userInput.value.trim().toLowerCase();
+  const correctEn = currentWord.value.en.trim().toLowerCase();
+  const correctCn = currentWord.value.cn.trim();
   let isRight = false;
-  
+  // 2. 判定逻辑
   if (mode.value === 'E2C') {
-    const cleanCn = normalize(originalCn);
-    isRight = cleanCn.split('|').some(ans => ans.includes(val) || val.includes(ans)) || cleanCn.includes(val);
+    // 英译汉：模糊匹配中文
+    const normalizeCn = (str) => str.replace(/[（）()]/g, '').replace(/[.。…\s]/g, '').replace(/[；;，,]/g, '|');
+    const target = normalizeCn(correctCn);
+    const user = normalizeCn(inputVal);
+    isRight = target.split('|').some(ans => ans.includes(user) || user.includes(ans)) || target.includes(user);
   } else {
-    isRight = (userInput.value.trim().toLowerCase() === currentWord.value.en.toLowerCase().trim());
+    // 汉译英 或 拼写模式：严格比对英文（去空格后）
+    isRight = (inputVal === correctEn);
   }
 
+  // 3. 状态更新
   hasChecked.value = true;
   isRightAnswer.value = isRight;
 
   if (isRight) {
-    playMeow(); // 重新补回猫叫声
-    favor.value++; combo.value++; feedbackMsg.value = `连击 x${combo.value}`;
-    msgColor.value = "#b5838d"; isComboAnim.value = true;
+    playMeow();
+    favor.value++;
+    combo.value++;
+    feedbackMsg.value = `Bingo!连击 x${combo.value}`; // 对了显示连击
+    msgColor.value = "#b5838d";
+    isComboAnim.value = true;
     spawnHeart();
-    if (favor.value >= props.goal) isFinished.value = true;
+    if (favor.value >= gameStore.goal) isFinished.value = true;
   } else {
-    combo.value = 0; hp.value--;
-    feedbackMsg.value = originalCn; msgColor.value = "#e5989b";
-    isShaking.value = true; setTimeout(() => isShaking.value = false, 400);
+    combo.value = 0;
+    hp.value--;
+    // ✅ 关键修复：根据当前模式显示正确的“正确答案”
+    // 汉译英/拼写模式下，如果错了，提示应该是英文 correctEn
+    feedbackMsg.value = (mode.value === 'E2C') ? correctCn : correctEn;
+    
+    msgColor.value = "#e5989b";
+    isShaking.value = true;
+    setTimeout(() => isShaking.value = false, 400);
     speak(currentWord.value.en);
   }
 };
@@ -128,7 +140,7 @@ const spawnHeart = () => {
   setTimeout(() => hearts.value = hearts.value.filter(h => h.id !== id), 1000);
 };
 
-const currentWord = computed(() => words.value[currentIdx.value] || { en: "", cn: "" });
+const currentWord = computed(() => gameStore.wordList[currentIdx.value] || { en: "", cn: "" });
 const displayQuestion = computed(() => {
   if (mode.value === 'SPELL') {
     const word = currentWord.value.en;
@@ -144,7 +156,21 @@ const displayQuestion = computed(() => {
   return mode.value === 'E2C' ? currentWord.value.en : currentWord.value.cn;
 });
 
-watch(() => props.wordList, (newList) => { if (newList?.length) { words.value = [...newList]; configText.value = JSON.stringify(newList, null, 2); resetGame(); } }, { immediate: true });
+// 监视 Store 里的单词列表
+// CatFeeding.vue
+watch(
+  () => gameStore.wordList, 
+  (newList) => {
+    // 增加打印，看看数据到底流过来了没
+    if (newList && newList.length > 0) {
+      configText.value = JSON.stringify(newList, null, 2);
+      resetGame();
+    }
+  }, 
+  { immediate: true, deep: true } 
+);
+
+// 这里不需要 onMounted 了，因为 watch 的 immediate: true 
 onUnmounted(() => window.speechSynthesis.cancel());
 </script>
 
@@ -155,12 +181,12 @@ onUnmounted(() => window.speechSynthesis.cancel());
       <h3>词库配置</h3>
       <textarea v-model="configText" placeholder="请输入JSON格式词库"></textarea>
       <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button class="btn main-action-btn" @click="() => { try { words=JSON.parse(configText); showAdmin=false; resetGame(); } catch(e) { alert('JSON格式错误'); } }">保存配置</button>
+        <button class="btn main-action-btn" @click="handleSaveConfig">保存配置</button>
       </div>
     </div>
 
     <div id="game-box">
-      <template v-if="words.length > 0">
+      <template v-if="gameStore.wordList.length > 0">
         <div class="hp-bar">{{ "❤️".repeat(hp) + "🖤".repeat(Math.max(0, 5 - hp)) }}</div>
 
         <div v-for="heart in hearts" :key="heart.id" class="floating-heart" :style="{ left: heart.x + '%', top: heart.y + '%' }">{{ heart.icon }}</div>
@@ -176,8 +202,8 @@ onUnmounted(() => window.speechSynthesis.cancel());
               <div class="ear left"></div><div class="ear right"></div>
               <div class="eye left"></div><div class="eye right"></div>
               <div class="nose"></div>
-              <div class="blush l" :style="{ opacity: favor / goal }"></div>
-              <div class="blush r" :style="{ opacity: favor / goal }"></div>
+              <div class="blush l" :style="{ opacity: favor / gameStore.goal }"></div>
+              <div class="blush r" :style="{ opacity: favor / gameStore.goal }"></div>
             </div>
             <div class="tail"></div>
           </div>
@@ -208,8 +234,8 @@ onUnmounted(() => window.speechSynthesis.cancel());
           </div>
         </div>
 
-        <div class="progress-container"><div class="progress-bar" :style="{ width: (favor / goal * 100) + '%' }"></div></div>
-        <p style="font-size: 12px; color: #999;">进度: {{ favor }} / {{ goal }}</p>
+        <div class="progress-container"><div class="progress-bar" :style="{ width: (favor / gameStore.goal * 100) + '%' }"></div></div>
+        <p style="font-size: 12px; color: #999;">进度: {{ favor }} / {{ gameStore.goal }}</p>
       </template>
 
       <div v-else class="empty-words">
@@ -232,8 +258,8 @@ onUnmounted(() => window.speechSynthesis.cancel());
 
 <style scoped>
 /* 核心布局 */
-.game-viewport { --maine-grey-dark: #6d6875; --maine-grey-mid: #b5b2be; --eye-brown: #7b4422; --accent: #ffb4a2; --hp-red: #ff4d6d; display: flex; justify-content: center; align-items: center; min-height: 450px; width: 100%; background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-#game-box { background: white; width: 400px; padding: 40px; border-radius: 60px; box-shadow: 0 30px 80px rgba(109,104,117,0.15); text-align: center; position: relative; }
+.game-viewport { --maine-grey-dark: #6d6875; --maine-grey-mid: #b5b2be; --eye-brown: #7b4422; --accent: #ffb4a2; --hp-red: #ff4d6d; display: flex; justify-content: center; align-items: center; min-height: 450px; width: 100%; background: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+#game-box { margin-top: 10px; background: white; width: 400px; padding: 40px; border-radius: 60px; box-shadow: 0 30px 80px rgba(109,104,117,0.15); text-align: center; position: relative; }
 .hp-bar { font-size: 1.2rem; margin-bottom: 10px; color: var(--hp-red); letter-spacing: 5px; height: 30px; }
 
 /* 猫咪绘制 */

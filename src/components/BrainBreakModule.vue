@@ -9,7 +9,9 @@ import TombGame from './games/Tomb.vue'
 import PianoGame from './games/Piano.vue'
 import ShootGame from './games/Shoot.vue'
 import CarCrashGame from './games/CarCrash.vue'
+import { useGameStore } from '../stores/gameStore';
 
+const gameStore = useGameStore();
 // 1. 接收 canEdit 权限
 const props = defineProps(['student', 'canEdit'])
 const emit = defineEmits(['saveConfig'])
@@ -91,7 +93,7 @@ const games = ref([
         name: '赛博冲撞',
         isVue: true,
         icon: '🏎️',
-        color: '#00d2ff', 
+        color: '#00d2ff',
         config: {
             wordList: [], // 由后端注入
             goal: 20
@@ -114,16 +116,17 @@ const fetchStudentConfig = async () => {
             .maybeSingle()
 
         if (error) throw error
-
-        // 无论 data 是否存在，都进行同步
+        // --- 核心修改：同步到全局 Store ---
+        if (data) {
+            gameStore.setGameData(props.student.id, data?.current_word_list, data?.game_goal);
+        }
+        // 保持原有的 games 数组同步（如果你其他游戏还要用的话）
         games.value.forEach(game => {
             if (game.isVue) {
-                // 如果 data 为空，说明该学生没配置，直接清空 wordList
                 game.config.wordList = data?.current_word_list || []
                 game.config.goal = data?.game_goal || 20
             }
         })
-
     } catch (e) {
         console.error("加载配置异常:", e)
     } finally {
@@ -151,9 +154,6 @@ const openConfig = (game) => {
     // 强制先从最新的 games 数组里找一遍，确保拿到的是 fetch 后的数据
     const latestGameData = games.value.find(g => g.id === game.id)
     editingGame.value = latestGameData || game
-
-    console.log("准备打开配置，当前内存中的 wordList:", editingGame.value.config.wordList)
-
     // 如果还是空，可能是 JSON 序列化的问题，确保数据存在
     configJsonStr.value = JSON.stringify(editingGame.value.config?.wordList || [], null, 2)
     showAdminModal.value = true
@@ -164,11 +164,14 @@ const saveGameConfig = () => {
     try {
         const newWordList = JSON.parse(configJsonStr.value)
         if (!Array.isArray(newWordList)) throw new Error("必须是数组格式")
-        console.log("当前编辑的游戏配置:", editingGame.value.config)
-        // 本地立即更新
+        
+        // 1. 本地 Games 数组更新
         editingGame.value.config.wordList = newWordList
 
-        // 向上抛出，参数对应你数据库的字段
+        // 2. 核心修改：同步更新 Pinia Store，这样游戏界面会立刻刷新
+        gameStore.updateConfig(newWordList, editingGame.value.config.goal);
+
+        // 3. 向上抛出保存到数据库
         emit('saveConfig', {
             studentId: props.student.id,
             wordList: newWordList,
@@ -221,11 +224,11 @@ const saveGameConfig = () => {
                 <div class="game-card">
                     <template v-if="activeGame">
                         <template v-if="activeGame.isVue">
-                            <CatFeedingGame v-if="activeGame.id === 'miaw'" :wordList="activeGame.config.wordList"
-                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                            <CatFeedingGame v-if="activeGame.id === 'miaw'" :key="props.student.id" :canEdit="canEdit"
+                                @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
-                                    goal: activeGame.config.goal
+                                    goal: gameStore.goal // 从 Store 读目标值
                                 })" />
                             <WordHackerGame v-if="activeGame.id === 'hacker'" :wordList="activeGame.config.wordList"
                                 :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
