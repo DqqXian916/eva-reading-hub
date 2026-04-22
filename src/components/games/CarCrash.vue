@@ -594,7 +594,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKey));
 
 .wheel {
   position: absolute;
-  background: #0d0d0d;
+  background: #2b37b7;
   border-radius: 4px;
   border: 1px solid #1a1a1a;
 }

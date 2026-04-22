@@ -5,18 +5,28 @@
         <div class="start-content">
           <h1 class="title-main">摸金行动</h1>
           <div class="role-selector">
-            <div class="role-card" :class="{ active: gameState.currentRole === 'alice' }" @click="gameState.currentRole = 'alice'">
+            <div class="role-card" :class="{ active: gameState.currentRole === 'alice' }"
+              @click="gameState.currentRole = 'alice'">
               <div class="role-preview alice-box"></div>
               <div class="role-info">
                 <span class="role-name">ALICE</span>
                 <span class="role-tag">均衡型</span>
               </div>
             </div>
-            <div class="role-card" :class="{ active: gameState.currentRole === 'allen' }" @click="gameState.currentRole = 'allen'">
+            <div class="role-card" :class="{ active: gameState.currentRole === 'allen' }"
+              @click="gameState.currentRole = 'allen'">
               <div class="role-preview allen-box"></div>
               <div class="role-info">
                 <span class="role-name">ALLEN</span>
                 <span class="role-tag">敏捷型</span>
+              </div>
+            </div>
+            <div class="role-card" :class="{ active: gameState.currentRole === 'lily' }"
+              @click="gameState.currentRole = 'lily'">
+              <div class="role-preview lily-box"></div>
+              <div class="role-info">
+                <span class="role-name">LILY</span>
+                <span class="role-tag">感知型</span>
               </div>
             </div>
           </div>
@@ -25,7 +35,8 @@
       </div>
 
       <div v-if="gameState.active && !gameState.finished" id="hud">
-        <div class="hud-item" :style="{ color: gameState.roleStats[gameState.currentRole].theme, textShadow: `0 0 8px ${gameState.roleStats[gameState.currentRole].theme}` }">
+        <div class="hud-item"
+          :style="{ color: gameState.roleStats[gameState.currentRole].theme, textShadow: `0 0 8px ${gameState.roleStats[gameState.currentRole].theme}` }">
           AGENT: {{ gameState.roleStats[gameState.currentRole].name }} | O2: {{ Math.floor(gameState.ox) }}%
         </div>
         <div class="hud-item gold-glow">圣物回收: {{ gameState.count }} / 10</div>
@@ -33,44 +44,56 @@
 
       <div id="world" :style="{ transform: `translateX(${gameState.wx}px)` }">
         <div class="floor-line"></div>
-        <div v-for="(item, index) in treasures" :key="index" class="treasure"
-  :style="{ 
-    left: item.x + 'px', 
-    transform: `translateY(${item.y}px)`, 
-    opacity: item.collected ? 0 : 1 
-  }">
-  
-  <div v-if="item.y < 0" class="float-platform"></div>
+        <div v-for="(item, index) in treasures" :key="index" class="treasure" :style="{
+          left: item.x + 'px',
+          transform: `translateY(${item.y}px)`,
+          opacity: item.collected ? 0 : 1
+        }">
 
-  <div class="relic-visual-box" :class="{ 'is-broken': item.broken }"
-    :style="{ '--glow-color': item.broken ? '#333' : item.rarityColor }">
-    <div class="relic-icon">{{ item.broken ? '💨' : item.icon }}</div>
-    <div v-if="!item.broken" class="relic-aura"></div>
-  </div>
-  
-  <div v-if="gameState.nearItem === item && !gameState.showTerminal" class="interact-hint">
-    <span class="key-box">SPACE</span> 鉴定
-  </div>
-</div>
+          <div v-if="item.y < 0" class="float-platform"></div>
+
+          <div class="relic-visual-box" :class="{ 'is-broken': item.broken }"
+            :style="{ '--glow-color': item.broken ? '#333' : item.rarityColor }">
+            <div class="relic-icon">{{ item.broken ? '💨' : item.icon }}</div>
+            <div v-if="!item.broken" class="relic-aura"></div>
+          </div>
+
+          <div v-if="gameState.nearItem === item && !gameState.showTerminal" class="interact-hint">
+            <span class="key-box">SPACE</span> 鉴定
+          </div>
+        </div>
       </div>
 
-      <div id="alice-sprite" v-if="gameState.active && !gameState.finished"
-       :style="{ 
-          left: (gameState.px + gameState.wx) + 'px', 
-          bottom: (18 + (gameState.py * -0.1)) + '%', // 将物理位移映射为百分比或像素
-          transform: `scaleX(${gameState.facingLeft ? -1 : 1})` 
-        }"
-        :class="{ 'walking': gameState.moving && !gameState.isJumping, 'jumping': gameState.isJumping }">
+      <div id="alice-sprite" v-if="gameState.active && !gameState.finished" 
+  :style="{
+    left: (gameState.px + gameState.wx) + 'px',
+    bottom: (18 + (gameState.py * -0.1)) + '%',
+    /* 核心修改：同时控制水平翻转和垂直压缩 */
+    transform: `scaleX(${gameState.facingLeft ? -1 : 1}) scaleY(${gameState.isCrouching ? 0.88 : 1})`,
+    /* 确保压缩时是贴地压缩，而不是中心压缩 */
+    transformOrigin: 'bottom' 
+  }" 
+  :class="{ 
+    'walking': gameState.moving && !gameState.isJumping, 
+    'jumping': gameState.isJumping,
+    'crouching': gameState.isCrouching 
+  }">
         <div class="alice-tank-pixel"></div>
-        
+
         <template v-if="gameState.currentRole === 'alice'">
           <div class="alice-hair-flow"></div>
           <div class="alice-body-pixel"></div>
         </template>
-        
-        <template v-else>
+
+        <template v-else-if="gameState.currentRole === 'allen'">
           <div class="allen-hair-pixel"></div>
           <div class="allen-body-pixel"></div>
+        </template>
+        <template v-else-if="gameState.currentRole === 'lily'">
+          <div class="lily-hair-pixel"></div>
+          <div class="lily-blindfold-pixel"></div>
+          <div class="lily-dress-pixel"></div>
+          <div class="bubu-bunny-pixel"></div>
         </template>
       </div>
 
@@ -146,25 +169,27 @@ const userInput = ref("");
 const wordInput = ref(null);
 const keys = {};
 
-const gameState = reactive({ 
-  px: 400, wx: 0, ox: 100, count: 0, 
-  active: false, 
+const gameState = reactive({
+  px: 400, wx: 0, ox: 100, count: 0,
+  active: false,
   roleSelected: false,
-  finished: false, 
-  moving: false, 
-  facingLeft: false, 
-  showTerminal: false, 
-  nearItem: null, 
-  currentTarget: null, 
-  inputError: false, 
+  finished: false,
+  moving: false,
+  facingLeft: false,
+  showTerminal: false,
+  nearItem: null,
+  currentTarget: null,
+  inputError: false,
   attempts: 0,
   currentRole: 'alice',
   py: 0,        // 新增：角色的 Y 轴偏移 (0 为地面)
   vy: 0,        // 新增：垂直速度
   isJumping: false,
+  isCrouching: false, // 必须在这里声明，否则 Vue 无法追踪其变化
   roleStats: {
     alice: { name: 'ALICE', speed: 6.5, jumpPower: -15, oxRate: 0.008, theme: '#4a90e2' },
-    allen: { name: 'ALLEN', speed: 8.5, jumpPower: -18, oxRate: 0.012, theme: '#94a3b8' } // 艾伦跳得更高
+    allen: { name: 'ALLEN', speed: 8.5, jumpPower: -18, oxRate: 0.012, theme: '#94a3b8' } ,// 艾伦跳得更高
+    lily: { name: 'LILY', speed: 5.5, jumpPower: -14, oxRate: 0.005, theme: '#2d6a4f' } // 莉莉更省氧
   }
 });
 
@@ -204,38 +229,42 @@ const playCollectSound = () => {
   audio.play();
 };
 
+// 更新后的洗牌与初始化逻辑
 const initTreasures = () => {
   const source = props.wordList.length > 0 ? props.wordList : Array.from({ length: 10 }, (_, i) => ({ en: `Artifact${i}`, cn: `古物${i}` }));
-  const words = [...source].sort(() => Math.random() - 0.5).slice(0, 10);
-  treasures.value = words.map((w, i) => {
-    const meta = relicMeta[i % relicMeta.length];
-    // 新增：y 坐标。0 是地面，-120 到 -180 是高台高度
-    const isHigh = Math.random() > 0.5; 
-    const yPos = isHigh ? -150 : 0; 
-    return { 
-      ...w, 
-      relicName: meta.name, 
-      icon: meta.icon, 
-      rarityColor: meta.color, 
-      x: 800 + i * 600, 
-      y: yPos, // 存储垂直高度
-      collected: false 
+  // 彻底打乱词库
+  const shuffledWords = [...source].sort(() => Math.random() - 0.5);
+  // 彻底打乱宝物外观
+  const shuffledMeta = [...relicMeta].sort(() => Math.random() - 0.5);
+  treasures.value = shuffledWords.slice(0, 10).map((w, i) => {
+    const meta = shuffledMeta[i % shuffledMeta.length];
+    const isHigh = Math.random() > 0.5;
+    return {
+      ...w,
+      relicName: meta.name,
+      icon: meta.icon,
+      rarityColor: meta.color,
+      x: 800 + i * (600 + Math.random() * 200), // 随机间距
+      y: isHigh ? -150 : 0,
+      collected: false
     };
   });
 };
-
 const startGame = () => { gameState.active = true; requestAnimationFrame(gameLoop); };
 const resetGame = () => location.reload();
 
 const gameLoop = () => {
   if (!gameState.active || gameState.finished) return;
   const stats = gameState.roleStats[gameState.currentRole];
+  // 下蹲检测
+  gameState.isCrouching = (keys['KeyS'] || keys['ArrowDown']) && !gameState.isJumping;
+  let currentSpeed = gameState.isCrouching ? stats.speed * 0.5 : stats.speed;
   // --- 横向移动控制 ---
   gameState.moving = (keys['KeyD'] || keys['ArrowRight'] || keys['KeyA'] || keys['ArrowLeft']) && !gameState.showTerminal;
   if (!gameState.showTerminal) {
     if (keys['KeyD'] || keys['ArrowRight']) { gameState.px += stats.speed; gameState.facingLeft = false; }
     if (keys['KeyA'] || keys['ArrowLeft']) { gameState.px -= stats.speed; gameState.facingLeft = true; }
-    
+
     // --- 跳跃控制 (按下 W 或 上箭头，且不在空中) ---
     if ((keys['KeyW'] || keys['ArrowUp']) && !gameState.isJumping) {
       gameState.vy = stats.jumpPower;
@@ -257,18 +286,25 @@ const gameLoop = () => {
   gameState.ox -= stats.oxRate;
   if (gameState.ox <= 0) { gameState.finished = true; gameState.ox = 0; }
   // 碰撞/交互检测 (增加 Y 轴高度判断，防止在空中也能交互)
-  gameState.nearItem = treasures.value.find(t => 
-  !t.collected && 
-  !t.broken && 
-  Math.abs(gameState.px - t.x) < 70 && 
-  Math.abs(gameState.py - t.y) < 60 // 玩家的 Y 坐标必须接近圣物的 Y 坐标
-) || null;
+  gameState.nearItem = treasures.value.find(t =>
+    !t.collected &&
+    !t.broken &&
+    Math.abs(gameState.px - t.x) < 70 &&
+    Math.abs(gameState.py - t.y) < 60 // 玩家的 Y 坐标必须接近圣物的 Y 坐标
+  ) || null;
+  // 莉莉的感知范围加成 (70 -> 110)
+  const senseRange = gameState.currentRole === 'lily' ? 110 : 70;
+  gameState.nearItem = treasures.value.find(t =>
+    !t.collected && !t.broken &&
+    Math.abs(gameState.px - t.x) < senseRange &&
+    Math.abs(gameState.py - t.y) < 60
+  ) || null;
   requestAnimationFrame(gameLoop);
 };
 
 const checkWord = () => {
   const isCorrect = userInput.value.toLowerCase().trim() === gameState.currentTarget.en.toLowerCase();
-  
+
   if (isCorrect) {
     playCollectSound();
     gameState.currentTarget.collected = true;
@@ -277,7 +313,7 @@ const checkWord = () => {
     gameState.showTerminal = false;
     gameState.attempts = 0;
     userInput.value = "";
-    
+
     // --- 修改这里：判断 收集+损坏 是否达到总数 ---
     const processed = treasures.value.filter(t => t.collected || t.broken).length;
     if (processed >= 10) gameState.finished = true;
@@ -290,8 +326,8 @@ const checkWord = () => {
 
     if (gameState.attempts >= 2) {
       setTimeout(() => {
-        gameState.currentTarget.broken = true; 
-        gameState.showTerminal = false;        
+        gameState.currentTarget.broken = true;
+        gameState.showTerminal = false;
         gameState.attempts = 0;
         gameState.inputError = false;
 
@@ -475,16 +511,19 @@ input {
 
 /* 针对试卷颜色的特殊光晕效果 */
 .relic-visual-box[style*="#4deeea"] .relic-aura {
-  border-radius: 4px; /* 让光晕方一点，更像纸张 */
+  border-radius: 4px;
+  /* 让光晕方一点，更像纸张 */
   box-shadow: 0 0 15px #4deeea;
   animation: paper-scan 2s infinite alternate;
 }
 
 @keyframes paper-scan {
   0% {
-    clip-path: inset(0 0 80% 0); /* 模拟扫描线从上往下 */
+    clip-path: inset(0 0 80% 0);
+    /* 模拟扫描线从上往下 */
     opacity: 0.2;
   }
+
   100% {
     clip-path: inset(0 0 0 0);
     opacity: 0.6;
@@ -857,7 +896,13 @@ input.input-error-shake {
 }
 
 /* 角色像素样式 */
-.alice-box { width: 30px; height: 40px; background: #4a90e2; margin: 0 auto; }
+.alice-box {
+  width: 30px;
+  height: 40px;
+  background: #4a90e2;
+  margin: 0 auto;
+}
+
 /* --- 艾伦专属外观：西装与银发 --- */
 
 /* 1. 银灰色短发 - 层次感设计 */
@@ -868,10 +913,13 @@ input.input-error-shake {
   left: 16px;
   top: 0px;
   /* 使用不同深度的灰色模拟发型轮廓 */
-  box-shadow: 
-    0px 0px #cbd5e1, 4px 0px #f8fafc, 8px 0px #94a3b8, /* 顶层发丝 */
-    0px 4px #cbd5e1, 4px 4px #cbd5e1, 8px 4px #94a3b8, /* 中层 */
-    -4px 4px #94a3b8; /* 侧边鬓角 */
+  box-shadow:
+    0px 0px #cbd5e1, 4px 0px #f8fafc, 8px 0px #94a3b8,
+    /* 顶层发丝 */
+    0px 4px #cbd5e1, 4px 4px #cbd5e1, 8px 4px #94a3b8,
+    /* 中层 */
+    -4px 4px #94a3b8;
+  /* 侧边鬓角 */
 }
 
 /* 2. 深色西装 - 重点在于中间的白衬衫 V 字区 */
@@ -880,32 +928,36 @@ input.input-error-shake {
   width: 4px;
   height: 4px;
   left: 16px;
-  box-shadow: 
+  box-shadow:
     /* 脸部/颈部 */
     0px 8px #ffe0bd, 4px 8px #ffe0bd,
-    
+
     /* 西装外套与白衬衫 (白衬衫在 4px 12px 处体现) */
-    -4px 12px #1e293b, 0px 12px #ffffff, 4px 12px #ffffff, 8px 12px #1e293b, 
+    -4px 12px #1e293b, 0px 12px #ffffff, 4px 12px #ffffff, 8px 12px #1e293b,
     -4px 16px #1e293b, 0px 16px #1e293b, 4px 16px #1e293b, 8px 16px #1e293b,
-    
+
     /* 躯干 */
     -4px 20px #1e293b, 0px 20px #1e293b, 4px 20px #1e293b, 8px 20px #1e293b,
     0px 24px #1e293b, 4px 24px #1e293b,
-    
+
     /* 西装裤 */
     0px 32px #0f172a, 4px 32px #0f172a,
-    0px 36px #000, 4px 36px #000; /* 皮鞋 */
+    0px 36px #000, 4px 36px #000;
+  /* 皮鞋 */
 }
 
 /* 3. 修改选择界面预览框的颜色 */
-.allen-box { 
-  width: 30px; 
-  height: 40px; 
-  background: #1e293b; /* 深蓝灰色西装基调 */
-  border-top: 8px solid #cbd5e1; /* 银发顶端 */
-  margin:0 auto;
+.allen-box {
+  width: 30px;
+  height: 40px;
+  background: #1e293b;
+  /* 深蓝灰色西装基调 */
+  border-top: 8px solid #cbd5e1;
+  /* 银发顶端 */
+  margin: 0 auto;
   position: relative;
 }
+
 .allen-box::after {
   content: "";
   position: absolute;
@@ -913,28 +965,33 @@ input.input-error-shake {
   left: 11px;
   width: 8px;
   height: 6px;
-  background: white; /* 预览图里的衬衫细节 */
+  background: white;
+  /* 预览图里的衬衫细节 */
 }
+
 /* 移除在空中时的走路摇晃动画 */
 .walking:not(.jumping) {
   animation: bob-move 0.15s infinite alternate;
 }
 
 /* 跳跃时的姿态微调（可选） */
-.jumping .alice-body-pixel, 
+.jumping .alice-body-pixel,
 .jumping .allen-body-pixel {
-  transform: translateY(-2px); /* 向上提一下身子 */
+  transform: translateY(-2px);
 }
 
 /* 调整精灵图原始定位，确保 transform 生效 */
 #alice-sprite {
   position: absolute;
-  bottom: 18%; /* 地面基准线 */
+  bottom: 18%;
+  /* 地面基准线 */
   width: 44px;
   height: 80px;
   z-index: 500;
-  transition: transform 0.05s linear; /* 极短的过渡让物理位移更平滑 */
+  transition: transform 0.05s linear;
+  /* 极短的过渡让物理位移更平滑 */
 }
+
 .float-platform {
   position: absolute;
   bottom: -10px;
@@ -951,15 +1008,23 @@ input.input-error-shake {
 }
 
 @keyframes float-hover {
-  0%, 100% { margin-top: 0; }
-  50% { margin-top: -10px; }
+
+  0%,
+  100% {
+    margin-top: 0;
+  }
+
+  50% {
+    margin-top: -10px;
+  }
 }
 
 /* 为神龙像增加特殊的紫色光晕 */
 .relic-visual-box[style*="#bc13fe"] .relic-aura {
   border: 2px solid #bc13fe;
   box-shadow: 0 0 20px #bc13fe;
-  animation: dragon-breathe 1.5s infinite alternate; /* 呼吸频率更快 */
+  animation: dragon-breathe 1.5s infinite alternate;
+  /* 呼吸频率更快 */
 }
 
 @keyframes dragon-breathe {
@@ -968,10 +1033,114 @@ input.input-error-shake {
     opacity: 0.3;
     filter: hue-rotate(0deg);
   }
+
   to {
     transform: scale(1.3);
     opacity: 0.7;
-    filter: hue-rotate(45deg); /* 产生微小的颜色偏移，更有灵动感 */
+    filter: hue-rotate(45deg);
+    /* 产生微小的颜色偏移，更有灵动感 */
   }
+}
+
+/* 莉莉的视觉细节 */
+.lily-box {
+  width: 30px;
+  height: 40px;
+  background: #2d6a4f;
+  margin: 0 auto;
+  border-top: 6px solid #4a3728;
+  position: relative;
+}
+
+.lily-box::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  /* 预览图眼罩 */
+}
+
+/* 像素点阵：短发与眼罩 */
+.lily-hair-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 16px;
+  box-shadow: 0px 0px #4a3728, 4px 0px #4a3728, 8px 0px #4a3728, -4px 4px #4a3728, 12px 4px #4a3728;
+}
+
+.lily-blindfold-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 16px;
+  top: 8px;
+  box-shadow: -4px 0px #e5e7eb, 0px 0px #e5e7eb, 4px 0px #e5e7eb, 8px 0px #e5e7eb;
+}
+
+/* 青绿色连衣裙 */
+.lily-dress-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 16px;
+  top: 16px;
+  box-shadow:
+    -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f,
+    -8px 4px #2d6a4f, -4px 4px #2d6a4f, 0px 4px #2d6a4f, 4px 4px #2d6a4f, 8px 4px #2d6a4f, 12px 4px #2d6a4f,
+    0px 12px #2d6a4f, 4px 12px #2d6a4f;
+}
+
+/* 兔子玩偶布布 (位于怀中，颜色亮一点) */
+.bubu-bunny-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: 20px;
+  top: 20px;
+  box-shadow: 0px 0px #f3f4f6, 0px -4px #f3f4f6, 4px -4px #f3f4f6;
+  /* 小兔子耳朵和身体 */
+}
+
+/* 下蹲动画效果 */
+.crouching {
+  transform: translateY(10px) scaleY(0.88) !important;
+}
+
+.crouching .lily-dress-pixel {
+  box-shadow: -8px 0px #2d6a4f, -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f, 12px 0px #2d6a4f;
+}
+/* 全局角色下蹲缩放 */
+#alice-sprite.crouching {
+  transform-origin: bottom center;
+  /* 这里的 scaleX 会和模板里的 scaleX 冲突，所以我们通过 scaleY 来实现 */
+  height: 50px !important; /* 强制压缩高度 */
+}
+
+/* 莉莉专属下蹲修正 */
+.crouching .lily-dress-pixel {
+  top: 10px; /* 下蹲时裙子位置微调 */
+  box-shadow:
+    -8px 0px #2d6a4f, -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f, 12px 0px #2d6a4f;
+}
+
+.crouching .bubu-bunny-pixel {
+  top: 14px; /* 兔子也要跟着沉下去 */
+}
+/* 移除之前 .crouching 里的 transform，改用这个来微调内部元素 */
+.crouching .lily-dress-pixel {
+  /* 稍微调整阴影，让裙子看起来更“堆叠”在地上 */
+  box-shadow: -8px 0px #2d6a4f, -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f, 12px 0px #2d6a4f !important;
+}
+
+.crouching .bubu-bunny-pixel {
+  transform: translateY(3px); /* 兔子稍微下移 */
+}
+
+/* 走路动画在下蹲时减弱 */
+.walking.crouching {
+  animation-duration: 0.3s; /* 蹲着走比较慢，动画也变慢 */
 }
 </style>
