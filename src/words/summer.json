@@ -42,7 +42,7 @@
     "ps": "nɜrs"
   },
   {
-    "m": false,
+    "m": true,
     "s": "My uncle owns a large farm with many cows and sheep.",
     "cn": "农场",
     "en": "farm",
@@ -84,7 +84,7 @@
     "ps": "bɪt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "You are so lucky to have such a supportive family.",
     "cn": "幸运的",
     "en": "lucky",
@@ -112,7 +112,7 @@
     "ps": "ɔr"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Modern communication makes it easy to talk to people far away.",
     "cn": "交流；通信",
     "en": "communication",
@@ -234,7 +234,7 @@
     "m": false,
     "s": "Thanksgiving is a time for family gatherings and big meals.",
     "cn": "感恩节",
-    "en": "thanksgiving",
+    "en": "Thanksgiving",
     "ps": "ˌθæŋksˈɡɪvɪŋ"
   },
   {
@@ -460,5 +460,131 @@
     "cn": "闪光；闪光灯",
     "en": "flash",
     "ps": "flæʃ"
+  },
+  {
+    "m": false,
+    "s": "This song always reminds me of my childhood.",
+    "cn": "提醒；使想起",
+    "en": "remind"
+  },
+  {
+    "m": false,
+    "s": "Health is more important than wealth.",
+    "cn": "比",
+    "en": "than"
+  },
+  {
+    "m": false,
+    "s": "The job requires a lot of imagination and creativity.",
+    "cn": "创造力",
+    "en": "creativity"
+  },
+  {
+    "m": false,
+    "s": "It was brave of you to speak the truth.",
+    "cn": "勇敢的",
+    "en": "brave"
+  },
+  {
+    "m": false,
+    "s": "She looked at herself in the mirror and smiled.",
+    "cn": "镜子",
+    "en": "mirror"
+  },
+  {
+    "m": false,
+    "s": "He likes to wear blue jeans and a white T-shirt.",
+    "cn": "牛仔裤",
+    "en": "jeans"
+  },
+  {
+    "m": false,
+    "s": "Every child dreams of being a superhero with special powers.",
+    "cn": "超级英雄",
+    "en": "superhero"
+  },
+  {
+    "m": false,
+    "s": "He spent his whole lifetime studying rare plants.",
+    "cn": "一生",
+    "en": "lifetime"
+  },
+  {
+    "m": false,
+    "s": "We need to find a better way to deal with this problem.",
+    "cn": "处理",
+    "en": "deal"
+  },
+  {
+    "m": false,
+    "s": "The audience remained silent during the performance.",
+    "cn": "沉默的；无声的",
+    "en": "silent"
+  },
+  {
+    "m": false,
+    "s": "Could you help me translate this document into English?",
+    "cn": "翻译",
+    "en": "translate"
+  },
+  {
+    "m": false,
+    "s": "The final scene of the movie was very touching.",
+    "cn": "（戏剧或歌剧的）场；景象",
+    "en": "scene"
+  },
+  {
+    "m": false,
+    "s": "Many people believe that the old castle is haunted.",
+    "cn": "闹鬼的",
+    "en": "haunted"
+  },
+  {
+    "m": false,
+    "s": "The weather was awful, so we stayed at home.",
+    "cn": "很坏的",
+    "en": "awful"
+  },
+  {
+    "m": false,
+    "s": "The scientists are working late in the laboratory.",
+    "cn": "实验室",
+    "en": "laboratory"
+  },
+  {
+    "m": false,
+    "s": "He is a handsome young man with dark hair.",
+    "cn": "英俊的",
+    "en": "handsome"
+  },
+  {
+    "m": false,
+    "s": "Every citizen has the right to vote in the election.",
+    "cn": "市民；公民",
+    "en": "citizen"
+  },
+  {
+    "m": false,
+    "s": "It is a tradition in our family to eat dumplings on New Year's Eve.",
+    "cn": "传统",
+    "en": "tradition"
+  },
+  {
+    "m": false,
+    "s": "Are you going to the graduation ceremony next Friday?",
+    "cn": "毕业",
+    "en": "graduation"
+  },
+  {
+    "m": false,
+    "s": "The school band practiced hard for the music festival.",
+    "cn": "乐队",
+    "en": "band"
+  },
+  {
+    "m": false,
+    "s": "The teacher asked the students to divide into four groups.",
+    "cn": "分开",
+    "en": "divide"
   }
 ]

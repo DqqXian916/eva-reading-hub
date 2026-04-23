@@ -645,14 +645,14 @@ onUnmounted(() => window.removeEventListener('keydown', handleKey));
   border: 1px solid rgba(0, 210, 255, 0.3);
   box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 210, 255, 0.1);
   border-radius: 12px;
-  padding: 40px;
+  padding: 20px;
   position: relative;
 }
 
 .rank-badge {
   position: relative;
   display: inline-block;
-  margin: 10px 0 30px;
+  margin: 10px 0 20px;
 }
 
 .finish-tag {
@@ -663,7 +663,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKey));
   background: var(--neon-gold);
   color: #000;
   font-weight: 900;
-  padding: 6px 24px;
+  padding: 3px 24px;
   border-radius: 4px;
   font-size: 18px;
   letter-spacing: 2px;
@@ -674,7 +674,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKey));
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
 }
 
 /* 数据网格微调 */
@@ -682,7 +682,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKey));
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 15px;
+  padding: 10px;
 }
 .grid-item .val {
   font-family: 'Orbitron', sans-serif;

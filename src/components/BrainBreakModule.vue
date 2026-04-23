@@ -9,6 +9,7 @@ import TombGame from './games/Tomb.vue'
 import PianoGame from './games/Piano.vue'
 import ShootGame from './games/Shoot.vue'
 import CarCrashGame from './games/CarCrash.vue'
+import WordFighterGame from  './games/WordFighter.vue'
 import { useGameStore } from '../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -96,6 +97,17 @@ const games = ref([
         color: '#00d2ff',
         config: {
             wordList: [], // 由后端注入
+            goal: 20
+        }
+    },
+    {
+        id: 'word-fighter',
+        name: '词魂格斗录',
+        isVue: true,
+        icon: '👹', // 或者使用 🥋
+        color: '#ffcc00',
+        config: {
+            wordList: [],
             goal: 20
         }
     },
@@ -262,6 +274,18 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
+                                <WordFighterGame 
+                                    v-if="activeGame.id === 'word-fighter'" 
+                                    :wordList="activeGame.config.wordList"
+                                    :key="props.student.id" 
+                                    :goal="activeGame.config.goal" 
+                                    :canEdit="canEdit" 
+                                    @updateConfig="(newWords) => $emit('saveConfig', {
+                                        studentId: props.student.id,
+                                        wordList: newWords,
+                                        goal: activeGame.config.goal
+                                    })" 
+                                />
                         </template>
 
                         <template v-else>
