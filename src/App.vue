@@ -896,7 +896,7 @@ body {
 
 .btn-confirm:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.4);
+  box-shadow: 0 0 0 4px rgba(85, 171, 103, 0.4);
   /* 蓝色光晕提示已聚焦 */
   transform: scale(1.02);
   /* 微微放大 */
