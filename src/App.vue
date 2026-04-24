@@ -9,6 +9,7 @@ import EditForm from './components/EditForm.vue'
 import ReadingWorkspace from './components/ReadingWorkspace.vue'
 import QuizModule from './components/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
+import BlankModule from './components//Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/BrainBreakModule.vue'
 import VocabularyModule from './components/VocabularyModule.vue'
@@ -30,9 +31,11 @@ const listPanelCollapsed = ref(false)
 const viewMode = ref('welcome')    // welcome | list | edit | reading
 const isLoading = ref(false)
 const isFullScreen = ref(false)
-
+const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
+const activeBlank = ref(null)      // 当前正在练习的完形填空对象
+const blankViewMode = ref('list') // list | edit | exercise
+const editingBlank = ref(null)    // 正在编辑的完形填空对象
 const studentQuizzes = ref([])
-
 const studentGameScores = ref([])
 
 // 答题状态记录
@@ -71,7 +74,6 @@ const verifyPassword = () => {
   }
 }
 
-// --- 核心逻辑 ---
 // 1. 监听切换（学员或模块改变时重置状态并加载数据）
 watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   if (!newStudent) return
@@ -89,10 +91,12 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     // await fetchGameScores(newStudent.id)
   } else if (newModule === 'words') {
     await fetchVocabulary(newStudent.id)
+  } else if (newModule === 'blank') {
+    await fetchBlankQuizzes(newStudent.id)
   }
 })
 
-// 2. 数据获取
+// 阅读理解数据获取
 const fetchReadings = async (studentId) => {
   isLoading.value = true
   const { data } = await supabase.from('readings')
@@ -103,8 +107,7 @@ const fetchReadings = async (studentId) => {
   isLoading.value = false
 }
 
-
-// --- 短文填空数据获取 ---
+// 短文填空数据获取 
 const fetchClozeQuizzes = async (studentId) => {
   isLoading.value = true
   const { data } = await supabase.from('cloze_quizzes') // 假设你的表名为 cloze_quizzes
@@ -115,7 +118,7 @@ const fetchClozeQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-// 获取词汇评估历史记录
+// 单词评估数据获取
 const fetchVocabTests = async (studentId) => {
   isLoading.value = true
   const { data } = await supabase.from('vocab_tests')
@@ -123,6 +126,22 @@ const fetchVocabTests = async (studentId) => {
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
   studentVocabTests.value = data || []
+  isLoading.value = false
+}
+
+// 完形填空数据获取
+const fetchBlankQuizzes = async (studentId) => {
+  isLoading.value = true
+  const { data, error } = await supabase.from('blank_quizzes') // 假设表名为 blank_quizzes
+    .select('*')
+    .eq('student_id', studentId)
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error("获取完形填空失败:", error)
+  } else {
+    studentBlankQuizzes.value = data || []
+  }
   isLoading.value = false
 }
 
@@ -180,8 +199,6 @@ const handleDeleteStudent = async (student) => {
   }
 };
 
-
-// App.vue 逻辑部分
 const handleAddNewStudent = async () => {
   const name = prompt("请输入新学员的姓名：")
 
@@ -355,6 +372,16 @@ const deleteQuiz = async (id) => {
   }
 }
 
+const handleCreateBlank = () => {
+  editingBlank.value = {
+    title: '',
+    body: '',
+    body_cn: '',
+    quiz: []
+  }
+  blankViewMode.value = 'edit'
+}
+
 // 必须：处理用户按 Esc 键退出的情况，保证变量同步
 onMounted(() => {
     fetchStudents() // 你原有的代码
@@ -373,6 +400,7 @@ const openReading = (reading) => {
   sidebarCollapsed.value = true
 }
 
+// 保存阅读理解
 const handleSaveReading = async (formData) => {
   try {
     let res;
@@ -406,6 +434,45 @@ const handleSaveReading = async (formData) => {
     console.error("保存失败:", e)
     alert("❌ 保存失败：" + e.message)
   }
+}
+
+// 保存完形填空（Admin 模式使用）
+const saveBlankQuiz = async (blankData) => {
+  try {
+    isLoading.value = true
+    const payload = {
+      title: blankData.title,
+      body: blankData.body,
+      body_cn: blankData.body_cn,
+      quiz: blankData.quiz,
+      student_id: currentStudent.value.id
+    }
+    let res;
+    if (blankData.id) {
+      // 修改模式
+      res = await supabase.from('blank_quizzes').update(payload).eq('id', blankData.id)
+    } else {
+      // 新增模式
+      res = await supabase.from('blank_quizzes').insert([payload])
+    }
+    if (res.error) throw res.error
+    // 关键：重新拉取数据，这会通过 Props 自动更新 BlankModule 内部的列表
+    await fetchBlankQuizzes(currentStudent.value.id)
+    alert("✅ 完形填空已同步至云端")
+  } catch (e) {
+    console.error("Save Error:", e)
+    alert("❌ 保存失败：" + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 删除完形填空
+const handleDeleteBlank = async (id) => {
+  if (!confirm('确定要删除这篇完形填空吗？')) return
+  const { error } = await supabase.from('blank_quizzes').delete().eq('id', id)
+  if (error) alert(error.message)
+  else await fetchBlankQuizzes(currentStudent.value.id)
 }
 
 const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
@@ -475,6 +542,8 @@ const toggleFullScreen = () => {
             阅读训练</button>
           <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
             短文填空</button>
+         <button :class="['module-tab', { active: activeModule === 'blank' }]"
+            @click="activeModule = 'blank'">🖋️ 完形填空</button>
           <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
         </nav>
@@ -527,12 +596,12 @@ const toggleFullScreen = () => {
 
         <template v-else-if="activeModule === 'cloze'">
           <ClozeModule 
-  :student="currentStudent" 
-  :quizzes="studentClozeQuizzes" 
-  :canEdit="isAdminMode"
-  :isFullScreen="isFullScreen" @save="saveClozeQuiz" 
-  @delete="deleteClozeQuiz" 
-  @toggleFull="toggleFullScreen" />
+            :student="currentStudent" 
+            :quizzes="studentClozeQuizzes" 
+            :canEdit="isAdminMode"
+            :isFullScreen="isFullScreen" @save="saveClozeQuiz" 
+            @delete="deleteClozeQuiz" 
+            @toggleFull="toggleFullScreen" />
         </template>
 
         <template v-else-if="activeModule === 'vocab-test'">
@@ -543,10 +612,22 @@ const toggleFullScreen = () => {
           <VocabularyModule :key="currentStudent.id" :student="currentStudent"
             :initialWords="currentWordList" @update-progress="handleUpdateWordProgress" />
         </template>
+        <template v-else-if="activeModule === 'blank'">
+         <BlankModule 
+            v-if="!isLoading"
+            :student="currentStudent" 
+            :quizzes="studentBlankQuizzes || []" 
+            :canEdit="isAdminMode"          
+            :isFullScreen="isFullScreen"
+            @save="saveBlankQuiz"            
+            @delete="handleDeleteBlank"      
+            @toggleFull="toggleFullScreen"
+          />
+  <div v-else class="loading-placeholder">加载中...</div>
+        </template>
         <template v-else>
           <div class="placeholder">
             <div class="card">
-              <h2>🗂️ 单词复习</h2>
               <p>正在为 {{ currentStudent.name }} 准备内容...</p>
             </div>
           </div>
