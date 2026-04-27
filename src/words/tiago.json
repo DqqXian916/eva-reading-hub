@@ -1,6 +1,6 @@
 [
   {
-    "m": false,
+    "m": true,
     "s": "It will probably rain this afternoon, so take an umbrella.",
     "cn": "可能",
     "en": "probably"
@@ -30,7 +30,7 @@
     "en": "hard"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Cheetahs are the fast animals on land.",
     "cn": "快速的",
     "en": "fast"
@@ -48,13 +48,13 @@
     "en": "remind"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The brave firefighter saved the cat from the tree.",
     "cn": "勇敢的",
     "en": "brave"
   },
   {
-    "m": false,
+    "m": true,
     "s": "My parents are very strict about my bedtime.",
     "cn": "严厉的",
     "en": "strict"
@@ -72,7 +72,7 @@
     "en": "surprise"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We took a ferry to cross the river.",
     "cn": "轮渡",
     "en": "ferry"
@@ -92,7 +92,7 @@
   {
     "m": false,
     "s": "He won first prize in the singing contest.",
-    "cn": "音乐会/竞赛",
+    "cn": "竞赛",
     "en": "contest"
   },
   {
@@ -138,7 +138,7 @@
     "en": "wonderful"
   },
   {
-    "m": false,
+    "m": true,
     "s": "You should visit the Great Wall when you go to Beijing.",
     "cn": "拜访",
     "en": "visit"
@@ -252,7 +252,7 @@
     "en": "virus"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Smoking is very harmful to your health.",
     "cn": "有害的",
     "en": "harmful"
@@ -310,5 +310,299 @@
     "s": "Take this medicine three times a day after meals.",
     "cn": "药",
     "en": "medicine"
+  },
+  {
+    "m": false,
+    "s": "I wonder why he is late today.",
+    "cn": "想知道",
+    "en": "wonder"
+  },
+  {
+    "m": false,
+    "s": "Camels can live in the desert for a long time.",
+    "cn": "沙漠",
+    "en": "desert"
+  },
+  {
+    "m": false,
+    "s": "The depth of his knowledge is amazing.",
+    "cn": "深刻，渊博",
+    "en": "depth"
+  },
+  {
+    "m": false,
+    "s": "The northern part of the country is very cold.",
+    "cn": "北方的",
+    "en": "northern"
+  },
+  {
+    "m": false,
+    "s": "Very few plants can survive in such dry weather.",
+    "cn": "幸存",
+    "en": "survive"
+  },
+  {
+    "m": false,
+    "s": "She successfully completed the difficult task.",
+    "cn": "成功地",
+    "en": "successfully"
+  },
+  {
+    "m": false,
+    "s": "Don't take the risk of driving in this storm.",
+    "cn": "风险",
+    "en": "risk"
+  },
+  {
+    "m": false,
+    "s": "The child's curiosity led him to explore the garden.",
+    "cn": "好奇心",
+    "en": "curiosity"
+  },
+  {
+    "m": false,
+    "s": "It is a risky business to invest all your money.",
+    "cn": "危险的",
+    "en": "risky"
+  },
+  {
+    "m": false,
+    "s": "The explorer discovered a hidden cave in the mountains.",
+    "cn": "探险者",
+    "en": "explorer"
+  },
+  {
+    "m": false,
+    "s": "He simply wanted to say thank you.",
+    "cn": "简单地；仅仅；简直",
+    "en": "simply"
+  },
+  {
+    "m": false,
+    "s": "She heard a curious noise coming from the attic.",
+    "cn": "奇特的；不寻常的",
+    "en": "curious"
+  },
+  {
+    "m": false,
+    "s": "The lone traveller walked across the vast plains.",
+    "cn": "旅行者",
+    "en": "traveller"
+  },
+  {
+    "m": false,
+    "s": "He has a natural talent for playing music.",
+    "cn": "天生的",
+    "en": "natural"
+  },
+  {
+    "m": false,
+    "s": "We walked along the coast and enjoyed the sea breeze.",
+    "cn": "海岸",
+    "en": "coast"
+  },
+  {
+    "m": false,
+    "s": "The price of the tour does not include lunch.",
+    "cn": "使成为……的一部分",
+    "en": "include"
+  },
+  {
+    "m": false,
+    "s": "The children were playing with sand on the beach.",
+    "cn": "沙",
+    "en": "sand"
+  },
+  {
+    "m": false,
+    "s": "The market is very alive and busy on Sundays.",
+    "cn": "有生气的，活泼的",
+    "en": "alive"
+  },
+  {
+    "m": false,
+    "s": "This is a once-in-a-lifetime opportunity.",
+    "cn": "一生",
+    "en": "lifetime"
+  },
+  {
+    "m": false,
+    "s": "It is important to communicate clearly with others.",
+    "cn": "交流",
+    "en": "communicate"
+  },
+  {
+    "m": false,
+    "s": "The leaf turned yellow in autumn.",
+    "cn": "叶子",
+    "en": "leaf"
+  },
+  {
+    "m": false,
+    "s": "I am going to visit my grandparents during the holiday.",
+    "cn": "假期",
+    "en": "holiday"
+  },
+  {
+    "m": false,
+    "s": "The family is watching TV in the living room.",
+    "cn": "客厅",
+    "en": "living room"
+  },
+  {
+    "m": false,
+    "s": "Please keep your room clean and tidy.",
+    "cn": "干净的",
+    "en": "clean"
+  },
+  {
+    "m": false,
+    "s": "My birthday is in March.",
+    "cn": "三月",
+    "en": "March"
+  },
+  {
+    "m": false,
+    "s": "The exam was quite difficult for me.",
+    "cn": "很；相当",
+    "en": "quite"
+  },
+  {
+    "m": false,
+    "s": "He was the first student to arrive at school.",
+    "cn": "第一",
+    "en": "first"
+  },
+  {
+    "m": false,
+    "s": "She is a famous movie star.",
+    "cn": "明星",
+    "en": "star"
+  },
+  {
+    "m": false,
+    "s": "We like to go to the beach in summer.",
+    "cn": "海滩",
+    "en": "beach"
+  },
+  {
+    "m": false,
+    "s": "The football fan cheered loudly for his team.",
+    "cn": "迷",
+    "en": "fan"
+  },
+  {
+    "m": false,
+    "s": "He ate half of the pizza by himself.",
+    "cn": "一半",
+    "en": "half"
+  },
+  {
+    "m": false,
+    "s": "She likes to paint beautiful landscapes.",
+    "cn": "绘画",
+    "en": "paint"
+  },
+  {
+    "m": false,
+    "s": "Don't pull the door, you should push it.",
+    "cn": "拉",
+    "en": "pull"
+  },
+  {
+    "m": false,
+    "s": "He needs to wear glasses to read clearly.",
+    "cn": "眼镜",
+    "en": "glasses"
+  },
+  {
+    "m": false,
+    "s": "Biology is my favorite science subject.",
+    "cn": "科学",
+    "en": "science"
+  },
+  {
+    "m": false,
+    "s": "He is off to work now.",
+    "cn": "离开",
+    "en": "off"
+  },
+  {
+    "m": false,
+    "s": "I will never forget this wonderful trip.",
+    "cn": "从不",
+    "en": "never"
+  },
+  {
+    "m": false,
+    "s": "Turn left at the next corner.",
+    "cn": "左边",
+    "en": "left"
+  },
+  {
+    "m": false,
+    "s": "We need a map to find our way in the city.",
+    "cn": "地图",
+    "en": "map"
+  },
+  {
+    "m": false,
+    "s": "The grass is very green after the rain.",
+    "cn": "绿色的",
+    "en": "green"
+  },
+  {
+    "m": false,
+    "s": "The weather is fine today, let's go for a walk.",
+    "cn": "好的",
+    "en": "fine"
+  },
+  {
+    "m": false,
+    "s": "Flowers start to bloom in spring.",
+    "cn": "春天",
+    "en": "spring"
+  },
+  {
+    "m": false,
+    "s": "The dog was running after the ball.",
+    "cn": "在……后面",
+    "en": "after"
+  },
+  {
+    "m": false,
+    "s": "The cow is eating grass in the field.",
+    "cn": "奶牛",
+    "en": "cow"
+  },
+  {
+    "m": false,
+    "s": "He bought a new pair of trousers.",
+    "cn": "裤子",
+    "en": "trousers"
+  },
+  {
+    "m": false,
+    "s": "I need to check my work schedule for next week.",
+    "cn": "工作计划",
+    "en": "schedule"
+  },
+  {
+    "m": false,
+    "s": "She can type very fast on the computer.",
+    "cn": "打字",
+    "en": "type"
+  },
+  {
+    "m": false,
+    "s": "His goal is to become a doctor in the future.",
+    "cn": "目标",
+    "en": "goal"
+  },
+  {
+    "m": false,
+    "s": "What are you having for lunch today?",
+    "cn": "午餐",
+    "en": "lunch"
   }
 ]
