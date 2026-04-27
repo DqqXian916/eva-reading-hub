@@ -1,0 +1,17 @@
+{
+  "title": "Grade 6 Cloze Practice",
+  "body": "I have a cat. [1] name is Mimi. It [2] fish very much.",
+  "body_cn": "我有一只猫。它的名字叫咪咪。它非常喜欢吃鱼。",
+  "quiz": [
+    {
+      "options": ["Its", "His", "Her", "My"],
+      "answer": 0,
+      "analysis": "形容词性物主代词指代猫"
+    },
+    {
+      "options": ["like", "likes", "liking", "liked"],
+      "answer": 1,
+      "analysis": "第三人称单数一般现在时"
+    }
+  ]
+}

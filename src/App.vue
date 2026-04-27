@@ -145,7 +145,7 @@ const fetchBlankQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-// --- 新增：真正的文章删除逻辑 ---
+// --- 文章删除逻辑 ---
 const handleDeleteReading = async (reading) => {
   // 1. 二次确认，防止手抖
   if (!confirm(`确定要删除文章《${reading.title}》吗？此操作不可撤销哦 ❤️`)) return
@@ -199,6 +199,31 @@ const handleDeleteStudent = async (student) => {
   }
 };
 
+// --- 删除短文填空逻辑 ---
+const deleteClozeQuiz = async (id) => {
+  // 1. 业务风险确认
+  if (!confirm('确定要删除这篇短文填空吗？此操作不可恢复 ❤️')) return
+  try {
+    isLoading.value = true
+    // 2. 调用 Supabase 执行删除
+    const { error } = await supabase
+      .from('cloze_quizzes')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+    alert("✅ 短文填空已从云端移除")
+    // 3. 刷新本地数据列表
+    if (currentStudent.value) {
+      await fetchClozeQuizzes(currentStudent.value.id)
+    }
+  } catch (e) {
+    console.error("Delete Error:", e)
+    alert("❌ 删除失败：" + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const handleAddNewStudent = async () => {
   const name = prompt("请输入新学员的姓名：")
 
@@ -221,7 +246,7 @@ const handleAddNewStudent = async () => {
   }
 }
 
-// --- 新增：保存单词掌握状态和音标配置到云端 ---
+// --- 保存单词掌握状态和音标配置到云端 ---
 const handleUpdateWordProgress = async (updatedList) => {
   if (!currentStudent.value) return;
 
