@@ -33,15 +33,6 @@
           <button class="start-action-btn" @click="confirmRole">确认出发</button>
         </div>
       </div>
-
-      <div v-if="gameState.active && !gameState.finished" id="hud">
-        <div class="hud-item"
-          :style="{ color: gameState.roleStats[gameState.currentRole].theme, textShadow: `0 0 8px ${gameState.roleStats[gameState.currentRole].theme}` }">
-          AGENT: {{ gameState.roleStats[gameState.currentRole].name }} | O2: {{ Math.floor(gameState.ox) }}%
-        </div>
-        <div class="hud-item gold-glow">圣物回收: {{ gameState.count }} / 10</div>
-      </div>
-
       <div id="world" :style="{ transform: `translateX(${gameState.wx}px)` }">
         <div class="floor-line"></div>
         <div v-for="(item, index) in treasures" :key="index" class="treasure" :style="{
@@ -62,29 +53,36 @@
             <span class="key-box">SPACE</span> 鉴定
           </div>
         </div>
+        <div v-for="(m, index) in monsters" :key="'m' + index" class="monster" :style="{
+          left: m.x + 'px',
+          transform: `translateY(${m.y}px)`,
+          opacity: m.defeated ? 0 : 1
+        }">
+          <div class="monster-visual">
+            <div class="monster-eye"></div>
+            <div class="monster-core">👾</div>
+            <div class="monster-smoke"></div>
+          </div>
+          <div class="monster-label">LV.{{ index + 1 }} 守护灵</div>
+        </div>
       </div>
-
-      <div id="alice-sprite" v-if="gameState.active && !gameState.finished" 
-  :style="{
-    left: (gameState.px + gameState.wx) + 'px',
-    bottom: (18 + (gameState.py * -0.1)) + '%',
-    /* 核心修改：同时控制水平翻转和垂直压缩 */
-    transform: `scaleX(${gameState.facingLeft ? -1 : 1}) scaleY(${gameState.isCrouching ? 0.88 : 1})`,
-    /* 确保压缩时是贴地压缩，而不是中心压缩 */
-    transformOrigin: 'bottom' 
-  }" 
-  :class="{ 
-    'walking': gameState.moving && !gameState.isJumping, 
-    'jumping': gameState.isJumping,
-    'crouching': gameState.isCrouching 
-  }">
+      <div id="alice-sprite" v-if="gameState.active && !gameState.finished" :style="{
+        left: (gameState.px + gameState.wx) + 'px',
+        bottom: (18 + (gameState.py * -0.1)) + '%',
+        /* 核心修改：同时控制水平翻转和垂直压缩 */
+        transform: `scaleX(${gameState.facingLeft ? -1 : 1}) scaleY(${gameState.isCrouching ? 0.88 : 1})`,
+        /* 确保压缩时是贴地压缩，而不是中心压缩 */
+        transformOrigin: 'bottom'
+      }" :class="{
+        'walking': gameState.moving && !gameState.isJumping,
+        'jumping': gameState.isJumping,
+        'crouching': gameState.isCrouching
+      }">
         <div class="alice-tank-pixel"></div>
-
         <template v-if="gameState.currentRole === 'alice'">
           <div class="alice-hair-flow"></div>
           <div class="alice-body-pixel"></div>
         </template>
-
         <template v-else-if="gameState.currentRole === 'allen'">
           <div class="allen-hair-pixel"></div>
           <div class="allen-body-pixel"></div>
@@ -96,23 +94,35 @@
           <div class="bubu-bunny-pixel"></div>
         </template>
       </div>
-
       <transition name="pop">
         <div v-if="gameState.showTerminal" id="terminal-overlay">
           <div class="terminal-card">
             <div class="scan-line"></div>
             <div class="relic-header">
-              <div class="relic-status-tag">SYSTEM: IDENTIFYING ANTIQUITY...</div>
+              <div class="relic-status-tag">
+                {{ gameState.isBattle ? 'BATTLE: GUARDIAN INTERCEPTED' : 'SYSTEM: IDENTIFYING ANTIQUITY...' }}
+              </div>
               <div class="relic-main-display">
-                <h2 class="relic-cn">{{ gameState.currentTarget?.cn }}</h2>
-                <div class="relic-name-badge">{{ gameState.currentTarget?.relicName }}</div>
+                <h2 class="relic-cn">{{ gameState.isBattle ? gameState.currentTarget?.en : gameState.currentTarget?.cn
+                  }}</h2>
+                <div v-if="!gameState.isBattle" class="relic-name-badge">{{ gameState.currentTarget?.relicName }}</div>
               </div>
               <div class="relic-divider"></div>
             </div>
             <div class="input-area">
-              <div class="input-label">请输入同步密钥 (EN)</div>
-              <input ref="wordInput" v-model="userInput" @keyup.enter="checkWord" placeholder="TYPE SYNC KEY..."
-                autocomplete="off" :class="{ 'input-error-shake': gameState.inputError }">
+              <div v-if="gameState.isBattle" class="battle-options">
+                <button v-for="(opt, idx) in gameState.options" :key="idx" @click="handleSelect(opt)"
+                  class="option-btn">
+                  <span class="option-index">{{ idx === 0 ? 'A' : 'B' }}</span>
+                  {{ opt.text }}
+                </button>
+              </div>
+
+              <div v-else>
+                <div class="input-label">请输入同步密钥 (EN)</div>
+                <input ref="wordInput" v-model="userInput" @keyup.enter="checkWord" placeholder="TYPE SYNC KEY..."
+                  autocomplete="off" :class="{ 'input-error-shake': gameState.inputError }">
+              </div>
             </div>
             <div class="cancel-text">
               <span class="esc-key">ESC</span> 断开量子连接
@@ -120,14 +130,12 @@
           </div>
         </div>
       </transition>
-
       <div v-if="!gameState.active && !gameState.finished" id="start-overlay">
         <div class="start-content">
           <h1 class="title-main">摸金行动</h1>
           <button class="start-action-btn" @click="startGame">开始摸金</button>
         </div>
       </div>
-
       <div v-if="gameState.finished" id="finish-screen">
         <div class="status-tag">MISSION ACCOMPLISHED</div>
         <div class="inventory-box">
@@ -155,6 +163,13 @@
           <button class="retry-btn-fancy" @click="resetGame">再次进入地宫</button>
         </div>
       </div>
+            <div v-if="gameState.active && !gameState.finished" id="hud">
+        <div class="hud-item" :class="{ 'ox-hurt-flash': gameState.oxHurt }"
+          :style="{ color: gameState.roleStats[gameState.currentRole].theme, textShadow: `0 0 8px ${gameState.roleStats[gameState.currentRole].theme}` }">
+          AGENT: {{ gameState.roleStats[gameState.currentRole].name }} | O2: {{ Math.floor(gameState.ox) }}%
+        </div>
+        <div class="hud-item gold-glow">圣物回收: {{ gameState.count }} / 10</div>
+      </div>
     </div>
   </div>
 </template>
@@ -168,7 +183,7 @@ const inventory = ref([]);
 const userInput = ref("");
 const wordInput = ref(null);
 const keys = {};
-
+const monsters = ref([]);
 const gameState = reactive({
   px: 400, wx: 0, ox: 100, count: 0,
   active: false,
@@ -186,12 +201,17 @@ const gameState = reactive({
   vy: 0,        // 新增：垂直速度
   isJumping: false,
   isCrouching: false, // 必须在这里声明，否则 Vue 无法追踪其变化
+  oxHurt: false, // 新增：用于控制氧气条闪红
   roleStats: {
     alice: { name: 'ALICE', speed: 6.5, jumpPower: -15, oxRate: 0.008, theme: '#4a90e2' },
-    allen: { name: 'ALLEN', speed: 8.5, jumpPower: -18, oxRate: 0.012, theme: '#94a3b8' } ,// 艾伦跳得更高
+    allen: { name: 'ALLEN', speed: 8.5, jumpPower: -18, oxRate: 0.012, theme: '#94a3b8' },// 艾伦跳得更高
     lily: { name: 'LILY', speed: 5.5, jumpPower: -14, oxRate: 0.005, theme: '#2d6a4f' } // 莉莉更省氧
-  }
+  },
+  isBattle: false,      // 是否正在战斗
+  options: [],          // 存放两个选项 [{text: '正确', isCorrect: true}, ...]
 });
+const soundCollect = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
+const soundWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2873/2873-preview.mp3');
 
 const confirmRole = () => {
   gameState.roleSelected = true;
@@ -201,6 +221,7 @@ const confirmRole = () => {
 const relicMeta = [
   { name: "英语卷子", icon: "📜", color: "#4deeea" }, // 新增：带有浅蓝色科技感的试卷
   { name: "飞天神龙像", icon: "🐉", color: "#bc13fe" }, // 新增：紫色神龙
+  { name: "祈愿圣杯", icon: "🏆", color: "#ffee00" }, // 新增：祈愿圣杯
   { name: "大内金樽", icon: "🏺", color: "#ffd700" },
   { name: "焦尾古琴", icon: "🪕", color: "#d4a373" },
   { name: "足金元宝", icon: "💰", color: "#ffcc00" },
@@ -221,39 +242,114 @@ const calculateRank = () => {
   if (count >= 5) return "A";
   return "B";
 };
+// 统一封装播放逻辑，重置 currentTime 是消除延迟的关键
+const playSound = (audio) => {
+  audio.currentTime = 0;
+  audio.play().catch(e => console.log("Audio play blocked"));
+};
+const playCollectSound = () => playSound(soundCollect);
+const playWrongSound = () => playSound(soundWrong);
 
-const playCollectSound = () => {
-  // 选了一个清脆的“金币掉落/金属碰撞”音效
-  const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-  audio.volume = 0.5;
-  audio.play();
+// 2. 修改触发战斗的函数
+const triggerBattle = (monster) => {
+  gameState.currentTarget = monster;
+  gameState.isBattle = true; // 关键：告诉 UI 现在是战斗模式
+  gameState.showTerminal = true;
+  gameState.inputError = false;
+  // 1. 准备正确答案
+  const correctOpt = { text: monster.cn, isCorrect: true };
+  // 2. 准备干扰项（从词库里随便抓一个不一样的）
+  const otherWords = props.wordList.filter(w => w.cn !== monster.cn);
+  const wrongWord = otherWords.length > 0
+    ? otherWords[Math.floor(Math.random() * otherWords.length)].cn
+    : "未知领域"; // 保底干扰项
+  const wrongOpt = { text: wrongWord, isCorrect: false };
+  // 3. 随机排序 A/B 选项
+  gameState.options = [correctOpt, wrongOpt].sort(() => Math.random() - 0.5);
+};
+
+// 修改 handleSelect 处理战斗点击
+const handleSelect = (option) => {
+  if (option.isCorrect) {
+    playCollectSound();
+    gameState.currentTarget.defeated = true;
+    closeTerminal();
+  } else {
+    playWrongSound(); // 这里的 soundWrong 已经预加载了
+    // 强化反馈逻辑
+    gameState.ox -= 15;
+    gameState.oxHurt = true; // 开启氧气闪红
+    gameState.inputError = true;
+    setTimeout(() => {
+      gameState.inputError = false;
+      gameState.oxHurt = false; // 0.5秒后恢复
+    }, 500);
+  }
+};
+
+// 确保 closeTerminal 重置所有状态
+const closeTerminal = () => {
+  gameState.showTerminal = false;
+  gameState.isBattle = false; // 必须重置
+  gameState.options = [];     // 清空选项
+  userInput.value = "";
+};
+// 2. 初始化小怪 (在 initTreasures 之后调用)
+const initMonsters = () => {
+  const source = props.wordList.length > 0 ? props.wordList : [{ en: 'Ghost', cn: '幽灵' }];
+  monsters.value = source.slice(0, 5).map((w, i) => ({
+    ...w,
+    x: 1200 + i * 1500 + Math.random() * 500, // 分散在圣物之间
+    y: -80 - Math.random() * 100, // 在空中漂浮
+    defeated: false,
+    floatOffset: Math.random() * Math.PI * 2 // 随机相位
+  }));
 };
 
 // 更新后的洗牌与初始化逻辑
+// 修改 initTreasures 函数
 const initTreasures = () => {
   const source = props.wordList.length > 0 ? props.wordList : Array.from({ length: 10 }, (_, i) => ({ en: `Artifact${i}`, cn: `古物${i}` }));
-  // 彻底打乱词库
   const shuffledWords = [...source].sort(() => Math.random() - 0.5);
-  // 彻底打乱宝物外观
-  const shuffledMeta = [...relicMeta].sort(() => Math.random() - 0.5);
+  // 分离稀有度：神级（神龙、圣杯）与其他
+  const godTier = relicMeta.filter(m => m.name === "飞天神龙像" || m.name === "祈愿圣杯");
+  const normalTier = relicMeta.filter(m => m.name !== "飞天神龙像" && m.name !== "祈愿圣杯");
   treasures.value = shuffledWords.slice(0, 10).map((w, i) => {
-    const meta = shuffledMeta[i % shuffledMeta.length];
+    // 85% 概率出普通，15% 概率出稀有（神龙或圣杯）
+    const isRare = Math.random() < 0.15;
+    const metaPool = isRare ? godTier : normalTier;
+    const meta = metaPool[Math.floor(Math.random() * metaPool.length)];
     const isHigh = Math.random() > 0.5;
     return {
       ...w,
       relicName: meta.name,
       icon: meta.icon,
       rarityColor: meta.color,
-      x: 800 + i * (600 + Math.random() * 200), // 随机间距
+      x: 800 + i * (600 + Math.random() * 200),
       y: isHigh ? -150 : 0,
       collected: false
     };
+  });
+};
+// 3. 在 gameLoop 中增加怪物动画和碰撞检测
+const updateMonsters = () => {
+  monsters.value.forEach(m => {
+    if (m.defeated) return;
+    // 漂浮动画
+    m.y += Math.sin(Date.now() / 500 + m.floatOffset) * 0.5;
+    // 碰撞检测
+    const dist = Math.sqrt(Math.pow(gameState.px - m.x, 2) + Math.pow(gameState.py - m.y, 2));
+    // --- 修改这里：调用刚才写的 triggerBattle 函数 ---
+    if (dist < 50 && !gameState.showTerminal) {
+      triggerBattle(m); // 这里的函数会自动设置 isBattle 为 true 并生成选项
+    }
   });
 };
 const startGame = () => { gameState.active = true; requestAnimationFrame(gameLoop); };
 const resetGame = () => location.reload();
 
 const gameLoop = () => {
+  updateMonsters();
   if (!gameState.active || gameState.finished) return;
   const stats = gameState.roleStats[gameState.currentRole];
   // 下蹲检测
@@ -304,44 +400,29 @@ const gameLoop = () => {
 
 const checkWord = () => {
   const isCorrect = userInput.value.toLowerCase().trim() === gameState.currentTarget.en.toLowerCase();
-
   if (isCorrect) {
     playCollectSound();
-    gameState.currentTarget.collected = true;
-    inventory.value.push({ ...gameState.currentTarget });
-    gameState.count++;
-    gameState.showTerminal = false;
-    gameState.attempts = 0;
-    userInput.value = "";
-
-    // --- 修改这里：判断 收集+损坏 是否达到总数 ---
-    const processed = treasures.value.filter(t => t.collected || t.broken).length;
-    if (processed >= 10) gameState.finished = true;
-
-  } else {
-    gameState.ox -= 10;
-    gameState.attempts++;
-    gameState.inputError = true;
-    userInput.value = "";
-
-    if (gameState.attempts >= 2) {
-      setTimeout(() => {
-        gameState.currentTarget.broken = true;
-        gameState.showTerminal = false;
-        gameState.attempts = 0;
-        gameState.inputError = false;
-
-        // --- 确保这里也进行了判断 ---
-        const processed = treasures.value.filter(t => t.collected || t.broken).length;
-        if (processed >= 10) gameState.finished = true;
-      }, 500);
+    // 判断是圣物还是怪物
+    if (gameState.currentTarget.relicName) {
+      gameState.currentTarget.collected = true;
+      inventory.value.push({ ...gameState.currentTarget });
+      gameState.count++;
     } else {
-      setTimeout(() => { gameState.inputError = false; }, 500);
+      gameState.currentTarget.defeated = true; // 打败怪物
     }
+    gameState.showTerminal = false;
+    userInput.value = "";
+    checkGameEnd();
+  } else {
+    // 失败扣氧气更狠，因为是“战斗”
+    gameState.ox -= 15;
+    gameState.inputError = true;
+    setTimeout(() => { gameState.inputError = false; }, 500);
   }
 };
 onMounted(() => {
   initTreasures();
+  initMonsters();
   window.addEventListener('keydown', (e) => {
     keys[e.code] = true;
     if (e.code === 'Space' && gameState.nearItem && !gameState.showTerminal) {
@@ -1112,23 +1193,28 @@ input.input-error-shake {
 .crouching .lily-dress-pixel {
   box-shadow: -8px 0px #2d6a4f, -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f, 12px 0px #2d6a4f;
 }
+
 /* 全局角色下蹲缩放 */
 #alice-sprite.crouching {
   transform-origin: bottom center;
   /* 这里的 scaleX 会和模板里的 scaleX 冲突，所以我们通过 scaleY 来实现 */
-  height: 50px !important; /* 强制压缩高度 */
+  height: 50px !important;
+  /* 强制压缩高度 */
 }
 
 /* 莉莉专属下蹲修正 */
 .crouching .lily-dress-pixel {
-  top: 10px; /* 下蹲时裙子位置微调 */
+  top: 10px;
+  /* 下蹲时裙子位置微调 */
   box-shadow:
     -8px 0px #2d6a4f, -4px 0px #2d6a4f, 0px 0px #2d6a4f, 4px 0px #2d6a4f, 8px 0px #2d6a4f, 12px 0px #2d6a4f;
 }
 
 .crouching .bubu-bunny-pixel {
-  top: 14px; /* 兔子也要跟着沉下去 */
+  top: 14px;
+  /* 兔子也要跟着沉下去 */
 }
+
 /* 移除之前 .crouching 里的 transform，改用这个来微调内部元素 */
 .crouching .lily-dress-pixel {
   /* 稍微调整阴影，让裙子看起来更“堆叠”在地上 */
@@ -1136,11 +1222,230 @@ input.input-error-shake {
 }
 
 .crouching .bubu-bunny-pixel {
-  transform: translateY(3px); /* 兔子稍微下移 */
+  transform: translateY(3px);
+  /* 兔子稍微下移 */
 }
 
 /* 走路动画在下蹲时减弱 */
 .walking.crouching {
-  animation-duration: 0.3s; /* 蹲着走比较慢，动画也变慢 */
+  animation-duration: 0.3s;
+  /* 蹲着走比较慢，动画也变慢 */
+}
+
+/* 针对祈愿圣杯的专属圣光特效 */
+.relic-visual-box[style*="#ffee00"] .relic-aura {
+  border: 2px solid #ffee00;
+  box-shadow: 0 0 25px #ffee00, inset 0 0 15px #ffffff;
+  animation: holy-grail-glow 2s infinite ease-in-out;
+}
+
+/* 增加圣杯底部的粒子上升感（模拟效果） */
+.relic-visual-box[style*="#ffee00"]::after {
+  content: "✨";
+  position: absolute;
+  font-size: 12px;
+  animation: sparkle-up 1.5s infinite;
+  opacity: 0;
+}
+
+@keyframes holy-grail-glow {
+  0% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.4;
+    box-shadow: 0 0 10px #ffee00;
+  }
+
+  50% {
+    transform: scale(1.4) rotate(180deg);
+    opacity: 0.8;
+    box-shadow: 0 0 40px #fff700, 0 0 60px rgba(255, 255, 255, 0.4);
+  }
+
+  100% {
+    transform: scale(0.8) rotate(360deg);
+    opacity: 0.4;
+    box-shadow: 0 0 10px #ffee00;
+  }
+}
+
+@keyframes sparkle-up {
+  0% {
+    transform: translateY(20px) scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.monster {
+  position: absolute;
+  bottom: 20%;
+  width: 50px;
+  height: 50px;
+  z-index: 400;
+  transition: opacity 0.3s;
+}
+
+.monster-visual {
+  position: relative;
+  font-size: 30px;
+  filter: drop-shadow(0 0 10px #ff00ff);
+  animation: monster-vibe 0.5s infinite alternate;
+}
+
+.monster-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ff4d4d;
+  font-size: 10px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2px 5px;
+}
+
+/* 怪物核心动画 */
+@keyframes monster-vibe {
+  from {
+    transform: scale(1) skewX(-5deg);
+  }
+
+  to {
+    transform: scale(1.1) skewX(5deg);
+  }
+}
+
+/* 战斗时的终端样式微调 */
+#terminal-overlay.is-battle {
+  background: rgba(40, 0, 0, 0.9);
+  /* 战斗时背景泛红 */
+  border: 2px solid #ff4d4d;
+}
+
+/* 怪物眼睛闪烁 */
+.monster-eye {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 4px;
+  height: 4px;
+  background: red;
+  box-shadow: 0 0 5px red;
+  z-index: 10;
+}
+
+/* 战斗模式下的红色预警 */
+.is-battle .terminal-card {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 30px rgba(255, 77, 77, 0.3);
+}
+
+.is-battle .relic-cn {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.battle-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.option-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #444;
+  color: #fff;
+  padding: 15px 20px;
+  font-size: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.option-btn:hover {
+  background: rgba(255, 77, 77, 0.2);
+  border-color: #ff4d4d;
+  transform: translateX(10px);
+}
+
+.option-index {
+  background: #ff4d4d;
+  color: #000;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 15px;
+  font-size: 14px;
+}
+
+/* 错误时的震动效果也复用到按钮上 */
+.input-error-shake .option-btn {
+  border-color: #ff4d4d;
+}
+
+/* 氧气受击闪红效果 */
+.ox-hurt-flash {
+  color: #ff4d4d !important;
+  text-shadow: 0 0 20px #ff4d4d !important;
+  transform: scale(1.1);
+  /* 稍微放大一点增加冲击感 */
+  transition: all 0.1s;
+}
+
+/* 增强战斗终端的受击反馈 */
+.is-battle.input-error-shake .terminal-card {
+  background: rgba(100, 0, 0, 0.4) !important;
+  /* 背景变红 */
+  border-color: #ff0000 !important;
+}
+/* HUD - 强化层级，确保在最顶层 */
+#hud {
+  position: absolute;
+  top: 15px;
+  width: 100%;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  
+  /* ======================================================== */
+  /* [核心修改] 极高层级，确保覆盖全屏弹窗 */
+  /* ======================================================== */
+  z-index: 9999; 
+  
+  box-sizing: border-box;
+  
+  /* 可选：增加一个淡淡的黑色背景或阴影，
+     当它覆盖在白色的“选项按钮”上时，保证清晰可读 */
+  background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+  padding-top: 10px;
+  padding-bottom: 20px;
+  pointer-events: none; /* 确保 HUD 区域不会阻挡下方的点击事件 */
+}
+
+/* 确保 HUD 内部的文字是可读的 */
+.hud-item {
+  pointer-events: auto; /* 让文字部分重新接收事件（如果需要点击） */
+}
+
+/* 之前添加的闪红效果继续保留 */
+.ox-hurt-flash {
+  color: #ff4d4d !important;
+  text-shadow: 0 0 20px #ff4d4d !important;
+  transform: scale(1.1);
+  transition: all 0.1s;
 }
 </style>

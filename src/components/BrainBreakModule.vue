@@ -10,6 +10,7 @@ import PianoGame from './games/Piano.vue'
 import ShootGame from './games/Shoot.vue'
 import CarCrashGame from './games/CarCrash.vue'
 import WordFighterGame from  './games/WordFighter.vue'
+import DrawGame from './games/Draw.vue'
 import { useGameStore } from '../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -44,7 +45,17 @@ const games = ref([
             goal: 20
         }
     },
-    { id: 'adventure of lisa', name: '涂鸦日记', path: '/games/fill.html', icon: '🖌️', color: '#95a5a6' },
+      {
+        id: 'draw',
+        name: '涂鸦日记',
+        isVue: true, // 关键：标识这是一个 Vue 组件
+        icon: '🖌️',
+        color: '#95a5a6',
+        config: {
+            wordList: [],// 初始空，等后端注入
+            goal: 20
+        }
+    },
     {
         id: 'guzheng',
         name: '拨词',
@@ -276,6 +287,18 @@ const saveGameConfig = () => {
                                 })" />
                                 <WordFighterGame 
                                     v-if="activeGame.id === 'word-fighter'" 
+                                    :wordList="activeGame.config.wordList"
+                                    :key="props.student.id" 
+                                    :goal="activeGame.config.goal" 
+                                    :canEdit="canEdit" 
+                                    @updateConfig="(newWords) => $emit('saveConfig', {
+                                        studentId: props.student.id,
+                                        wordList: newWords,
+                                        goal: activeGame.config.goal
+                                    })" 
+                                />
+                                <DrawGame 
+                                    v-if="activeGame.id === 'draw'" 
                                     :wordList="activeGame.config.wordList"
                                     :key="props.student.id" 
                                     :goal="activeGame.config.goal" 

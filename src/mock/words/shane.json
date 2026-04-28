@@ -7,14 +7,14 @@
     "ps": "bɪˈkəz"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Health is very important.",
     "cn": "重要的",
     "en": "important",
     "ps": "ɪmˈpɔːrtnt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We must protect the environment.",
     "cn": "环境",
     "en": "environment",
@@ -70,112 +70,112 @@
     "ps": "ˈsʌndeɪ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "It is a sunny day.",
     "cn": "天",
     "en": "day",
     "ps": "deɪ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I have a new bike.",
     "cn": "新的",
     "en": "new",
     "ps": "nuː"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The nurse is very kind.",
     "cn": "护士",
     "en": "nurse",
     "ps": "nɜːrs"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He is a famous author.",
     "cn": "作者",
     "en": "author",
     "ps": "ˈɔːθər"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I want some water.",
     "cn": "想要",
     "en": "want",
     "ps": "wɑːnt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I want to learn English.",
     "cn": "学习",
     "en": "learn",
     "ps": "lɜːrn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I like to swim in summer.",
     "cn": "游泳",
     "en": "swim",
     "ps": "swɪm"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I go to school by bicycle.",
     "cn": "自行车",
     "en": "bicycle",
     "ps": "ˈbaɪsɪkl"
   },
   {
-    "m": false,
+    "m": true,
     "s": "You are my best friend.",
     "cn": "最好的",
     "en": "best",
     "ps": "best"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The box is very heavy.",
     "cn": "重的",
     "en": "heavy",
     "ps": "ˈhevi"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He is excited about the trip.",
     "cn": "兴奋的",
     "en": "excited",
     "ps": "ɪkˈsaɪtɪd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "What are your weekend plans?",
     "cn": "周末",
     "en": "weekend",
     "ps": "ˈwiːkend"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The book is on the table.",
     "cn": "桌子",
     "en": "table",
     "ps": "ˈteɪbl"
   },
   {
-    "m": false,
+    "m": true,
     "s": "There is no space in the car.",
     "cn": "空间",
     "en": "space",
     "ps": "speɪs"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The frog is green.",
     "cn": "青蛙",
     "en": "frog",
     "ps": "frɔːɡ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I enjoy cooking for my family.",
     "cn": "烹饪",
     "en": "cooking",
@@ -189,24 +189,479 @@
     "ps": "lɪft"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I have enough time.",
     "cn": "足够的",
     "en": "enough",
     "ps": "ɪˈnʌf"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The room is big enough for us.",
     "cn": "足够大",
     "en": "big enough",
     "ps": "bɪɡ ɪˈnʌf"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I enjoy doing sports.",
     "cn": "喜欢做某事",
     "en": "enjoy doing",
     "ps": "ɪnˈdʒɔɪ ˈduːɪŋ"
+  },
+  {
+    "m": true,
+    "s": "An ant is crawling on the leaf.",
+    "cn": "蚂蚁",
+    "en": "ant",
+    "ps": "ænt"
+  },
+  {
+    "m": true,
+    "s": "I put my books on the desk.",
+    "cn": "书桌",
+    "en": "desk",
+    "ps": "desk"
+  },
+  {
+    "m": true,
+    "s": "He stayed at home because he was ill.",
+    "cn": "生病的",
+    "en": "ill",
+    "ps": "ɪl"
+  },
+  {
+    "m": true,
+    "s": "A whale is a very large sea animal.",
+    "cn": "鲸",
+    "en": "whale",
+    "ps": "weɪl"
+  },
+  {
+    "m": true,
+    "s": "This is their house.",
+    "cn": "他们的",
+    "en": "their",
+    "ps": "ðer"
+  },
+  {
+    "m": true,
+    "s": "She won the swimming competition.",
+    "cn": "竞赛",
+    "en": "competition",
+    "ps": "ˌkɑːmpəˈtɪʃn"
+  },
+  {
+    "m": true,
+    "s": "Can I ask you a question?",
+    "cn": "询问",
+    "en": "ask",
+    "ps": "æsk"
+  },
+  {
+    "m": true,
+    "s": "Our teacher is very strict with us.",
+    "cn": "严格的",
+    "en": "strict",
+    "ps": "strɪkt"
+  },
+  {
+    "m": true,
+    "s": "Please put the vase on the table.",
+    "cn": "放",
+    "en": "put",
+    "ps": "pʊt"
+  },
+  {
+    "m": true,
+    "s": "The cat is getting fat.",
+    "cn": "胖的",
+    "en": "fat",
+    "ps": "fæt"
+  },
+  {
+    "m": true,
+    "s": "I think you are right.",
+    "cn": "认为",
+    "en": "think",
+    "ps": "θɪŋk"
+  },
+  {
+    "m": false,
+    "s": "What is the weather like today?",
+    "cn": "天气",
+    "en": "weather",
+    "ps": "ˈweðər"
+  },
+  {
+    "m": true,
+    "s": "Go and wash your hands in the bathroom.",
+    "cn": "浴室",
+    "en": "bathroom",
+    "ps": "ˈbæθruːm"
+  },
+  {
+    "m": true,
+    "s": "The swan is swimming on the lake.",
+    "cn": "天鹅",
+    "en": "swan",
+    "ps": "swɑːn"
+  },
+  {
+    "m": true,
+    "s": "My mother is cooking in the kitchen.",
+    "cn": "厨房",
+    "en": "kitchen",
+    "ps": "ˈkɪtʃɪn"
+  },
+  {
+    "m": false,
+    "s": "I am busy right now.",
+    "cn": "现在",
+    "en": "now",
+    "ps": "naʊ"
+  },
+  {
+    "m": false,
+    "s": "I wish you a happy birthday.",
+    "cn": "希望",
+    "en": "wish",
+    "ps": "wɪʃ"
+  },
+  {
+    "m": true,
+    "s": "The map was very helpful.",
+    "cn": "有帮助的",
+    "en": "helpful",
+    "ps": "ˈhelpfl"
+  },
+  {
+    "m": true,
+    "s": "I have two sisters.",
+    "cn": "有",
+    "en": "have",
+    "ps": "hæv"
+  },
+  {
+    "m": true,
+    "s": "You must finish your homework.",
+    "cn": "必须",
+    "en": "must",
+    "ps": "mʌst"
+  },
+  {
+    "m": true,
+    "s": "I love to travel during summer.",
+    "cn": "旅行",
+    "en": "travel",
+    "ps": "ˈtrævl"
+  },
+  {
+    "m": true,
+    "s": "The cat is under the chair.",
+    "cn": "在……下面",
+    "en": "under",
+    "ps": "ˈʌndər"
+  },
+  {
+    "m": true,
+    "s": "The window is made of glass.",
+    "cn": "玻璃",
+    "en": "glass",
+    "ps": "ɡlæs"
+  },
+  {
+    "m": false,
+    "s": "Paris is a famous city.",
+    "cn": "著名的",
+    "en": "famous",
+    "ps": "ˈfeɪməs"
+  },
+  {
+    "m": true,
+    "s": "I like to draw pictures.",
+    "cn": "画",
+    "en": "draw",
+    "ps": "drɔː"
+  },
+  {
+    "m": true,
+    "s": "Those flowers are very beautiful.",
+    "cn": "那些",
+    "en": "those",
+    "ps": "ðoʊz"
+  },
+  {
+    "m": true,
+    "s": "Where is the toilet?",
+    "cn": "厕所",
+    "en": "toilet",
+    "ps": "ˈtɔɪlət"
+  },
+  {
+    "m": false,
+    "s": "They live on a big farm.",
+    "cn": "农场",
+    "en": "farm",
+    "ps": "fɑːrm"
+  },
+  {
+    "m": true,
+    "s": "Put the soup in the bowl.",
+    "cn": "碗",
+    "en": "bowl",
+    "ps": "boʊl"
+  },
+  {
+    "m": true,
+    "s": "Who is the next person?",
+    "cn": "下一个",
+    "en": "next",
+    "ps": "nekst"
+  },
+  {
+    "m": true,
+    "s": "The water bottle is empty.",
+    "cn": "瓶子",
+    "en": "bottle",
+    "ps": "ˈbɑːtl"
+  },
+  {
+    "m": true,
+    "s": "The bird is flying high.",
+    "cn": "高的",
+    "en": "high",
+    "ps": "haɪ"
+  },
+  {
+    "m": true,
+    "s": "I miss my hometown very much.",
+    "cn": "家乡",
+    "en": "hometown",
+    "ps": "ˈhoʊmtaʊn"
+  },
+  {
+    "m": true,
+    "s": "It is a cloudy day today.",
+    "cn": "多云的",
+    "en": "cloudy",
+    "ps": "ˈklaʊdi"
+  },
+  {
+    "m": true,
+    "s": "She is a very kind woman.",
+    "cn": "友好的",
+    "en": "kind",
+    "ps": "kaɪnd"
+  },
+  {
+    "m": false,
+    "s": "How much money do you spend on books each month?",
+    "cn": "花（时间、钱等）",
+    "en": "spend",
+    "ps": "spend"
+  },
+  {
+    "m": false,
+    "s": "I have a lot of work to do today.",
+    "cn": "大量；许多",
+    "en": "a lot of / lots of",
+    "ps": "ə lɒt əv"
+  },
+  {
+    "m": false,
+    "s": "The cake tastes really good.",
+    "cn": "非常；确实；真正地",
+    "en": "really",
+    "ps": "ˈrɪəli"
+  },
+  {
+    "m": false,
+    "s": "He is a member of the school swimming club.",
+    "cn": "成员；会员",
+    "en": "member",
+    "ps": "ˈmembə(r)"
+  },
+  {
+    "m": false,
+    "s": "My father likes to play chess in his free time.",
+    "cn": "国际象棋",
+    "en": "chess",
+    "ps": "tʃes"
+  },
+  {
+    "m": false,
+    "s": "The clown in the circus is very funny.",
+    "cn": "好笑的；奇怪的",
+    "en": "funny",
+    "ps": "ˈfʌni"
+  },
+  {
+    "m": false,
+    "s": "The joke made everyone laugh loudly.",
+    "cn": "笑；发笑",
+    "en": "laugh",
+    "ps": "lɑːf"
+  },
+  {
+    "m": false,
+    "s": "My sister and I go to different schools.",
+    "cn": "不同的",
+    "en": "different",
+    "ps": "ˈdɪfrənt"
+  },
+  {
+    "m": false,
+    "s": "Don't forget to wear your hat in the sun.",
+    "cn": "帽子",
+    "en": "hat",
+    "ps": "hæt"
+  },
+  {
+    "m": false,
+    "s": "The actor looks very handsome in the movie.",
+    "cn": "英俊的",
+    "en": "handsome",
+    "ps": "ˈhænsəm"
+  },
+  {
+    "m": false,
+    "s": "We should meet in the school hall.",
+    "cn": "礼堂；大厅",
+    "en": "hall",
+    "ps": "hɔːl"
+  },
+  {
+    "m": false,
+    "s": "That tall building is a new library.",
+    "cn": "建筑物；房子",
+    "en": "building",
+    "ps": "ˈbɪldɪŋ"
+  },
+  {
+    "m": false,
+    "s": "The bank is just across the street.",
+    "cn": "在……对面；横过",
+    "en": "across",
+    "ps": "əˈkrɒs"
+  },
+  {
+    "m": false,
+    "s": "There is a big fountain in the city centre.",
+    "cn": "中心；中央",
+    "en": "centre",
+    "ps": "ˈsentə(r)"
+  },
+  {
+    "m": false,
+    "s": "We have PE lessons in the gym.",
+    "cn": "体育馆；健身房",
+    "en": "gym",
+    "ps": "dʒɪm"
+  },
+  {
+    "m": false,
+    "s": "The soccer players are training on the field.",
+    "cn": "场地；田地",
+    "en": "field",
+    "ps": "fiːld"
+  },
+  {
+    "m": false,
+    "s": "My mother works in a busy office.",
+    "cn": "办公室",
+    "en": "office",
+    "ps": "ˈɒfɪs"
+  },
+  {
+    "m": false,
+    "s": "Elephant is a very large animal.",
+    "cn": "大的；大号的",
+    "en": "large",
+    "ps": "lɑːdʒ"
+  },
+  {
+    "m": false,
+    "s": "Today is a special day for our family.",
+    "cn": "特别的；特殊的",
+    "en": "special",
+    "ps": "ˈspeʃl"
+  },
+  {
+    "m": false,
+    "s": "The smart boy solved the problem quickly.",
+    "cn": "智能的；聪明的",
+    "en": "smart",
+    "ps": "smɑːt"
+  },
+  {
+    "m": false,
+    "s": "It is important to eat a healthy breakfast.",
+    "cn": "重要的",
+    "en": "important",
+    "ps": "ɪmˈpɔːtnt"
+  },
+  {
+    "m": false,
+    "s": "I didn't notice the sign at the entrance.",
+    "cn": "通知；注意；意识到",
+    "en": "notice",
+    "ps": "ˈnəʊtɪs"
+  },
+  {
+    "m": false,
+    "s": "The shop is located on the corner of the street.",
+    "cn": "角；墙角；街角",
+    "en": "corner",
+    "ps": "ˈkɔːnə(r)"
+  },
+  {
+    "m": false,
+    "s": "The computer screen is too bright.",
+    "cn": "屏幕；银幕",
+    "en": "screen",
+    "ps": "skriːn"
+  },
+  {
+    "m": false,
+    "s": "The national flag is flying in the wind.",
+    "cn": "旗；旗帜",
+    "en": "flag",
+    "ps": "flæɡ"
+  },
+  {
+    "m": false,
+    "s": "I find history to be a fascinating subject.",
+    "cn": "历史；历史课",
+    "en": "history",
+    "ps": "ˈhɪstri"
+  },
+  {
+    "m": false,
+    "s": "The movie was so boring that I fell asleep.",
+    "cn": "乏味的；令人厌烦的",
+    "en": "boring",
+    "ps": "ˈbɔːrɪŋ"
+  },
+  {
+    "m": false,
+    "s": "The dictionary is very useful for my study.",
+    "cn": "有用的；有益的",
+    "en": "useful",
+    "ps": "ˈjuːsfl"
+  },
+  {
+    "m": false,
+    "s": "The football match was very exciting.",
+    "cn": "令人激动的；使人兴奋的",
+    "en": "exciting",
+    "ps": "ɪkˈsaɪtɪŋ"
+  },
+  {
+    "m": false,
+    "s": "In the past, people traveled by horse.",
+    "cn": "过去；在……之后",
+    "en": "past",
+    "ps": "pɑːst"
   }
 ]
