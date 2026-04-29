@@ -32,11 +32,9 @@ const viewMode = ref('welcome')    // welcome | list | edit | reading
 const isLoading = ref(false)
 const isFullScreen = ref(false)
 const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
-const activeBlank = ref(null)      // 当前正在练习的完形填空对象
 const blankViewMode = ref('list') // list | edit | exercise
 const editingBlank = ref(null)    // 正在编辑的完形填空对象
 const studentQuizzes = ref([])
-const studentGameScores = ref([])
 
 // 答题状态记录
 const userSelections = ref([])
@@ -136,7 +134,7 @@ const fetchBlankQuizzes = async (studentId) => {
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
-  
+
   if (error) {
     console.error("获取完形填空失败:", error)
   } else {
@@ -357,15 +355,15 @@ const saveClozeQuiz = async (clozeData) => {
     }
 
     if (res.error) throw res.error
-    
+
     alert("✅ 短文填空保存成功")
-    
+
     // 刷新列表数据
     await fetchClozeQuizzes(currentStudent.value.id)
-    
+
     // 建议：如果是新增成功，可以在这里关闭编辑模式
     // isAdding.value = false 
-    
+
   } catch (e) {
     console.error("Save Error:", e)
     alert("保存失败：" + e.message)
@@ -397,22 +395,12 @@ const deleteQuiz = async (id) => {
   }
 }
 
-const handleCreateBlank = () => {
-  editingBlank.value = {
-    title: '',
-    body: '',
-    body_cn: '',
-    quiz: []
-  }
-  blankViewMode.value = 'edit'
-}
-
 // 必须：处理用户按 Esc 键退出的情况，保证变量同步
 onMounted(() => {
-    fetchStudents() // 你原有的代码
-    document.addEventListener('fullscreenchange', () => {
-        isFullScreen.value = !!document.fullscreenElement
-    })
+  fetchStudents() // 你原有的代码
+  document.addEventListener('fullscreenchange', () => {
+    isFullScreen.value = !!document.fullscreenElement
+  })
 })
 
 // 4. 阅读模式关键函数
@@ -525,32 +513,28 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
   }
 }
 const toggleFullScreen = () => {
-    // 逻辑：如果当前不是全屏状态，就请求全屏
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => {
-            isFullScreen.value = true
-        }).catch(err => {
-            console.error(`全屏启动失败: ${err.message}`)
-        })
-    } else {
-        // 如果已经是全屏，就退出
-        document.exitFullscreen()
-        isFullScreen.value = false
-    }
+  // 逻辑：如果当前不是全屏状态，就请求全屏
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      isFullScreen.value = true
+    }).catch(err => {
+      console.error(`全屏启动失败: ${err.message}`)
+    })
+  } else {
+    // 如果已经是全屏，就退出
+    document.exitFullscreen()
+    isFullScreen.value = false
+  }
 }
 
 </script>
 
 <template>
   <div :class="['app-shell', isAdminMode ? 'admin-theme' : 'student-theme']">
-<div 
-  class="nav-stealth-trigger" 
-  :class="{ 'is-folded': !isNavVisible }"
-  @click="isNavVisible = !isNavVisible"
->
-  <div class="trigger-indicator"></div>
-</div>
-<Transition name="slide-nav">
+    <div class="nav-stealth-trigger" :class="{ 'is-folded': !isNavVisible }" @click="isNavVisible = !isNavVisible">
+      <div class="trigger-indicator"></div>
+    </div>
+    <Transition name="slide-nav">
       <header v-if="isNavVisible" class="top-nav">
         <div class="nav-brand">
           <span class="brand-icon">⚡</span>
@@ -567,8 +551,8 @@ const toggleFullScreen = () => {
             阅读训练</button>
           <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
             短文填空</button>
-         <button :class="['module-tab', { active: activeModule === 'blank' }]"
-            @click="activeModule = 'blank'">🖋️ 完形填空</button>
+          <button :class="['module-tab', { active: activeModule === 'blank' }]" @click="activeModule = 'blank'">🖋️
+            完形填空</button>
           <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
         </nav>
@@ -620,12 +604,8 @@ const toggleFullScreen = () => {
         </template>
 
         <template v-else-if="activeModule === 'cloze'">
-          <ClozeModule 
-            :student="currentStudent" 
-            :quizzes="studentClozeQuizzes" 
-            :canEdit="isAdminMode"
-            :isFullScreen="isFullScreen" @save="saveClozeQuiz" 
-            @delete="deleteClozeQuiz" 
+          <ClozeModule :student="currentStudent" :quizzes="studentClozeQuizzes" :canEdit="isAdminMode"
+            :isFullScreen="isFullScreen" @save="saveClozeQuiz" @delete="deleteClozeQuiz"
             @toggleFull="toggleFullScreen" />
         </template>
 
@@ -634,21 +614,27 @@ const toggleFullScreen = () => {
             @save="saveVocabTest" />
         </template>
         <template v-else-if="activeModule === 'words'">
-          <VocabularyModule :key="currentStudent.id" :student="currentStudent"
-            :initialWords="currentWordList" @update-progress="handleUpdateWordProgress" />
+          <VocabularyModule :key="currentStudent.id" :student="currentStudent" :initialWords="currentWordList"
+            @update-progress="handleUpdateWordProgress" />
         </template>
         <template v-else-if="activeModule === 'blank'">
-         <BlankModule 
-            v-if="!isLoading"
-            :student="currentStudent" 
-            :quizzes="studentBlankQuizzes || []" 
-            :canEdit="isAdminMode"          
-            :isFullScreen="isFullScreen"
-            @save="saveBlankQuiz"            
-            @delete="handleDeleteBlank"      
-            @toggleFull="toggleFullScreen"
-          />
-  <div v-else class="loading-placeholder">加载中...</div>
+          <Transition name="module-fade" mode="out-in">
+            <div v-if="!isLoading" :key="'content-' + currentStudent.id" class="module-content-wrapper">
+              <BlankModule :student="currentStudent" :quizzes="studentBlankQuizzes || []" :canEdit="isAdminMode"
+                :isFullScreen="isFullScreen" @save="saveBlankQuiz" @delete="handleDeleteBlank"
+                @toggleFull="toggleFullScreen" />
+            </div>
+
+            <div v-else :key="'loading-' + currentStudent.id" class="loading-state">
+              <div class="loader-visual">
+                <div class="spinner-ring"></div>
+                <div class="spinner-core"></div>
+              </div>
+              <div class="loading-text">
+                <span>l</span><span>o</span><span>a</span><span>d</span><span>i</span><span>n</span><span>g</span>
+              </div>
+            </div>
+          </Transition>
         </template>
         <template v-else>
           <div class="placeholder">
@@ -1007,13 +993,15 @@ body {
   transform: scale(1.02);
   /* 微微放大 */
 }
+
 /* --- 极致隐蔽的感应式触发器 --- */
 .nav-stealth-trigger {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 8px; /* 顶部感应高度 */
+  height: 8px;
+  /* 顶部感应高度 */
   z-index: 1001;
   cursor: pointer;
   display: flex;
@@ -1027,7 +1015,8 @@ body {
   height: 3px;
   background: var(--primary);
   border-radius: 0 0 4px 4px;
-  opacity: 0; /* 平时完全隐藏 */
+  opacity: 0;
+  /* 平时完全隐藏 */
   transition: all 0.3s;
   transform: translateY(-2px);
 }
@@ -1055,7 +1044,8 @@ body {
 /* 顶栏动画保持一致 */
 .slide-nav-enter-active,
 .slide-nav-leave-active {
-  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* 增加一点点弹性感 */
+  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  /* 增加一点点弹性感 */
 }
 
 .slide-nav-enter-from,
@@ -1065,5 +1055,133 @@ body {
 
 .main-body {
   transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 模块整体过渡动画 */
+.module-fade-enter-active,
+.module-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.module-fade-enter-from,
+.module-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.module-content-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+/* 高级感加载容器 */
+.loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: transparent;
+}
+
+/* 双环动画 */
+.loader-visual {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin-bottom: 20px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-core {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* 逐字跳动动画 */
+.loading-text {
+  display: flex;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 2px;
+}
+
+.loading-text span {
+  animation: letter-jump 1.2s infinite;
+}
+
+.loading-text span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.loading-text span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.loading-text span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.loading-text span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.loading-text span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+.loading-text span:nth-child(7) {
+  animation-delay: 0.6s;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+}
+
+@keyframes letter-jump {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 </style>

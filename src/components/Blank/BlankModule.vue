@@ -125,7 +125,9 @@ const scrollToQuestion = (idx) => {
                 </div>
 
                 <div v-if="quizzes.length === 0" class="empty-list-tip">
-                  <p>书架空空的</p>
+                    <div class="empty-icon">✍🏻</div>
+                    <p>题库空空的</p>
+                    <p class="sub-tip">{{ canEdit ? '点击上方按钮开始录入' : '等老师为你布置内容哦' }}</p>
                 </div>
               </div>
             </div>
@@ -712,4 +714,11 @@ const scrollToQuestion = (idx) => {
 }
 .is-ok { color: #22c55e; }
 .is-no { color: #ef4444; }
+/* 空状态 */
+.empty-list-tip {
+  text-align: center; 
+  margin-top: 60px;
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.sub-tip { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 </style>

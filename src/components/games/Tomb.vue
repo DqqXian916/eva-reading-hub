@@ -160,7 +160,9 @@
               <div class="alice-credit">摸金校尉成功将珍宝带回现代</div>
             </div>
           </div>
-          <button class="retry-btn-fancy" @click="resetGame">再次进入地宫</button>
+          <div class="finish-actions">
+            <button class="retry-btn-fancy" @click="resetGame">再次进入地宫</button>
+          </div>
         </div>
       </div>
             <div v-if="gameState.active && !gameState.finished" id="hud">
@@ -177,7 +179,7 @@
 <script setup>
 import { ref, reactive, nextTick, onMounted } from 'vue';
 
-const props = defineProps({ wordList: { type: Array, default: () => [] } });
+const props = defineProps({ wordList: { type: Array, default: () => [] } })
 const treasures = ref([]);
 const inventory = ref([]);
 const userInput = ref("");
@@ -346,11 +348,42 @@ const updateMonsters = () => {
   });
 };
 const startGame = () => { gameState.active = true; requestAnimationFrame(gameLoop); };
-const resetGame = () => location.reload();
+const resetGame = () => {
+  // 获取当前角色的原始模板数据
+  const stats = gameState.roleStats[gameState.currentRole];
+  // 1. 基础状态重置
+  gameState.px = 400;
+  gameState.py = 0;
+  gameState.vy = 0;
+  gameState.wx = 0;
+  gameState.ox = 100; // 恢复满氧气
+  gameState.count = 0;
+  // 2. 核心：确保角色的特殊属性被正确应用
+  // 实际上在你的 gameLoop 里已经是动态读取 stats 的，
+  // 但为了保险，我们要确保所有流程控制位都归位
+  gameState.active = true;
+  gameState.finished = false;
+  gameState.showTerminal = false;
+  gameState.isBattle = false;
+  gameState.oxHurt = false; // 记得重置闪红状态
+
+  // 3. 数据清空与地图刷新
+  inventory.value = [];
+  initTreasures(); 
+  initMonsters(); 
+  
+  // 4. 重启游戏循环
+  requestAnimationFrame(gameLoop);
+};
+const backToMenu = () => {
+  gameState.roleSelected = false; // 回到选人界面
+  gameState.active = false;
+  gameState.finished = false;
+};
 
 const gameLoop = () => {
-  updateMonsters();
   if (!gameState.active || gameState.finished) return;
+  updateMonsters();
   const stats = gameState.roleStats[gameState.currentRole];
   // 下蹲检测
   gameState.isCrouching = (keys['KeyS'] || keys['ArrowDown']) && !gameState.isJumping;
@@ -360,7 +393,6 @@ const gameLoop = () => {
   if (!gameState.showTerminal) {
     if (keys['KeyD'] || keys['ArrowRight']) { gameState.px += stats.speed; gameState.facingLeft = false; }
     if (keys['KeyA'] || keys['ArrowLeft']) { gameState.px -= stats.speed; gameState.facingLeft = true; }
-
     // --- 跳跃控制 (按下 W 或 上箭头，且不在空中) ---
     if ((keys['KeyW'] || keys['ArrowUp']) && !gameState.isJumping) {
       gameState.vy = stats.jumpPower;
@@ -1447,5 +1479,25 @@ input.input-error-shake {
   text-shadow: 0 0 20px #ff4d4d !important;
   transform: scale(1.1);
   transition: all 0.1s;
+}
+.finish-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.back-to-menu-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #666;
+  color: #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.back-to-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 </style>

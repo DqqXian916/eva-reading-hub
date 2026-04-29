@@ -754,5 +754,180 @@
     "cn": "城镇",
     "en": "town",
     "ps": "taʊn"
+  },
+  {
+    "m": true,
+    "s": "I have enough time to finish my homework.",
+    "cn": "足够的",
+    "en": "enough",
+    "ps": "ɪˈnʌf"
+  },
+  {
+    "m": true,
+    "s": "The blue whale is the largest mammal in the world.",
+    "cn": "哺乳动物",
+    "en": "mammal",
+    "ps": "ˈmæml"
+  },
+  {
+    "m": true,
+    "s": "Please knock before you enter the room.",
+    "cn": "进入",
+    "en": "enter",
+    "ps": "ˈentər"
+  },
+  {
+    "m": true,
+    "s": "Wash your hands before dinner.",
+    "cn": "在...之前",
+    "en": "before",
+    "ps": "bɪˈfɔːr"
+  },
+  {
+    "m": true,
+    "s": "What is the date today?",
+    "cn": "日期",
+    "en": "date",
+    "ps": "deɪt"
+  },
+  {
+    "m": true,
+    "s": "He likes to climb trees in the park.",
+    "cn": "爬",
+    "en": "climb",
+    "ps": "klaɪm"
+  },
+  {
+    "m": true,
+    "s": "There is a clock on the wall.",
+    "cn": "墙",
+    "en": "wall",
+    "ps": "wɔːl"
+  },
+  {
+    "m": true,
+    "s": "There is no more space in the box.",
+    "cn": "空间",
+    "en": "space",
+    "ps": "speɪs"
+  },
+  {
+    "m": true,
+    "s": "The elephant has very big ears.",
+    "cn": "耳朵",
+    "en": "ear",
+    "ps": "ɪr"
+  },
+  {
+    "m": true,
+    "s": "How much does this book cost?",
+    "cn": "很多",
+    "en": "much",
+    "ps": "mʌtʃ"
+  },
+  {
+    "m": true,
+    "s": "A whale can swim very fast in the ocean.",
+    "cn": "鲸",
+    "en": "whale",
+    "ps": "weɪl"
+  },
+  {
+    "m": true,
+    "s": "I heard a knock at the door.",
+    "cn": "敲",
+    "en": "knock",
+    "ps": "nɑːk"
+  },
+  {
+    "m": true,
+    "s": "We crossed the river by ferry.",
+    "cn": "轮渡",
+    "en": "ferry",
+    "ps": "ˈferi"
+  },
+  {
+    "m": true,
+    "s": "Do you still live in the same house?",
+    "cn": "仍然",
+    "en": "still",
+    "ps": "stɪl"
+  },
+  {
+    "m": true,
+    "s": "The poor boy looks very sick today.",
+    "cn": "生病的",
+    "en": "sick",
+    "ps": "sɪk"
+  },
+  {
+    "m": true,
+    "s": "The sun light cannot reach the forest floor.",
+    "cn": "森林",
+    "en": "forest",
+    "ps": "ˈfɔːrɪst"
+  },
+  {
+    "m": true,
+    "s": "Each student must bring their own pen.",
+    "cn": "每个",
+    "en": "each",
+    "ps": "iːtʃ"
+  },
+  {
+    "m": true,
+    "s": "My mother was worried about my health.",
+    "cn": "担心的",
+    "en": "worried",
+    "ps": "ˈwɜːrid"
+  },
+  {
+    "m": true,
+    "s": "You are so lucky to win the prize.",
+    "cn": "幸运的",
+    "en": "lucky",
+    "ps": "ˈlʌki"
+  },
+  {
+    "m": true,
+    "s": "They greet each other with a smile.",
+    "cn": "问候",
+    "en": "greet",
+    "ps": "ɡriːt"
+  },
+  {
+    "m": true,
+    "s": "She gave birth to twin boys.",
+    "cn": "双胞胎",
+    "en": "twin",
+    "ps": "twɪn"
+  },
+  {
+    "m": true,
+    "s": "How dare you speak to me like that!",
+    "cn": "敢于",
+    "en": "dare",
+    "ps": "der"
+  },
+  {
+    "m": true,
+    "s": "It is my duty to look after my little sister.",
+    "cn": "责任",
+    "en": "duty",
+    "ps": "ˈduːti"
+  },
+  {
+    "m": true,
+    "s": "I went to bed at my usual time.",
+    "cn": "通常的",
+    "en": "usual",
+    "ps": "ˈjuːʒuəl"
+  },
+  {
+    "m": true,
+    "s": "This is the best meal I have ever had.",
+    "cn": "曾经",
+    "en": "ever",
+    "ps": "ˈevər"
   }
 ]
