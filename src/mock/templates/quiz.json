@@ -1,0 +1,9 @@
+
+ [{
+    "question": "The capital of France is ______.",
+    "options": ["London", "Berlin", "Paris", "Rome"],
+    "answer_index": 2,
+    "category": "词汇",
+    "explanation": "Paris is the capital and largest city of France."
+  }
+]

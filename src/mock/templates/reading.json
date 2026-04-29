@@ -1,0 +1,72 @@
+[
+  {
+    "q": "How does Tim feel at the beginning of the story?",
+    "answer": 1,
+    "options": [
+      "A. Happy.",
+      "B. Worried.",
+      "C. Angry."
+    ],
+    "analysis": [
+      "❌ 错误。文中提到 Tim 觉得自己没有天赋，心情很低落，不可能感到开心。",
+      "✅ 正确。文章第一段明确提到 'Tim is worried. He doesn't have a gift like other kids.' 说明他因没有天赋而担忧。",
+      "❌ 错误。文中描述 Tim 感到 poor（可怜）并开始 cry（哭），这更多是伤心和担忧，而不是愤怒。"
+    ]
+  },
+  {
+    "q": "What can Sam do for the talent show?",
+    "answer": 2,
+    "options": [
+      "A. He can dance.",
+      "B. He can act.",
+      "C. He can do magic."
+    ],
+    "analysis": [
+      "❌ 干扰项。Lily 才是那个会跳舞（dancer）的人。",
+      "❌ 错误。文中提到 Lily 可以 act and dance，并没有说 Sam 会表演。",
+      "✅ 正确。文中第一段提到 'Sam is great at magic'，并且他能让帽子里变出鸭子。"
+    ]
+  },
+  {
+    "q": "What is Tim's real \"talent\" according to the letter?",
+    "answer": 0,
+    "options": [
+      "A. Writing stories.",
+      "B. Shaking a duck.",
+      "C. Singing songs."
+    ],
+    "analysis": [
+      "✅ 正确。老师给 Tim 的信里写道：'You have a great talent for writing stories.'",
+      "❌ 逻辑错误。文中提到 Sam 能变出鸭子，并没有说 Tim 会摇晃鸭子。",
+      "❌ 无中生有。全文并未提到 Tim 或其他孩子表演唱歌（singing）。"
+    ]
+  },
+  {
+    "q": "Tim wins the ______ prize after he practises every day and performs on stage.",
+    "answer": 2,
+    "options": [
+      "A. worst",
+      "B. second",
+      "C. best"
+    ],
+    "analysis": [
+      "❌ 词义错误。'worst' 是最差的意思，与文中 Tim 成功的情节不符。",
+      "❌ 无中生有。文中没有提到“第二名（second）”这个细节。",
+      "✅ 正确。文中最后一段提到 'He wins the best prize.'，意为他获得了最好的奖项（一等奖）。"
+    ]
+  },
+  {
+    "q": "In the end, Tim learns that ______ trying your best is enough.",
+    "answer": 1,
+    "options": [
+      "A. never",
+      "B. just",
+      "C. seldom"
+    ],
+    "analysis": [
+      "❌ 逻辑错误。'never'（从不）会使句子意思变成“从不努力就够了”，不符合文章积极的宗旨。",
+      "✅ 正确。文章结尾总结道 'just trying your best is enough'，意为“仅仅是尽力而为就足够了”。",
+      "❌ 词义错误。'seldom'（很少）表示否定频率，不符合语境。"
+    ]
+  }
+]

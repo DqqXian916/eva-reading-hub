@@ -7,7 +7,7 @@ import Sidebar from './components/Sidebar.vue'
 import ReadingList from './components/ReadingList.vue'
 import EditForm from './components/EditForm.vue'
 import ReadingWorkspace from './components/ReadingWorkspace.vue'
-import QuizModule from './components/QuizModule.vue'
+import QuizModule from './components/Quiz/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
 import BlankModule from './components//Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
@@ -298,8 +298,8 @@ const fetchQuizzes = async (studentId) => {
   studentQuizzes.value = data || []
 }
 
-// 3. 题目存取逻辑
-const saveQuiz = async (quizData) => {
+// 3. 单选题存取逻辑
+const handleSaveQuiz = async (quizData) => {
   try {
     let res;
     // 整理要保存的数据
@@ -310,7 +310,6 @@ const saveQuiz = async (quizData) => {
       category: quizData.category,
       explanation: quizData.explanation
     }
-
     if (quizData.id) {
       // 修改模式
       res = await supabase.from('quizzes').update(payload).eq('id', quizData.id)
@@ -321,12 +320,34 @@ const saveQuiz = async (quizData) => {
         student_id: currentStudent.value.id
       }])
     }
-
     if (res.error) throw res.error
     alert(quizData.id ? "✅ 修改成功" : "🚀 发布成功")
     await fetchQuizzes(currentStudent.value.id)
   } catch (e) {
     alert(e.message)
+  }
+}
+
+// 父组件新增批量保存逻辑
+const handleBatchSaveQuizzes = async (quizzesArray) => {
+  try {
+    // 1. 给每道题补充 student_id
+    const finalData = quizzesArray.map(quiz => ({
+      ...quiz,
+      student_id: currentStudent.value.id
+    }))
+    // 2. Supabase 一次性 insert 整个数组
+    const { error } = await supabase
+      .from('quizzes')
+      .insert(finalData)
+    if (error) throw error
+    // 3. 只需要弹窗一次
+    alert(`🚀 成功批量发布 ${finalData.length} 道题目！`)
+    // 4. 刷新列表
+    await fetchQuizzes(currentStudent.value.id)
+  } catch (e) {
+    console.error(e)
+    alert('批量保存失败：' + e.message)
   }
 }
 
@@ -595,8 +616,8 @@ const toggleFullScreen = () => {
         </template>
 
         <template v-else-if="activeModule === 'quiz'">
-          <QuizModule :student="currentStudent" :quizzes="studentQuizzes" :canEdit="isAdminMode" @save="saveQuiz"
-            @delete="deleteQuiz" />
+          <QuizModule :student="currentStudent" :quizzes="studentQuizzes" :canEdit="isAdminMode" @save="handleSaveQuiz"
+            @delete="deleteQuiz" @batch-save="handleBatchSaveQuizzes" />
         </template>
 
         <template v-else-if="activeModule === 'brain-break'">

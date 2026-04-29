@@ -721,4 +721,49 @@ const scrollToQuestion = (idx) => {
 }
 .empty-icon { font-size: 40px; margin-bottom: 12px; }
 .sub-tip { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+/* 针对选项区和左侧列表的滚动条优化 */
+.options-scroll::-webkit-scrollbar,
+.cloze-list-scroll::-webkit-scrollbar {
+  width: 6px; /* 纵向滚动条宽度 */
+  height: 6px; /* 横向滚动条高度 */
+}
+/* 滚动条轨道 */
+.options-scroll::-webkit-scrollbar-track,
+.cloze-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* 滚动条滑块 */
+.options-scroll::-webkit-scrollbar-thumb,
+.cloze-list-scroll::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1; /* 浅灰色滑块 */
+  border-radius: 20px; /* 胶囊形状 */
+  border: 2px solid transparent; /* 通过透明边框实现滑块与边缘的间距感 */
+}
+/* 鼠标悬停时滑块颜色加深 */
+.options-scroll::-webkit-scrollbar-thumb:hover,
+.cloze-list-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+/* Firefox 浏览器的简易支持 */
+.options-scroll,
+.cloze-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.options-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f8fafc;
+  /* 加上这行，可以让右侧留出一点缝隙给滚动条，视觉上更呼吸 */
+  padding-right: 12px; 
+}
+
+/* 让激活状态的题目卡片在视觉上更突出 */
+.question-card.active {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+  /* 稍微向左偏移一点，增加动态感 */
+  transform: translateX(-2px);
+}
 </style>

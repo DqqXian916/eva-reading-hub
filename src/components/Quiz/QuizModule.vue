@@ -7,7 +7,7 @@ const props = defineProps({
   canEdit: Boolean
 })
 
-const emit = defineEmits(['save', 'delete'])
+const emit = defineEmits(['save', 'delete', 'batch-save'])
 
 // --- 状态管理 ---
 const selectedQuiz = ref(null)
@@ -15,11 +15,11 @@ const isAdding = ref(false)
 const listCollapsed = ref(false)
 const isFullScreen = ref(false)
 const filterType = ref('all')
-
+const isBatchImporting = ref(false)
+const batchJsonText = ref('')
 // --- 答题交互状态 ---
 const userAnswer = ref(null)
 const isChecked = ref(false)
-
 // --- 录入表单数据 ---
 const form = reactive({
   id: null,
@@ -47,6 +47,33 @@ const allCategories = computed(() => {
   const existing = props.quizzes.map(q => q.category).filter(Boolean)
   return [...new Set([...defaults, ...existing])].sort()
 })
+
+const handleBatchImport = () => {
+  try {
+    const data = JSON.parse(batchJsonText.value)
+    if (!Array.isArray(data)) throw new Error('数据格式必须是数组 []')
+    const formattedQuizzes = data.map((item, index) => {
+      if (!item.question || !Array.isArray(item.options)) {
+        throw new Error(`第 ${index + 1} 项数据不完整`)
+      }
+      return {
+        question: item.question,
+        options: item.options.slice(0, 4),
+        answer_index: parseInt(item.answer_index) || 0,
+        category: item.category || '未分类',
+        explanation: item.explanation || ''
+      }
+    })
+
+    // --- 修改点：不再循环 emit，而是触发一个新的批量事件 ---
+    emit('batch-save', formattedQuizzes)
+    // 成功后重置状态
+    isBatchImporting.value = false
+    batchJsonText.value = ''
+  } catch (err) {
+    alert('格式解析失败：' + err.message)
+  }
+}
 
 const goToPrev = () => {
   if (currentIndex.value > 0) {
@@ -137,6 +164,16 @@ const handleDelete = (id) => {
               <option value="all">📖 全部展示</option>
               <option v-for="cat in allCategories" :key="cat" :value="cat">{{ cat }}</option>
             </select>
+            <button v-if="canEdit" class="import-mini-btn" @click="isBatchImporting = true" title="批量导入"><svg
+                class="import-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 3V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M16 11L12 15L8 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
             <button v-if="canEdit" class="add-mini-btn" @click="startAdd">＋</button>
           </div>
           <div class="scroll-list">
@@ -264,6 +301,65 @@ const handleDelete = (id) => {
         <div class="empty-icon">🍃</div>
         <p>请从左侧选择题目开始挑战</p>
       </div>
+      <div v-if="isBatchImporting" class="quiz-editor-overlay glass-effect">
+        <div class="editor-container-large">
+          <header class="editor-header-fancy">
+            <div class="header-main-info">
+              <div class="icon-circle"><svg class="import-icon-svg" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 3V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M16 11L12 15L8 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></div>
+              <div>
+                <h3>批量导入题目</h3>
+                <p>支持 JSON 数组格式快速录入库</p>
+              </div>
+            </div>
+            <button class="close-btn-circle" @click="isBatchImporting = false">×</button>
+          </header>
+
+          <div class="batch-import-content">
+            <div class="import-editor-wrapper">
+              <div class="editor-label-bar">
+                <span>JSON 数据源</span>
+              </div>
+              <textarea v-model="batchJsonText" class="modern-editor-area" placeholder='[
+  {
+    "question": "The capital of France is ______.",
+    "options": ["London", "Berlin", "Paris", "Rome"],
+    "answer_index": 2,
+    "category": "Geography",
+    "explanation": "Paris is the capital and largest city of France."
+  }
+]'></textarea>
+            </div>
+
+            <aside class="import-guide-aside">
+              <h4>💡 录入指南</h4>
+              <ul class="guide-list">
+                <li><strong>数组格式：</strong>必须以 <code>[ ]</code> 包裹。</li>
+                <li><strong>选项控制：</strong><code>options</code> 建议固定为 4 个。</li>
+                <li><strong>索引值：</strong><code>answer_index</code> 从 0 开始计算（0=A, 1=B...）。</li>
+                <li><strong>分类：</strong>若分类不存在，系统将自动创建。</li>
+              </ul>
+              <div class="warning-box">
+                请确保 JSON 语法正确，否则将导致解析失败。
+              </div>
+            </aside>
+          </div>
+
+          <footer class="editor-footer-fancy">
+            <button class="btn-cancel" @click="isBatchImporting = false">取消返回</button>
+            <button class="btn-import-execute" @click="handleBatchImport">
+              🚀 执行批量导入 ({{ (batchJsonText.match(/question/g) || []).length }} 题)
+            </button>
+          </footer>
+        </div>
+      </div>
     </main>
   </div>
 </template>
@@ -318,10 +414,12 @@ const handleDelete = (id) => {
 
 /* 修改此处的样式 */
 .panel-content {
-  flex: 1;           /* 占据 header 之外的所有空间 */
+  flex: 1;
+  /* 占据 header 之外的所有空间 */
   display: flex;
   flex-direction: column;
-  overflow: hidden;  /* 关键：防止内容撑开父容器 */
+  overflow: hidden;
+  /* 关键：防止内容撑开父容器 */
 }
 
 .editor-left-col {
@@ -424,6 +522,8 @@ const handleDelete = (id) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 101;
+  /* 比遮罩的 100 高 */
 }
 
 .panel-inner-container {
@@ -479,10 +579,12 @@ const handleDelete = (id) => {
 .scroll-list::-webkit-scrollbar {
   width: 5px;
 }
+
 .scroll-list::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 10px;
 }
+
 .scroll-list::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -556,7 +658,12 @@ const handleDelete = (id) => {
 
 .quiz-editor-overlay {
   position: absolute;
-  inset: 0;
+  /* 这里的 top, bottom, right 保持 0 */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  /* 将 left 设置为一个合适的值，避开左侧按钮区域（例如 40px） */
+  left: 20px;
   background: rgba(15, 23, 42, 0.1);
   backdrop-filter: blur(8px);
   z-index: 100;
@@ -564,17 +671,20 @@ const handleDelete = (id) => {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  /* 加上圆角让过渡不那么生硬 */
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .editor-container-compact {
   width: 100%;
-  max-width: 880px;
+  max-width: 1200px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
-  max-height: 92vh;
+  max-height: 95vh;
   overflow: hidden;
 }
 
@@ -826,5 +936,327 @@ const handleDelete = (id) => {
   align-items: center;
   justify-content: center;
   color: #cbd5e1;
+}
+
+.import-mini-btn {
+  background: #3b82f6;
+  /* 更接近现代简约的蓝色 */
+  color: white;
+  border: none;
+  width: 34px;
+  height: 34px;
+  /* 显式设置高度，保持正方形 */
+  border-radius: 10px;
+  /* 增加一点圆角弧度，更高级 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 更丝滑的过渡动画 */
+}
+
+/* 按钮的反馈效果 */
+.import-mini-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+  /* 增加一点光晕，增加视觉交互 */
+}
+
+/* SVG 控制 */
+.import-icon-svg {
+  width: 20px;
+  /* 图标稍稍放大，使其更聚焦 */
+  height: 20px;
+}
+
+.batch-import-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.import-tip {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.batch-textarea {
+  height: 300px !important;
+  font-family: monospace;
+  font-size: 12px !important;
+  background: #1e293b;
+  color: #a7f3d0;
+  /* 类似代码编辑器的配色 */
+  border-color: #334155;
+}
+
+.batch-textarea::placeholder {
+  color: #64748b;
+}
+
+/* 遮罩层 - 引入磨砂玻璃感 */
+.glass-effect {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* 容器升级为大尺寸 */
+.editor-container-large {
+  width: 90vw;
+  max-width: 1000px;
+  height: 80vh;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 头部样式优化 */
+.editor-header-fancy {
+  padding: 24px 32px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-main-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-main-info h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #1e293b;
+}
+
+.header-main-info p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  background: #e0e7ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+/* 内容区双栏布局 */
+.batch-import-content {
+  flex: 1;
+  display: flex;
+  padding: 24px;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.import-editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editor-label-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* 模拟代码编辑器 */
+.modern-editor-area {
+  flex: 1;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 16px;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  border: 4px solid #1e293b;
+  transition: border-color 0.2s;
+}
+
+.modern-editor-area:focus {
+  border-color: #3b82f6;
+}
+
+/* 侧边指南 */
+.import-guide-aside {
+  width: 280px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  font-size: 13px;
+  color: #475569;
+  flex: 1;
+}
+
+.guide-list li {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.warning-box {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  padding: 12px;
+  font-size: 12px;
+  color: #92400e;
+  border-radius: 4px;
+}
+
+/* 底部按钮区 */
+.editor-footer-fancy {
+  padding: 20px 32px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-import-execute {
+  padding: 10px 28px;
+  border-radius: 10px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  transition: all 0.2s;
+}
+
+.btn-import-execute:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.close-btn-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-btn-circle:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* --- 批量导入编辑器滚动条美化 --- */
+
+/* 1. 针对深色文本框的整体样式 */
+.modern-editor-area::-webkit-scrollbar {
+  width: 8px;
+  /* 纵向宽度 */
+  height: 8px;
+  /* 横向高度（防止长 JSON 溢出） */
+}
+
+/* 2. 滚动条轨道：保持深色，与编辑器背景融为一体 */
+.modern-editor-area::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 0 16px 16px 0;
+  /* 配合容器圆角 */
+}
+
+/* 3. 滚动条滑块：使用半透明的浅色，营造玻璃感 */
+.modern-editor-area::-webkit-scrollbar-thumb {
+  background-color: rgba(96, 165, 250, 0.2);
+  /* 使用你定义的 blue-400 颜色并加透明度 */
+  border-radius: 10px;
+  border: 2px solid #1e293b;
+  /* 增加边框间隙，使滑块看起来是悬浮的 */
+}
+
+/* 4. 鼠标悬停滑块：加亮反馈 */
+.modern-editor-area::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(96, 165, 250, 0.5);
+}
+
+/* 5. 针对滑块被点击拖动时的状态 */
+.modern-editor-area::-webkit-scrollbar-thumb:active {
+  background-color: rgba(96, 165, 250, 0.8);
+}
+
+/* Firefox 浏览器的简易兼容 */
+.modern-editor-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.3) #1e293b;
+}
+
+/* --- 侧边指南区的滚动条 (如果有溢出) --- */
+.import-guide-aside::-webkit-scrollbar {
+  width: 4px;
+}
+
+.import-guide-aside::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 </style>
