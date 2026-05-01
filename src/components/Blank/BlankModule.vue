@@ -239,6 +239,7 @@ const scrollToQuestion = (idx) => {
   display: flex;
   flex: 1;
   height: 0;
+  min-height: 0;    /* 关键：防止被内容撑破 */
   /* 关键：强制子元素高度计算，使其内部滚动生效 */
   width: 100%;
   overflow: hidden;
@@ -347,6 +348,13 @@ const scrollToQuestion = (idx) => {
   cursor: pointer;
   transition: 0.2s;
   overflow: hidden; 
+}
+.exercise-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;    /* 必须：继承父级高度 */
+  overflow: hidden; /* 必须：防止内容溢出舞台 */
 }
 .cloze-item-card:hover {
   border-color: #cbd5e1;
@@ -460,10 +468,11 @@ const scrollToQuestion = (idx) => {
   flex: 1;
   display: flex;
   overflow: hidden;
+  min-height: 0; /* 改这里：从 height: 0 改为 min-height: 0 */
+  height: 100%;     /* 强制占满父级剩余空间 */
 }
 .reading-area {
   flex: 1.2;
-  min-height: 200px;
   overflow-y: auto;
   padding: 30px 40px;
   line-height: 2.2;
@@ -513,7 +522,6 @@ const scrollToQuestion = (idx) => {
   color: #2563eb;
 }
 
-/* 侧边选项卡片 */
 /* 确保右侧选项面板高度锁死，不随内容无限拉长 */
 .options-panel {
   width: 400px;
@@ -522,16 +530,17 @@ const scrollToQuestion = (idx) => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* 确保占据父级全部高度 */
+  min-height: 0; /* 关键：防止面板被子元素内容撑长 */
 }
 
 /* 核心滚动区 */
 .options-scroll {
-  flex: 1;
-  overflow-y: auto;
-  /* 这里产生上下滚动条 */
+flex: 1;          /* 占据 panel 除去 footer 后的所有空间 */
+  overflow-y: auto !important; /* 强制开启滚动 */
+  min-height: 0;    /* 关键：允许它塌陷高度以触发滚动条 */
   padding: 16px;
   background: #f8fafc;
+  padding-right: 12px;
 }
 
 .question-card {

@@ -663,5 +663,215 @@
     "cn": "过去；在……之后",
     "en": "past",
     "ps": "pɑːst"
+  },
+  {
+    "m": false,
+    "s": "This is the thirtieth time I've visited this park.",
+    "cn": "第三十",
+    "en": "thirtieth",
+    "ps": "ˈθɜːrtiəθ"
+  },
+  {
+    "m": false,
+    "s": "There are eleven players on a soccer team.",
+    "cn": "十一",
+    "en": "eleven",
+    "ps": "ɪˈlevn"
+  },
+  {
+    "m": false,
+    "s": "I usually have a green salad for lunch.",
+    "cn": "沙拉",
+    "en": "salad",
+    "ps": "ˈsæləd"
+  },
+  {
+    "m": false,
+    "s": "He is celebrating his twentieth birthday today.",
+    "cn": "第二十",
+    "en": "twentieth",
+    "ps": "ˈtwentiəθ"
+  },
+  {
+    "m": false,
+    "s": "She is wearing a beautiful blue dress.",
+    "cn": "连衣裙",
+    "en": "dress",
+    "ps": "dres"
+  },
+  {
+    "m": false,
+    "s": "Whose bag is this on the table?",
+    "cn": "谁的",
+    "en": "whose",
+    "ps": "huːz"
+  },
+  {
+    "m": false,
+    "s": "I love eating sushi at the Japanese restaurant.",
+    "cn": "寿司",
+    "en": "sushi",
+    "ps": "ˈsuːʃi"
+  },
+  {
+    "m": false,
+    "s": "Is there a better way to solve this problem?",
+    "cn": "方法",
+    "en": "way",
+    "ps": "weɪ"
+  },
+  {
+    "m": false,
+    "s": "This chocolate cake is absolutely delicious.",
+    "cn": "美味的",
+    "en": "delicious",
+    "ps": "dɪˈlɪʃəs"
+  },
+  {
+    "m": false,
+    "s": "Go straight down this road and turn left.",
+    "cn": "直的",
+    "en": "straight",
+    "ps": "streɪt"
+  },
+  {
+    "m": false,
+    "s": "We always eat turkey on Thanksgiving.",
+    "cn": "感恩节",
+    "en": "Thanksgiving",
+    "ps": "ˌθæŋksˈɡɪvɪŋ"
+  },
+  {
+    "m": false,
+    "s": "He was invited to speak at the conference.",
+    "cn": "发言",
+    "en": "speak",
+    "ps": "spiːk"
+  },
+  {
+    "m": false,
+    "s": "The price of gas has gone up recently.",
+    "cn": "价格",
+    "en": "price",
+    "ps": "praɪs"
+  },
+  {
+    "m": false,
+    "s": "They like to dance to pop music.",
+    "cn": "跳舞",
+    "en": "dance",
+    "ps": "dæns"
+  },
+  {
+    "m": false,
+    "s": "He took a picture of the sunset.",
+    "cn": "图片",
+    "en": "picture",
+    "ps": "ˈpɪktʃər"
+  },
+  {
+    "m": false,
+    "s": "The sun rises in the east every morning.",
+    "cn": "东",
+    "en": "east",
+    "ps": "iːst"
+  },
+  {
+    "m": false,
+    "s": "I go to the gym three times a week.",
+    "cn": "星期",
+    "en": "week",
+    "ps": "wiːk"
+  },
+  {
+    "m": false,
+    "s": "Our new neighbor is very friendly.",
+    "cn": "友好的",
+    "en": "friendly",
+    "ps": "ˈfrendli"
+  },
+  {
+    "m": false,
+    "s": "That idea sounds like a great plan.",
+    "cn": "听起来",
+    "en": "sound",
+    "ps": "saʊnd"
+  },
+  {
+    "m": false,
+    "s": "The postman delivered a package this morning.",
+    "cn": "邮递员",
+    "en": "postman",
+    "ps": "ˈpoʊstmən"
+  },
+  {
+    "m": false,
+    "s": "I always brush my teeth before bed.",
+    "cn": "总是",
+    "en": "always",
+    "ps": "ˈɔːlweɪz"
+  },
+  {
+    "m": false,
+    "s": "She is Canadian but lives in London.",
+    "cn": "加拿大人",
+    "en": "Canadian",
+    "ps": "kəˈneɪdiən"
+  },
+  {
+    "m": false,
+    "s": "What is your favorite subject in school?",
+    "cn": "学科，主题",
+    "en": "subject",
+    "ps": "ˈsʌbdʒɪkt"
+  },
+  {
+    "m": false,
+    "s": "I don't know the answer to that question.",
+    "cn": "知道",
+    "en": "know",
+    "ps": "noʊ"
+  },
+  {
+    "m": false,
+    "s": "Please be careful with that glass vase.",
+    "cn": "小心的",
+    "en": "careful",
+    "ps": "ˈkerfl"
+  },
+  {
+    "m": false,
+    "s": "Thank you for your help, my dear friend.",
+    "cn": "亲爱的",
+    "en": "dear",
+    "ps": "dɪr"
+  },
+  {
+    "m": false,
+    "s": "Who is the girl sitting next to you?",
+    "cn": "谁",
+    "en": "who",
+    "ps": "huː"
+  },
+  {
+    "m": false,
+    "s": "Can you say that again? I didn't hear you.",
+    "cn": "再一次",
+    "en": "again",
+    "ps": "əˈɡen"
+  },
+  {
+    "m": false,
+    "s": "The air in the mountains is very fresh.",
+    "cn": "空气",
+    "en": "air",
+    "ps": "er"
+  },
+  {
+    "m": false,
+    "s": "The ball rolled between the two chairs.",
+    "cn": "在……之间",
+    "en": "between",
+    "ps": "bɪˈtwiːn"
   }
 ]
