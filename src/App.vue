@@ -4,9 +4,9 @@ import { supabase } from './supabase'
 
 // 导入组件
 import Sidebar from './components/Sidebar.vue'
-import ReadingList from './components/ReadingList.vue'
+import ReadingList from './components/Reading/ReadingList.vue'
 import EditForm from './components/EditForm.vue'
-import ReadingWorkspace from './components/ReadingWorkspace.vue'
+import ReadingWorkspace from './components/Reading/ReadingWorkspace.vue'
 import QuizModule from './components/Quiz/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
 import BlankModule from './components//Blank/BlankModule.vue'
@@ -32,9 +32,10 @@ const viewMode = ref('welcome')    // welcome | list | edit | reading
 const isLoading = ref(false)
 const isFullScreen = ref(false)
 const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
-const blankViewMode = ref('list') // list | edit | exercise
-const editingBlank = ref(null)    // 正在编辑的完形填空对象
 const studentQuizzes = ref([])
+// --- 排行榜状态 ---
+const showLeaderboard = ref(false)
+const leaderboardData = ref([])
 
 // 答题状态记录
 const userSelections = ref([])
@@ -72,6 +73,62 @@ const verifyPassword = () => {
   }
 }
 
+// 获取排行榜数据 (计算本周得分汇总)
+const fetchLeaderboard = async () => {
+  const { data, error } = await supabase
+    .from('xp_logs')
+    .select('amount, student_id, students(name)')
+    .gte('created_at', getStartOfThisWeek());
+  if (!error && data) {
+    // 按学生聚合分数
+    const summary = data.reduce((acc, curr) => {
+      const id = curr.student_id;
+      if (!acc[id]) acc[id] = { id, name: curr.students.name, total_xp: 0 };
+      acc[id].total_xp += curr.amount;
+      return acc;
+    }, {});
+    leaderboardData.value = Object.values(summary).sort((a, b) => b.total_xp - a.total_xp);
+  }
+};
+
+// 辅助函数：获取本周一 00:00:00 的 ISO 字符串
+const getStartOfThisWeek = () => {
+  const now = new Date();
+  const day = now.getDay() || 7; // 周日为0改为7
+  now.setHours(0, 0, 0, 0);
+  now.setDate(now.getDate() - day + 1);
+  return now.toISOString();
+};
+
+// 模拟加分函数（在各模块完成后调用）
+const awardXP = async (amount, moduleName, reason) => {
+  if (!currentStudent.value) return;
+  try {
+    // 1. 写入流水表
+    const { error: logError } = await supabase
+      .from('xp_logs')
+      .insert([{
+        student_id: currentStudent.value.id,
+        amount: amount,
+        module: moduleName,
+        reason: reason
+      }]);
+    if (logError) throw logError;
+    // 2. 更新 students 表的缓存总分 (原子性操作：当前分 + 新分)
+    const newTotal = (currentStudent.value.total_xp || 0) + amount;
+    const { error: updateError } = await supabase
+      .from('students')
+      .update({ total_xp: newTotal })
+      .eq('id', currentStudent.value.id);
+    if (updateError) throw updateError;
+    // 3. 同步本地状态
+    currentStudent.value.total_xp = newTotal;
+    console.log(`🚀 成功获取 ${amount} XP!`);
+  } catch (e) {
+    console.error("加分失败:", e.message);
+  }
+};
+
 // 1. 监听切换（学员或模块改变时重置状态并加载数据）
 watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   if (!newStudent) return
@@ -104,6 +161,20 @@ const fetchReadings = async (studentId) => {
   readings.value = data || []
   isLoading.value = false
 }
+
+// App.vue 里的处理函数
+const handleReadingSubmit = () => {
+  isSubmitted.value = true;
+  // 计算正确率
+  const correctCount = userSelections.value.filter((sel, idx) => sel === activeReading.value.quiz[idx].answer).length;
+  const totalCount = activeReading.value.quiz.length;
+  // 基础分：每题 10 XP，全对额外奖 20 XP
+  let earnedXP = correctCount * 10;
+  if (correctCount === totalCount) earnedXP += 20;
+  if (earnedXP > 0) {
+    awardXP(earnedXP, 'reading', `完成阅读: ${activeReading.value.title}`);
+  }
+};
 
 // 短文填空数据获取 
 const fetchClozeQuizzes = async (studentId) => {
@@ -296,6 +367,19 @@ const fetchQuizzes = async (studentId) => {
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
   studentQuizzes.value = data || []
+}
+
+const getAvatarColor = (index) => {
+  const colors = [
+    '#FF6B6B', // 红
+    '#4ECDC4', // 青
+    '#45B7D1', // 蓝
+    '#FFA07A', // 橙
+    '#98D8C8', // 绿
+    '#A8E6CF', // 浅绿
+    '#D4A5A5'  // 藕荷
+  ]
+  return colors[index % colors.length]
 }
 
 // 3. 单选题存取逻辑
@@ -577,9 +661,24 @@ const toggleFullScreen = () => {
           <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
         </nav>
-        <div class="nav-right">
-          <div class="role-switch" @dblclick="toggleRole">{{ isAdminMode ? '🛠️ 管理模式' : '👤 学员模式' }}</div>
-        </div>
+       <div class="nav-right">
+  <div class="xp-display" @click="showLeaderboard = true; fetchLeaderboard()">
+    <div class="xp-icon-container">
+      <span class="xp-emoji">🏆</span>
+    </div>
+    <div class="xp-text">
+      <span class="xp-amount">{{ currentStudent?.total_xp || 0 }}</span>
+      <span class="xp-label">Exp</span>
+    </div>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div :class="['role-badge', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole">
+    <div class="role-dot"></div>
+    <span>{{ isAdminMode ? '管理模式' : '学员模式' }}</span>
+  </div>
+</div>
       </header>
     </Transition>
 
@@ -607,7 +706,7 @@ const toggleFullScreen = () => {
 
             <ReadingWorkspace v-if="viewMode === 'reading' && activeReading" :activeReading="activeReading"
               :isFullScreen="isFullScreen" :userSelections="userSelections" :isSubmitted="isSubmitted"
-              @toggleFull="isFullScreen = !isFullScreen" @close="viewMode = 'list'" @submit="isSubmitted = true"
+              @toggleFull="isFullScreen = !isFullScreen" @close="viewMode = 'list'" @submit="handleReadingSubmit"
               @updateSelection="(d) => userSelections[d.qIdx] = d.oIdx" />
 
             <EditForm v-if="viewMode === 'edit'" :student="currentStudent" :initialData="editingReading"
@@ -698,6 +797,56 @@ const toggleFullScreen = () => {
       </div>
     </Transition>
   </div>
+  <Transition name="fade">
+    <div v-if="showLeaderboard" class="modal-overlay" @click.self="showLeaderboard = false">
+      <div class="leaderboard-card">
+        <div class="lb-header">
+          <div class="lb-header-content">
+            <span class="lb-trophy">🏆</span>
+            <h2>班级排行榜</h2>
+          </div>
+          <div class="lb-timer">
+            <span class="timer-icon">⏳</span>
+            本周结算倒计时：<strong>3天 12小时</strong>
+          </div>
+        </div>
+
+        <div class="lb-body">
+          <div v-for="(item, index) in leaderboardData" :key="item.id" :class="['lb-item',
+            { 'is-top-three': index < 3 },
+            { 'is-current': item.id === currentStudent?.id }]">
+
+            <div class="lb-rank">
+              <span v-if="index === 0">🥇</span>
+              <span v-else-if="index === 1">🥈</span>
+              <span v-else-if="index === 2">🥉</span>
+              <span v-else>{{ index + 1 }}</span>
+            </div>
+
+            <div class="lb-avatar" :style="{ backgroundColor: getAvatarColor(index) }">
+              {{ item.name[0] }}
+            </div>
+
+            <div class="lb-info">
+              <span class="lb-name">{{ item.name }}</span>
+              <span v-if="item.id === currentStudent?.id" class="lb-tag">你</span>
+            </div>
+
+            <div class="lb-xp">
+              <span class="xp-num">{{ item.total_xp }}</span>
+              <span class="xp-unit">Exp</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lb-footer">
+          <button class="lb-btn-confirm" @click="showLeaderboard = false">
+            继续加油 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style>
@@ -1204,5 +1353,298 @@ body {
   50% {
     transform: translateY(-5px);
   }
+}
+
+/* 排行榜专有样式 */
+.leaderboard-card {
+  background: white;
+  width: 420px;
+  max-height: 80vh;
+  border-radius: 32px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 4px solid #f1f5f9;
+}
+
+.lb-header {
+  padding: 30px 24px 20px;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  text-align: center;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.lb-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.lb-trophy {
+  font-size: 40px;
+}
+
+.lb-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.lb-timer {
+  display: inline-block;
+  padding: 6px 16px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* 列表滚动区 */
+.lb-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lb-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: #fff;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+/* 即使不选中，普通条目也有淡阴影 */
+.lb-item:hover {
+  background: #f8fafc;
+  transform: scale(1.02);
+}
+
+/* 当前学生的特殊样式 */
+.lb-item.is-current {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
+.lb-rank {
+  width: 35px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #94a3b8;
+}
+
+.lb-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 15px;
+  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.2);
+}
+
+.lb-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lb-name {
+  font-weight: 700;
+  color: #334155;
+  font-size: 16px;
+}
+
+.lb-tag {
+  background: #3498db;
+  color: white;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.lb-xp {
+  text-align: right;
+}
+
+.xp-num {
+  font-weight: 900;
+  color: #27ae60;
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.xp-unit {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* 底部按钮 */
+.lb-footer {
+  padding: 20px 24px 30px;
+  background: white;
+}
+
+.lb-btn-confirm {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  background: #2ecc71;
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #27ae60;
+  /* 多邻国风格的厚按钮 */
+  transition: all 0.1s;
+}
+
+.lb-btn-confirm:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #27ae60;
+}
+
+/* 辅助函数颜色 */
+.get-avatar-color {
+  /* 在 JS 里定义 */
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* XP 显示区域 */
+.xp-display {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 4px 12px 4px 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.xp-display:hover {
+  border-color: #fbbf24;
+  background: #fffcf0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+}
+
+.xp-display:active {
+  transform: translateY(1px);
+}
+
+.xp-icon-container {
+  width: 32px;
+  height: 32px;
+  background: #fff9db;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.xp-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.xp-amount {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1e293b;
+}
+
+.xp-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* 分割线 */
+.divider-line {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+}
+
+/* 角色标签 */
+.role-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+/* 学员模式样式 */
+.is-student {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.is-student:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* 管理模式样式 */
+.is-admin {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #10b981;
+}
+
+.role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.role-chevron {
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* 动画：让奖杯微微晃动提示点击 */
+.xp-display:hover .xp-emoji {
+  animation: cup-shake 0.5s ease infinite;
+}
+
+@keyframes cup-shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-15deg); }
+  75% { transform: rotate(15deg); }
 }
 </style>

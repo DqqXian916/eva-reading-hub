@@ -1,0 +1,212 @@
+[
+  {
+    "m": true,
+    "s": "The valley lies beneath the mountains.",
+    "cn": "在...之下",
+    "en": "beneath",
+    "ps": "bɪˈniːθ"
+  },
+  {
+    "m": false,
+    "s": "Gravity keeps our feet on the ground.",
+    "cn": "重力；引力",
+    "en": "gravity",
+    "ps": "ˈɡrævəti"
+  },
+  {
+    "m": false,
+    "s": "It is important to be truthful with yourself.",
+    "cn": "诚实的；真实的",
+    "en": "truthful",
+    "ps": "ˈtruːθfl"
+  },
+  {
+    "m": false,
+    "s": "The car hit the tree, but no one was hurt.",
+    "cn": "打击；碰撞",
+    "en": "hit",
+    "ps": "hɪt"
+  },
+  {
+    "m": false,
+    "s": "In China, people usually eat with chopsticks.",
+    "cn": "筷子",
+    "en": "chopsticks",
+    "ps": "ˈtʃɒpstɪks"
+  },
+  {
+    "m": true,
+    "s": "If you can't go, let me go instead.",
+    "cn": "代替；反而",
+    "en": "instead",
+    "ps": "ɪnˈsted"
+  },
+  {
+    "m": false,
+    "s": "Who is the owner of this blue car?",
+    "cn": "物主；所有人",
+    "en": "owner",
+    "ps": "ˈəʊnə(r)"
+  },
+  {
+    "m": true,
+    "s": "I love flowers, especially roses.",
+    "cn": "尤其；特别",
+    "en": "especially",
+    "ps": "ɪˈspeʃəli"
+  },
+  {
+    "m": false,
+    "s": "His parents are very proud of his success.",
+    "cn": "自豪的；骄傲的",
+    "en": "proud",
+    "ps": "praʊd"
+  },
+  {
+    "m": false,
+    "s": "Press the button to start the machine.",
+    "cn": "按；压；挤",
+    "en": "press",
+    "ps": "pres"
+  },
+  {
+    "m": false,
+    "s": "She refused to answer any more questions.",
+    "cn": "拒绝",
+    "en": "refuse",
+    "ps": "rɪˈfjuːz"
+  },
+  {
+    "m": true,
+    "s": "While I was sleeping, the phone rang.",
+    "cn": "当...的时候；虽然",
+    "en": "while",
+    "ps": "waɪl"
+  },
+  {
+    "m": false,
+    "s": "We are going to France for our summer holiday.",
+    "cn": "假期；节日",
+    "en": "holiday",
+    "ps": "ˈhɒlədeɪ"
+  },
+  {
+    "m": false,
+    "s": "The weather is gradually getting warmer.",
+    "cn": "逐渐地",
+    "en": "gradually",
+    "ps": "ˈɡrædʒuəli"
+  },
+  {
+    "m": false,
+    "s": "She is studying medicine at university.",
+    "cn": "大学",
+    "en": "university",
+    "ps": "ˌjuːnɪˈvɜːsəti"
+  },
+  {
+    "m": false,
+    "s": "Will you be able to come to the party?",
+    "cn": "能够",
+    "en": "able",
+    "ps": "ˈeɪbl"
+  },
+  {
+    "m": false,
+    "s": "She takes great pride in her work.",
+    "cn": "自豪；骄傲",
+    "en": "pride",
+    "ps": "praɪd"
+  },
+  {
+    "m": false,
+    "s": "I fell asleep on the sofa while watching TV.",
+    "cn": "沙发",
+    "en": "sofa",
+    "ps": "ˈsəʊfə"
+  },
+  {
+    "m": false,
+    "s": "Use some glue to stick the pieces together.",
+    "cn": "胶水",
+    "en": "glue",
+    "ps": "ɡluː"
+  },
+  {
+    "m": false,
+    "s": "The museum is definitely worth a visit.",
+    "cn": "值得的",
+    "en": "worth",
+    "ps": "wɜːθ"
+  },
+  {
+    "m": false,
+    "s": "It's a perfect day for a picnic.",
+    "cn": "野餐",
+    "en": "picnic",
+    "ps": "ˈpɪknɪk"
+  },
+  {
+    "m": false,
+    "s": "Preparation is the key to success.",
+    "cn": "准备",
+    "en": "preparation",
+    "ps": "ˌprepəˈreɪʃn"
+  },
+  {
+    "m": false,
+    "s": "The football coach gave us a pep talk.",
+    "cn": "教练；长途汽车",
+    "en": "coach",
+    "ps": "kəʊtʃ"
+  },
+  {
+    "m": false,
+    "s": "I really admire people who speak many languages.",
+    "cn": "钦佩；欣赏",
+    "en": "admire",
+    "ps": "ədˈmaɪə(r)"
+  },
+  {
+    "m": false,
+    "s": "The detective found a clue at the scene.",
+    "cn": "侦探",
+    "en": "detective",
+    "ps": "dɪˈtektɪv"
+  },
+  {
+    "m": false,
+    "s": "He loves watching Mickey Mouse cartoons.",
+    "cn": "卡通；漫画",
+    "en": "cartoon",
+    "ps": "kɑːˈtuːn"
+  },
+  {
+    "m": false,
+    "s": "I feel very sleepy after a big meal.",
+    "cn": "想睡的；困倦的",
+    "en": "sleepy",
+    "ps": "ˈsliːpi"
+  },
+  {
+    "m": true,
+    "s": "I would rather stay home than go out tonight.",
+    "cn": "宁愿；相当",
+    "en": "rather",
+    "ps": "ˈrɑːðə(r)"
+  },
+  {
+    "m": false,
+    "s": "We all want to live in peace.",
+    "cn": "和平；平静",
+    "en": "peace",
+    "ps": "piːs"
+  },
+  {
+    "m": false,
+    "s": "I can't decide which dress to buy.",
+    "cn": "决定",
+    "en": "decide",
+    "ps": "dɪˈsaɪd"
+  }
+]

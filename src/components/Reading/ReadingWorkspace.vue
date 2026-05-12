@@ -18,7 +18,12 @@ defineProps({
 const hoverIdx = ref(null) // 记录当前悬停的题目索引
 const hoverOptIdx = ref(null) // 记录当前悬停的选项索引
 const showChinese = ref(false)  // 新增：控制语言显示的状态
-defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
+const emit = defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
+const handleSubmit = () => {
+  // 这里不需要在子组件算分，直接告诉父组件“我提交了”
+  // 父组件会在 handleReadingSubmit 里根据 userSelections 算分
+  emit('submit');
+};
 </script>
 
 <template>
@@ -115,7 +120,7 @@ defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
           </div>
 
           <button v-else class="btn-primary submit-btn" :disabled="userSelections.includes(null)"
-            @click="$emit('submit')">
+            @click="handleSubmit">
             提交答案
           </button>
         </div>
