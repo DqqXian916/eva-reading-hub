@@ -5,13 +5,13 @@ import { supabase } from './supabase'
 // 导入组件
 import Sidebar from './components/Sidebar.vue'
 import ReadingList from './components/Reading/ReadingList.vue'
-import EditForm from './components/EditForm.vue'
+import EditForm from './components/Reading/EditForm.vue'
 import ReadingWorkspace from './components/Reading/ReadingWorkspace.vue'
 import QuizModule from './components/Quiz/QuizModule.vue'
 import ClozeModule from './components/ClozeModule.vue'
 import BlankModule from './components//Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
-import BrainBreakModule from './components/BrainBreakModule.vue'
+import BrainBreakModule from './components/games/BrainBreakModule.vue'
 import VocabularyModule from './components/VocabularyModule.vue'
 // --- 状态管理 ---
 const activeModule = ref('reading')

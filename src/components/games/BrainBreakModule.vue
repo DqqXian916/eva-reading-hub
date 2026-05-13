@@ -1,17 +1,17 @@
 <script setup>
-import { ref, watch, nextTick } from 'vue'
-import { supabase } from '../supabase'
+import { ref, watch } from 'vue'
+import { supabase } from '../../supabase'
 import LegacyGameModule from './LegacyGameModule.vue'
-import CatFeedingGame from './games/CatFeeding.vue'
-import WordHackerGame from './games/WordHacker.vue'
-import GuZhengGame from './games/GuZheng.vue'
-import TombGame from './games/Tomb.vue'
-import PianoGame from './games/Piano.vue'
-import ShootGame from './games/Shoot.vue'
-import CarCrashGame from './games/CarCrash.vue'
-import WordFighterGame from  './games/WordFighter.vue'
-import DrawGame from './games/Draw.vue'
-import { useGameStore } from '../stores/gameStore';
+import CatFeedingGame from './CatFeeding.vue'
+import WordHackerGame from './WordHacker.vue'
+import GuZhengGame from './GuZheng.vue'
+import TombGame from './Tomb.vue'
+import PianoGame from './Piano.vue'
+import ShootGame from './Shoot.vue'
+import CarCrashGame from './CarCrash.vue'
+import WordFighterGame from  './WordFighter.vue'
+import DrawGame from './Draw.vue'
+import { useGameStore } from '../../stores/gameStore';
 
 const gameStore = useGameStore();
 // 1. 接收 canEdit 权限
