@@ -214,7 +214,7 @@ const fetchBlankQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-// --- 文章删除逻辑 ---
+// 文章删除逻辑
 const handleDeleteReading = async (reading) => {
   // 1. 二次确认，防止手抖
   if (!confirm(`确定要删除文章《${reading.title}》吗？此操作不可撤销哦 ❤️`)) return
@@ -268,7 +268,7 @@ const handleDeleteStudent = async (student) => {
   }
 };
 
-// --- 删除短文填空逻辑 ---
+// 删除短文填空逻辑 
 const deleteClozeQuiz = async (id) => {
   // 1. 业务风险确认
   if (!confirm('确定要删除这篇短文填空吗？此操作不可恢复 ❤️')) return
@@ -315,7 +315,7 @@ const handleAddNewStudent = async () => {
   }
 }
 
-// --- 保存单词掌握状态和音标配置到云端 ---
+// 保存单词掌握状态和音标配置到云端 
 const handleUpdateWordProgress = async (updatedList) => {
   if (!currentStudent.value) return;
 
@@ -381,6 +381,13 @@ const getAvatarColor = (index) => {
   ]
   return colors[index % colors.length]
 }
+
+const handleQuizXP = (data) => {
+  // data 包含: amount, reason, module
+  awardXP(data.amount, data.module, data.reason);
+  // 可选：在这里可以触发一个简单的音效或屏幕上方的微型 XP 提示动画
+  console.log(`🏆 排行榜链路已打通：已加 ${data.amount} XP`);
+};
 
 // 3. 单选题存取逻辑
 const handleSaveQuiz = async (quizData) => {
@@ -716,7 +723,7 @@ const toggleFullScreen = () => {
 
         <template v-else-if="activeModule === 'quiz'">
           <QuizModule :student="currentStudent" :quizzes="studentQuizzes" :canEdit="isAdminMode" @save="handleSaveQuiz"
-            @delete="deleteQuiz" @batch-save="handleBatchSaveQuizzes" />
+            @delete="deleteQuiz" @add-xp="handleQuizXP" @batch-save="handleBatchSaveQuizzes" />
         </template>
 
         <template v-else-if="activeModule === 'brain-break'">

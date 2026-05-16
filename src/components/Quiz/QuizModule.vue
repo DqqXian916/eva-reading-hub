@@ -7,7 +7,7 @@ const props = defineProps({
   canEdit: Boolean
 })
 
-const emit = defineEmits(['save', 'delete', 'batch-save'])
+const emit = defineEmits(['save', 'delete', 'batch-save', 'add-xp'])
 
 // --- 状态管理 ---
 const selectedQuiz = ref(null)
@@ -86,10 +86,19 @@ const goToNext = () => {
   }
 }
 
+// 2. 修改 handleSelect 逻辑
 const handleSelect = (idx) => {
   if (isChecked.value) return
   userAnswer.value = idx
   isChecked.value = true
+  if (idx === selectedQuiz.value.answer_index) {
+    // 基础分 10 XP，你可以根据 category 调整分值
+    emit('add-xp', {
+      amount: 10,
+      reason: `答对题库: ${selectedQuiz.value.category}`,
+      module: 'quiz'
+    })
+  }
 }
 
 const handleKeyDown = (e) => {
