@@ -91,7 +91,7 @@ const handleSelect = (idx) => {
   if (isChecked.value) return
   userAnswer.value = idx
   isChecked.value = true
-  if (idx === selectedQuiz.value.answer_index) {
+  if (idx === selectedQuiz.value.answer_index && !props.canEdit) {
     // 基础分 10 XP，你可以根据 category 调整分值
     emit('add-xp', {
       amount: 10,
