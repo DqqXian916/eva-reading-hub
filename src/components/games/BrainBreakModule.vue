@@ -11,6 +11,7 @@ import ShootGame from './Shoot.vue'
 import CarCrashGame from './CarCrash.vue'
 import WordFighterGame from  './WordFighter.vue'
 import DrawGame from './Draw.vue'
+import WordMatchGame from './WordMatch.vue'
 import { useGameStore } from '../../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -122,6 +123,17 @@ const games = ref([
             goal: 20
         }
     },
+    {
+    id: 'word-match',
+    name: '记忆翻牌',
+    isVue: true,
+    icon: '🃏',
+    color: '#9b59b6', // 优雅的紫色
+    config: {
+        wordList: [],
+        goal: 20
+    }
+},
 ])
 
 const activeGame = ref(null)
@@ -299,6 +311,18 @@ const saveGameConfig = () => {
                                 />
                                 <DrawGame 
                                     v-if="activeGame.id === 'draw'" 
+                                    :wordList="activeGame.config.wordList"
+                                    :key="props.student.id" 
+                                    :goal="activeGame.config.goal" 
+                                    :canEdit="canEdit" 
+                                    @updateConfig="(newWords) => $emit('saveConfig', {
+                                        studentId: props.student.id,
+                                        wordList: newWords,
+                                        goal: activeGame.config.goal
+                                    })" 
+                                />
+                                <WordMatchGame 
+                                    v-if="activeGame.id === 'word-match'" 
                                     :wordList="activeGame.config.wordList"
                                     :key="props.student.id" 
                                     :goal="activeGame.config.goal" 
