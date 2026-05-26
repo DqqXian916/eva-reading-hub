@@ -49,7 +49,7 @@
     "ps": "fɑrm"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Social media has changed the way people communicate.",
     "cn": "社会的",
     "en": "social",
@@ -126,7 +126,7 @@
     "ps": "smoʊk"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I had a long chat with my old friend on the phone.",
     "cn": "聊天；闲聊",
     "en": "chat",
@@ -161,7 +161,7 @@
     "ps": "ɡɑrd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I lost my keys and couldn't get into my apartment.",
     "cn": "丢失的；迷路的",
     "en": "lost",
@@ -203,7 +203,7 @@
     "ps": "ˈpʌmpkɪn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Don't be lazy; you need to finish your chores.",
     "cn": "懒惰的",
     "en": "lazy",
@@ -217,7 +217,7 @@
     "ps": "ˈsɪnəmə"
   },
   {
-    "m": false,
+    "m": true,
     "s": "My grandmother just celebrated her fifty-fifth birthday.",
     "cn": "五十",
     "en": "fifty",
@@ -231,7 +231,7 @@
     "ps": "ˈzɪpər"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Thanksgiving is a time for family gatherings and big meals.",
     "cn": "感恩节",
     "en": "Thanksgiving",
@@ -586,5 +586,159 @@
     "s": "The teacher asked the students to divide into four groups.",
     "cn": "分开",
     "en": "divide"
+  },
+  {
+    "m": false,
+    "s": "You should wash your hands before eating.",
+    "cn": "应该；应当",
+    "en": "should",
+    "ps": "ʃʊd"
+  },
+  {
+    "m": false,
+    "s": "The Internet has changed the way we live.",
+    "cn": "因特网；互联网",
+    "en": "Internet",
+    "ps": "ˈɪntənet"
+  },
+  {
+    "m": false,
+    "s": "I need some help with this heavy box.",
+    "cn": "需要",
+    "en": "need",
+    "ps": "niːd"
+  },
+  {
+    "m": false,
+    "s": "January is the first month of the year.",
+    "cn": "第一；首先",
+    "en": "first",
+    "ps": "fɜːst"
+  },
+  {
+    "m": false,
+    "s": "This is a great place to have a picnic.",
+    "cn": "地方；地点",
+    "en": "place",
+    "ps": "pleɪs"
+  },
+  {
+    "m": false,
+    "s": "Be careful with that knife, or you will hurt yourself.",
+    "cn": "伤害；使受伤",
+    "en": "hurt",
+    "ps": "hɜːt"
+  },
+  {
+    "m": false,
+    "s": "Thank you for your advice, you are very kind.",
+    "cn": "善良的；友好的",
+    "en": "kind",
+    "ps": "kaɪnd"
+  },
+  {
+    "m": false,
+    "s": "They decided to invite all their friends to the party.",
+    "cn": "邀请",
+    "en": "invite",
+    "ps": "ɪnˈvaɪt"
+  },
+  {
+    "m": false,
+    "s": "Water begins to boil at 100 degrees Celsius.",
+    "cn": "沸腾；烧开",
+    "en": "boil",
+    "ps": "bɔɪl"
+  },
+  {
+    "m": false,
+    "s": "I want to buy a new computer for my work.",
+    "cn": "想要",
+    "en": "want",
+    "ps": "wɒnt"
+  },
+  {
+    "m": false,
+    "s": "You can pay for the tickets online or in cash.",
+    "cn": "付款；支付",
+    "en": "pay",
+    "ps": "peɪ"
+  },
+  {
+    "m": false,
+    "s": "She chose to refuse his job offer.",
+    "cn": "拒绝",
+    "en": "refuse",
+    "ps": "rɪˈfjuːz"
+  },
+  {
+    "m": false,
+    "s": "The city is famous for its beautiful bridges.",
+    "cn": "著名的",
+    "en": "famous",
+    "ps": "ˈfeɪməs"
+  },
+  {
+    "m": true,
+    "s": "We have to leave now, or we will miss the train.",
+    "cn": "不得不；必须",
+    "en": "have to",
+    "ps": "hæv tu"
+  },
+  {
+    "m": false,
+    "s": "He tripped over a stone on the path.",
+    "cn": "石头",
+    "en": "stone",
+    "ps": "stəʊn"
+  },
+  {
+    "m": false,
+    "s": "She carefully walked up the old wooden stair.",
+    "cn": "楼梯；阶梯",
+    "en": "stair",
+    "ps": "steə(r)"
+  },
+  {
+    "m": false,
+    "s": "Let's walk to the park together.",
+    "cn": "散步；步行",
+    "en": "walk",
+    "ps": "wɔːk"
+  },
+  {
+    "m": false,
+    "s": "The old man walked slowly down the street.",
+    "cn": "缓慢地",
+    "en": "slowly",
+    "ps": "ˈsləʊli"
+  },
+  {
+    "m": false,
+    "s": "Suddenly, the lights went out and the room became dark.",
+    "cn": "突然",
+    "en": "suddenly",
+    "ps": "ˈsʌdənli"
+  },
+  {
+    "m": false,
+    "s": "At that moment, she realized she had made a mistake.",
+    "cn": "瞬间；片刻",
+    "en": "moment",
+    "ps": "ˈməʊmənt"
+  },
+  {
+    "m": false,
+    "s": "The window was broken by a flying ball.",
+    "cn": "破碎的；损坏的",
+    "en": "broken",
+    "ps": "ˈbrəʊkən"
+  },
+  {
+    "m": false,
+    "s": "She tried to overcome her fear of public speaking.",
+    "cn": "恐惧；害怕",
+    "en": "fear",
+    "ps": "fɪə(r)"
   }
 ]

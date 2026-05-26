@@ -125,7 +125,7 @@ const games = ref([
     },
     {
     id: 'word-match',
-    name: '记忆翻牌',
+    name: '单词消消乐',
     isVue: true,
     icon: '🃏',
     color: '#9b59b6', // 优雅的紫色

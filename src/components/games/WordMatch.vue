@@ -91,6 +91,9 @@ const isGameFinished = ref(false)
 const showAdmin = ref(false)
 const configText = ref('')
 
+// 用于原生合成音效的 AudioContext
+let audioCtx = null
+
 const roundMatchedCount = computed(() => {
   return cards.value.filter(c => c.isMatched).length / 2
 })
@@ -137,6 +140,10 @@ const startRound = (roundNum) => {
 
 // 核心点击与消除逻辑
 const handleCardClick = (event, card) => {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  }
+
   if (card.isMatched || errorCardIds.value.length > 0) return
 
   if (!selectedCard.value) {
@@ -160,9 +167,13 @@ const handleCardClick = (event, card) => {
     
     combo.value++
     if (combo.value > maxCombo.value) maxCombo.value = combo.value
+    
+    // 播放欢快清脆音效
+    playSuccessSound()
+
     if (card2.type === 'en') speak(card2.text)
 
-    // 触发炫酷的高级全局喷洒庆祝反馈
+    // 触发【全新升级】金币 + 星星 + 撒花 特效
     triggerCelebrationEffect(event.clientX, event.clientY)
 
     selectedCard.value = null
@@ -184,43 +195,106 @@ const handleCardClick = (event, card) => {
   }
 }
 
-// 全局五彩纸屑与星星庆祝特效
+// 清脆、欢快的水晶风铃琶音音效
+const playSuccessSound = () => {
+  if (!audioCtx) return
+  if (audioCtx.state === 'suspended') audioCtx.resume()
+
+  const now = audioCtx.currentTime
+  const comboBonus = Math.min(combo.value * 35, 300) 
+
+  // 1. 清脆的“啵”泡泡破裂主击音
+  const popOsc = audioCtx.createOscillator()
+  const popGain = audioCtx.createGain()
+  popOsc.connect(popGain)
+  popGain.connect(audioCtx.destination)
+  popOsc.type = 'sine'
+  popOsc.frequency.setValueAtTime(1054 + comboBonus, now) 
+  popOsc.frequency.exponentialRampToValueAtTime(1800 + comboBonus, now + 0.05)
+  popGain.gain.setValueAtTime(0, now)
+  popGain.gain.linearRampToValueAtTime(0.25, now + 0.01)
+  popGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12)
+  popOsc.start(now)
+  popOsc.stop(now + 0.12)
+
+  // 2. 水晶风铃琶音
+  const crystalNotes = [1046.50, 1318.51, 1567.98, 2093.00]
+  crystalNotes.forEach((freq, index) => {
+    const sparkOsc = audioCtx.createOscillator()
+    const sparkGain = audioCtx.createGain()
+    sparkOsc.connect(sparkGain)
+    sparkGain.connect(audioCtx.destination)
+    sparkOsc.type = 'triangle'
+    sparkOsc.frequency.setValueAtTime(freq + comboBonus, now)
+    const startTime = now + (index * 0.03)
+    sparkGain.gain.setValueAtTime(0, startTime)
+    sparkGain.gain.linearRampToValueAtTime(0.12, startTime + 0.02)
+    sparkGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.4)
+    sparkOsc.start(startTime)
+    sparkOsc.stop(startTime + 0.4)
+  })
+}
+
+// 👑 全新升级：点击位置爆开金币星星 + 屏幕两侧喷洒梦幻礼花
 const triggerCelebrationEffect = (clientX, clientY) => {
-  // 1. 在鼠标点击位置发射一波扩散小星星
+  const originX = clientX / window.innerWidth
+  const originY = clientY / window.innerHeight
+
+  // --- 核心升级 1：点击处定向爆发出“金币 + 闪烁五角星” ---
+  // 渲染金币：圆圈形状 + 纯金色
   confetti({
-    particleCount: 20,
+    particleCount: 12,
     angle: 90,
-    spread: 50,
-    origin: { 
-      x: clientX / window.innerWidth, 
-      y: clientY / window.innerHeight 
-    },
-    colors: ['#52b788', '#ffd166', '#ff4d4d', '#2563eb'],
-    ticks: 60
-  });
+    spread: 60,
+    origin: { x: originX, y: originY },
+    colors: ['#ffd700', '#ffb703', '#f4a261'], // 璀璨高亮金
+    shapes: ['circle'], // 圆形代表金币
+    scalar: 1.2,        // 稍微放大一点显得有分量
+    gravity: 1.1,       // 重力稍大，模拟金币下落感
+    ticks: 70
+  })
 
-  // 2. 同时从屏幕左下角和右下角往中央发射全局礼花筒效果
-  const duration = 0.3 * 1000;
-  const end = Date.now() + duration;
+  // 渲染星星：五角星形状 + 闪烁感
+  confetti({
+    particleCount: 15,
+    angle: 90,
+    spread: 80,
+    origin: { x: originX, y: originY },
+    colors: ['#ffffff', '#e0f2fe', '#fffbeb', '#ffd166'], // 银白星光与闪烁黄
+    shapes: ['star'],  // 五角星形
+    scalar: 1.0,
+    ticks: 80
+  })
 
-  (function frame() {
+  // --- 核心升级 2：两侧礼花筒额外混入金币与彩纸交织 ---
+  const duration = 0.35 * 1000
+  const end = Date.now() + duration
+
+  ;(function frame() {
+    // 左下角喷洒：传统彩纸与金币混杂
     confetti({
-      particleCount: 3,
+      particleCount: 4,
       angle: 60,
       spread: 55,
-      origin: { x: 0, y: 0.8 }
-    });
+      origin: { x: 0, y: 0.8 },
+      colors: ['#52b788', '#ffd166', '#ff4d4d', '#2563eb', '#ffd700'],
+      shapes: ['square', 'circle'] // 方块花瓣 + 圆形金币
+    })
+    
+    // 右下角喷洒
     confetti({
-      particleCount: 3,
+      particleCount: 4,
       angle: 120,
       spread: 55,
-      origin: { x: 1, y: 0.8 }
-    });
+      origin: { x: 1, y: 0.8 },
+      colors: ['#52b788', '#ffd166', '#ff4d4d', '#2563eb', '#ffd700'],
+      shapes: ['square', 'circle']
+    })
 
     if (Date.now() < end) {
-      requestAnimationFrame(frame);
+      requestAnimationFrame(frame)
     }
-  }());
+  }())
 }
 
 const handleRoundComplete = () => {
@@ -265,6 +339,7 @@ watch(
 </script>
 
 <style scoped>
+/* 保持原样 */
 .word-match-viewport { 
   --mint-primary: #52b788; 
   --mint-light: #e8f5e9; 
