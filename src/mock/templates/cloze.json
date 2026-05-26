@@ -1,0 +1,20 @@
+[
+  {
+    "title": "A Wonderful Day in the Nature Park",
+    "cloze_text": "备选单词：spirit, cheer, loud, have to, insect, fence, find found, interesting, leaf, whole, treasure, write wrote\nYesterday, my class went to a nature park. The weather was beautiful, and everyone was in high {{1}}. As we walked, we could hear birds singing {{2}} in the trees. Suddenly, Tom shouted, \"Look! What's that?\" We ran over and {{3}} an amazing {{4}} on a big green {{5}}. Our science teacher told us it was a rare beetle. It was so {{6}} that we spent the {{7}} morning watching it and taking notes. Later, we had a picnic near a wooden {{8}}. After lunch, we {{9}} clean up the rubbish to protect the environment. Before leaving, we {{10}} down our wishes for the park on a board. What a memorable day!",
+    "answers": ["spirits", "loudly", "found", "insect", "leaf", "interesting", "whole", "fence", "had to", "wrote"],
+    "category": "短文填空"
+  },
+  {
+    "title": "Opening a New Restaurant",
+    "cloze_text": "备选单词：goal, arrive, movie, protein, carb, fiber, pancake, bacon, create, restaurant, partner, menu, review\nMy uncle and his business {{1}} had a big dream: to open a healthy food restaurant in our city. Their {{2}} was to make fast food both delicious and healthy. After months of hard work, they finally {{3}} a special {{4}}. It balances everything perfectly. For breakfast, customers can enjoy high-{{5}} meals like eggs and {{6}}, or sweet {{7}} made with whole wheat. They also make sure each dish has enough {{8}} from fresh vegetables. Yesterday, the {{9}} finally opened! Many people {{10}} early to try the food. By the end of the day, the restaurant received many excellent {{11}} online. My uncle was so proud.",
+    "answers": ["partner", "goal", "created", "menu", "protein", "bacon", "pancakes", "fiber", "restaurant", "arrived", "reviews"],
+    "category": "短文填空"
+  },
+  {
+    "title": "An Unforgettable Boat Trip",
+    "cloze_text": "备选单词：enter, before, date, climb, wall, space, ear, much, whale, knock, ferry, still, sick\nLast Sunday was an exciting {{1}} for my family because we went on a sea trip. {{2}} we got on the big boat, my little brother was a bit afraid. He thought the {{3}} on the boat would be too small. However, when we {{4}} the cabin, it was large and comfortable. The boat was a huge {{5}} that could carry hundreds of people. As the boat moved, the wind blew strongly against my {{6}}. Suddenly, someone shouted, \"Look! A blue {{7}}!\" It was jumping out of the water! I was so excited that I {{8}} over my water bottle by accident. Though the sea became rough and some people felt {{9}}, I {{10}} enjoyed the trip very {{11}}. It was amazing!",
+    "answers": ["Before", "date", "space", "entered", "ferry", "ears", "whale", "knocked", "sick", "still", "much"],
+    "category": "短文填空"
+  }
+]

@@ -8,7 +8,7 @@ import ReadingList from './components/Reading/ReadingList.vue'
 import EditForm from './components/Reading/EditForm.vue'
 import ReadingWorkspace from './components/Reading/ReadingWorkspace.vue'
 import QuizModule from './components/Quiz/QuizModule.vue'
-import ClozeModule from './components/ClozeModule.vue'
+import ClozeModule from './components/Cloze/ClozeModule.vue'
 import BlankModule from './components//Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/games/BrainBreakModule.vue'
@@ -482,6 +482,48 @@ const saveClozeQuiz = async (clozeData) => {
   }
 }
 
+// --- 短文填空批量保存逻辑 ---
+const handleBatchSaveClozes = async (clozeQuizzesArray) => {
+  // 健壮性检查：如果没有选中任何学员，拒绝提交
+  if (!currentStudent.value) {
+    alert("❌ 请先在左侧列表选择一名学员，再进行批量发布。")
+    return
+  }
+
+  try {
+    isLoading.value = true
+    
+    // 1. 数据映射与格式兜底，注入当前学员的 student_id
+    const finalData = clozeQuizzesArray.map(cloze => ({
+      title: cloze.title || '未命名短文练习',
+      cloze_text: cloze.cloze_text,
+      answers: cloze.answers, // 支持前端传递数组或对象格式
+      category: cloze.category || '短文填空',
+      explanation: cloze.explanation || '',
+      student_id: currentStudent.value.id // 核心关联
+    }))
+
+    // 2. 利用 Supabase 的原生特性，一次性全量插入数组
+    const { error } = await supabase
+      .from('cloze_quizzes')
+      .insert(finalData)
+
+    if (error) throw error
+
+    // 3. 完美的异步成功反馈
+    alert(`🚀 成功批量发布 ${finalData.length} 篇短文填空练习！`)
+
+    // 4. 触发数据侧的原子级刷新，让 ClozeModule 里的视图感知最新变化
+    await fetchClozeQuizzes(currentStudent.value.id)
+
+  } catch (e) {
+    console.error("Batch Save Cloze Error:", e)
+    alert('批量发布失败：' + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 保存评估结果
 const saveVocabTest = async (testData) => {
   try {
@@ -732,7 +774,7 @@ const toggleFullScreen = () => {
 
         <template v-else-if="activeModule === 'cloze'">
           <ClozeModule :student="currentStudent" :quizzes="studentClozeQuizzes" :canEdit="isAdminMode"
-            :isFullScreen="isFullScreen" @save="saveClozeQuiz" @delete="deleteClozeQuiz"
+            :isFullScreen="isFullScreen" @save="saveClozeQuiz" @delete="deleteClozeQuiz" @batch-save="handleBatchSaveClozes" 
             @toggleFull="toggleFullScreen" />
         </template>
 

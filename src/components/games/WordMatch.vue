@@ -57,8 +57,8 @@
 
       <div v-else class="finish-zone">
         <div class="trophy">🏆</div>
-        <h2>消消乐通关成功！</h2>
-        <p class="summary-text">你完美通过了全部 3 轮挑战，最高连击 <strong>{{ maxCombo }}</strong> 次！</p>
+        <h2>通关成功！</h2>
+        <p class="summary-text">你完美通过了 3 轮单词挑战，最高连击 <strong>{{ maxCombo }}</strong> 次！</p>
         <div class="button-zone">
           <button class="btn main-action-btn next-mode" @click="initGame">再玩一轮</button>
         </div>
@@ -173,7 +173,7 @@ const handleCardClick = (event, card) => {
 
     if (card2.type === 'en') speak(card2.text)
 
-    // 触发【全新升级】金币 + 星星 + 撒花 特效
+    // 触发【全新升级】金币 + 星星 + 撒花 特效（保留你原有的单体题特效不变）
     triggerCelebrationEffect(event.clientX, event.clientY)
 
     selectedCard.value = null
@@ -195,7 +195,7 @@ const handleCardClick = (event, card) => {
   }
 }
 
-// 清脆、欢快的水晶风铃琶音音效
+// 清脆、欢快的水晶风铃琶音音效（单题选对音效不动）
 const playSuccessSound = () => {
   if (!audioCtx) return
   if (audioCtx.state === 'suspended') audioCtx.resume()
@@ -235,53 +235,100 @@ const playSuccessSound = () => {
   })
 }
 
-// 👑 全新升级：点击位置爆开金币星星 + 屏幕两侧喷洒梦幻礼花
+// 🎵 【新增】每一轮全部匹配干净后的进阶庆祝大音效
+const playRoundCompleteSound = () => {
+  if (!audioCtx) return
+  if (audioCtx.state === 'suspended') audioCtx.resume()
+
+  const now = audioCtx.currentTime
+
+  // 1. 低音奠定史诗震撼感（BASS 轰鸣）
+  const bassOsc = audioCtx.createOscillator()
+  const bassGain = audioCtx.createGain()
+  bassOsc.type = 'triangle'
+  bassOsc.frequency.setValueAtTime(130.81, now) // C3 低音
+  bassOsc.frequency.exponentialRampToValueAtTime(261.63, now + 0.15) // 快速滑音到 C4
+  bassGain.gain.setValueAtTime(0.3, now)
+  bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8)
+  bassOsc.connect(bassGain)
+  bassGain.connect(audioCtx.destination)
+  bassOsc.start(now)
+  bassOsc.stop(now + 0.8)
+
+  // 2. 密集高亢的水晶琶音急速上升（向上扫频，模拟通关飞跃）
+  const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00] // C5-E5-G5-C6-E6-G6-C7 大三和弦完美进阶
+  notes.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator()
+    const gainNode = audioCtx.createGain()
+    
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(freq, now + i * 0.06) // 阶梯式延时触发，营造流利琶音效果
+    
+    gainNode.gain.setValueAtTime(0, now + i * 0.06)
+    gainNode.gain.linearRampToValueAtTime(0.15, now + i * 0.06 + 0.02)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.5)
+    
+    osc.connect(gainNode)
+    gainNode.connect(audioCtx.destination)
+    osc.start(now + i * 0.06)
+    osc.stop(now + i * 0.06 + 0.5)
+  })
+
+  // 3. 终极大奖音效（在琶音结束时，撞击一个清透悠长的正弦胜利尾音）
+  const winOsc = audioCtx.createOscillator()
+  const winGain = audioCtx.createGain()
+  winOsc.type = 'sine'
+  winOsc.frequency.setValueAtTime(2093.00, now + 0.4) // 高音 C7 撞击
+  winGain.gain.setValueAtTime(0, now + 0.4)
+  winGain.gain.linearRampToValueAtTime(0.25, now + 0.4 + 0.05)
+  winGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4 + 1.2) // 超长优雅回响
+  winOsc.connect(winGain)
+  winGain.connect(audioCtx.destination)
+  winOsc.start(now + 0.4)
+  winOsc.stop(now + 1.6)
+}
+
+// 👑 你的原有特效：点击位置爆开金币星星 + 屏幕两侧喷洒梦幻礼花（保持原封不动）
 const triggerCelebrationEffect = (clientX, clientY) => {
   const originX = clientX / window.innerWidth
   const originY = clientY / window.innerHeight
 
-  // --- 核心升级 1：点击处定向爆发出“金币 + 闪烁五角星” ---
-  // 渲染金币：圆圈形状 + 纯金色
   confetti({
     particleCount: 12,
     angle: 90,
     spread: 60,
     origin: { x: originX, y: originY },
-    colors: ['#ffd700', '#ffb703', '#f4a261'], // 璀璨高亮金
-    shapes: ['circle'], // 圆形代表金币
-    scalar: 1.2,        // 稍微放大一点显得有分量
-    gravity: 1.1,       // 重力稍大，模拟金币下落感
+    colors: ['#ffd700', '#ffb703', '#f4a261'], 
+    shapes: ['circle'], 
+    scalar: 1.2,        
+    gravity: 1.1,       
     ticks: 70
   })
 
-  // 渲染星星：五角星形状 + 闪烁感
   confetti({
     particleCount: 15,
     angle: 90,
     spread: 80,
     origin: { x: originX, y: originY },
-    colors: ['#ffffff', '#e0f2fe', '#fffbeb', '#ffd166'], // 银白星光与闪烁黄
-    shapes: ['star'],  // 五角星形
+    colors: ['#ffffff', '#e0f2fe', '#fffbeb', '#ffd166'], 
+    shapes: ['star'],  
     scalar: 1.0,
     ticks: 80
   })
 
-  // --- 核心升级 2：两侧礼花筒额外混入金币与彩纸交织 ---
   const duration = 0.35 * 1000
   const end = Date.now() + duration
 
   ;(function frame() {
-    // 左下角喷洒：传统彩纸与金币混杂
     confetti({
       particleCount: 4,
       angle: 60,
       spread: 55,
       origin: { x: 0, y: 0.8 },
       colors: ['#52b788', '#ffd166', '#ff4d4d', '#2563eb', '#ffd700'],
-      shapes: ['square', 'circle'] // 方块花瓣 + 圆形金币
+      shapes: ['square', 'circle'] 
     })
     
-    // 右下角喷洒
     confetti({
       particleCount: 4,
       angle: 120,
@@ -297,10 +344,59 @@ const triggerCelebrationEffect = (clientX, clientY) => {
   }())
 }
 
+// 全局全屏庆祝震撼礼花特效（不动）
+const triggerGlobalRoundCelebration = () => {
+  confetti({
+    particleCount: 140,
+    spread: 120,
+    origin: { x: 0.5, y: 0.4 },
+    colors: ['#ff4d4d', '#ffb703', '#52b788', '#2563eb', '#9b5de5', '#ffd700'],
+    shapes: ['star', 'circle', 'square'],
+    scalar: 1.2,
+    gravity: 0.85,
+    ticks: 150
+  })
+
+  const duration = 1.5 * 1000
+  const end = Date.now() + duration
+
+  ;(function frame() {
+    confetti({
+      particleCount: 6,
+      angle: 50,
+      spread: 70,
+      origin: { x: 0, y: 0.75 },
+      colors: ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93', '#ffd700'],
+      scalar: 1.1
+    })
+    
+    confetti({
+      particleCount: 6,
+      angle: 130,
+      spread: 70,
+      origin: { x: 1, y: 0.75 },
+      colors: ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93', '#ffd700'],
+      scalar: 1.1
+    })
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame)
+    }
+  }())
+}
+
 const handleRoundComplete = () => {
+  // ⚡ 触发全屏漫天撒花特效
+  triggerGlobalRoundCelebration()
+  
+  // 🎵 瞬间鸣响——全屏进阶通关庆祝音效
+  playRoundCompleteSound()
+
   if (currentRound.value < 3) {
-    currentRound.value++
-    startRound(currentRound.value)
+    setTimeout(() => {
+      currentRound.value++
+      startRound(currentRound.value)
+    }, 1500)
   } else {
     isGameFinished.value = true
   }
@@ -339,7 +435,7 @@ watch(
 </script>
 
 <style scoped>
-/* 保持原样 */
+/* 样式完美保持原样 */
 .word-match-viewport { 
   --mint-primary: #52b788; 
   --mint-light: #e8f5e9; 
