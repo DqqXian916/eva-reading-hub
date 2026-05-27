@@ -108,31 +108,46 @@ const initGame = () => {
 }
 
 // 开启指定轮次
+// 开启指定轮次
 const startRound = (roundNum) => {
+  // 1. 检查 Store 里有没有词库数据
   if (!gameStore.wordList || gameStore.wordList.length === 0) {
     cards.value = []
     return
   }
-
+  // 💡 【核心改动】1. 每次开局，先把总词库复制一份并完全打乱（洗牌）
+  const shuffledTotalWords = [...gameStore.wordList].sort(() => Math.random() - 0.5);
+  // 2. 确定每轮需要 10 个词
   const wordsPerRound = 10
-  const startIndex = (roundNum - 1) * wordsPerRound
-  let activeWords = gameStore.wordList.slice(startIndex, startIndex + wordsPerRound)
-  
-  if (activeWords.length === 0) {
-    activeWords = gameStore.wordList.slice(0, wordsPerRound)
-  }
-
+  // 💡 【核心改动】3. 直接从打乱后的总词库中截取前 10 个（这样每次拿到的绝对是随机的 10 个词）
+  let activeWords = shuffledTotalWords.slice(0, wordsPerRound)
+  // 4. 生成中英文配对卡牌池
   let pool = []
   activeWords.forEach((item, index) => {
-    pool.push({ id: `en-${index}`, pairId: index, type: 'en', text: item.en, isMatched: false })
-    pool.push({ id: `cn-${index}`, pairId: index, type: 'cn', text: item.cn, isMatched: false })
+    // 建议使用单词自身的 id 或英文作为配对标识，防止 index 冲突
+    const pairId = item.id || item.en || index 
+    
+    pool.push({ 
+      id: `en-${roundNum}-${index}-${Math.random()}`, // 加上随机数防 id 重复导致渲染错误
+      pairId: pairId, 
+      type: 'en', 
+      text: item.en, 
+      isMatched: false 
+    })
+    pool.push({ 
+      id: `cn-${roundNum}-${index}-${Math.random()}`, 
+      pairId: pairId, 
+      type: 'cn', 
+      text: item.cn, 
+      isMatched: false 
+    })
   })
-
+  // 5. 再次打乱这 20 张中英文卡牌的位置（决定它们在网格里的排列顺序）
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]]
   }
-
+  // 6. 赋值给响应式变量，渲染视图
   cards.value = pool
   selectedCard.value = null
   errorCardIds.value = []
