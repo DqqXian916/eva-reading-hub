@@ -9,9 +9,10 @@ import TombGame from './Tomb.vue'
 import PianoGame from './Piano.vue'
 import ShootGame from './Shoot.vue'
 import CarCrashGame from './CarCrash.vue'
-import WordFighterGame from  './WordFighter.vue'
+import WordFighterGame from './WordFighter.vue'
 import DrawGame from './Draw.vue'
 import WordMatchGame from './WordMatch.vue'
+import PrincessWardrobeGame from './PrincessWardrobe.vue'
 import { useGameStore } from '../../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -46,7 +47,7 @@ const games = ref([
             goal: 20
         }
     },
-      {
+    {
         id: 'draw',
         name: '涂鸦日记',
         isVue: true, // 关键：标识这是一个 Vue 组件
@@ -124,16 +125,28 @@ const games = ref([
         }
     },
     {
-    id: 'word-match',
-    name: '单词消消乐',
-    isVue: true,
-    icon: '🃏',
-    color: '#9b59b6', // 优雅的紫色
-    config: {
-        wordList: [],
-        goal: 20
-    }
-},
+        id: 'word-match',
+        name: '单词消消乐',
+        isVue: true,
+        icon: '🃏',
+        color: '#9b59b6', // 优雅的紫色
+        config: {
+            wordList: [],
+            goal: 20
+        }
+    },
+    // 在 const games = ref([ ... ]) 中追加：
+    {
+        id: 'wardrobe',
+        name: '高定换装沙龙',
+        isVue: true, // 关键：标识这是一个 Vue 组件
+        icon: '👗',
+        color: '#ffcad4', // 浪漫的粉色系
+        config: {
+            wordList: [], // 初始空，等后端注入
+            goal: 10      // 对应换装游戏的10件衣服
+        }
+    },
 ])
 
 const activeGame = ref(null)
@@ -199,7 +212,7 @@ const saveGameConfig = () => {
     try {
         const newWordList = JSON.parse(configJsonStr.value)
         if (!Array.isArray(newWordList)) throw new Error("必须是数组格式")
-        
+
         // 1. 本地 Games 数组更新
         editingGame.value.config.wordList = newWordList
 
@@ -297,42 +310,31 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
-                                <WordFighterGame 
-                                    v-if="activeGame.id === 'word-fighter'" 
-                                    :wordList="activeGame.config.wordList"
-                                    :key="props.student.id" 
-                                    :goal="activeGame.config.goal" 
-                                    :canEdit="canEdit" 
-                                    @updateConfig="(newWords) => $emit('saveConfig', {
-                                        studentId: props.student.id,
-                                        wordList: newWords,
-                                        goal: activeGame.config.goal
-                                    })" 
-                                />
-                                <DrawGame 
-                                    v-if="activeGame.id === 'draw'" 
-                                    :wordList="activeGame.config.wordList"
-                                    :key="props.student.id" 
-                                    :goal="activeGame.config.goal" 
-                                    :canEdit="canEdit" 
-                                    @updateConfig="(newWords) => $emit('saveConfig', {
-                                        studentId: props.student.id,
-                                        wordList: newWords,
-                                        goal: activeGame.config.goal
-                                    })" 
-                                />
-                                <WordMatchGame 
-                                    v-if="activeGame.id === 'word-match'" 
-                                    :wordList="activeGame.config.wordList"
-                                    :key="props.student.id" 
-                                    :goal="activeGame.config.goal" 
-                                    :canEdit="canEdit" 
-                                    @updateConfig="(newWords) => $emit('saveConfig', {
-                                        studentId: props.student.id,
-                                        wordList: newWords,
-                                        goal: activeGame.config.goal
-                                    })" 
-                                />
+                            <WordFighterGame v-if="activeGame.id === 'word-fighter'"
+                                :wordList="activeGame.config.wordList" :key="props.student.id"
+                                :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <DrawGame v-if="activeGame.id === 'draw'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <WordMatchGame v-if="activeGame.id === 'word-match'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <PrincessWardrobeGame v-if="activeGame.id === 'wardrobe'" :key="props.student.id"
+                                :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: 10 // 公主衣柜固定为10件衣服的关卡目标
+                                })" />
                         </template>
 
                         <template v-else>

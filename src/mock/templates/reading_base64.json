@@ -1,0 +1,65 @@
+[
+  {
+    "q": "How does the writer support the idea \"Music also brings people together in real life\"?",
+    "option_type": "text",
+    "answer": 1,
+    "options": [
+      "A. By asking questions.",
+      "B. By giving examples.",
+      "C. By listing numbers.",
+      "D. By explaining reasons."
+    ],
+    "analysis": [
+      "❌ 错误。第④段并没有连续提出疑问来支持观点，而是直接给出了具体的场景。",
+      "✅ 正确。第④段通过列举演唱会（concert）、体育赛事（sports events）、节日（festivals）以及在车里和朋友唱歌等具体实例，来论证音乐如何把人们联系在一起。",
+      "❌ 错误。虽然提到了 thousands of strangers，但这只是个概数修饰，并非通过列举核心数据、图表或数字来提供主要论据。",
+      "❌ 干扰项。文章侧重于描述“音乐带来的场景和体验（举例）”，而非深度剖析其背后的生物学或心理学逻辑原因（第③段才侧重原因解释）。"
+    ]
+  },
+  {
+    "q": "Which of the following shows the structure of the passage?",
+    "option_type": "image_base64",
+    "answer": 2,
+    "options": [
+      {
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+        "desc": "结构图A：①引出②，②分叉连接③④⑤"
+      },
+      {
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+        "desc": "结构图B：①连接②③，②③汇合连接④，④连接⑤"
+      },
+      {
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+        "desc": "结构图C：①连接②③④并列，最后汇合连接⑤"
+      },
+      {
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+        "desc": "结构图D：①同时分叉连接②③④⑤"
+      }
+    ],
+    "analysis": [
+      "❌ 错误。该结构认为第②段引出了后三段，但实际上第②、③、④段是并列关系，共同支撑主题或引向结尾。",
+      "❌ 错误。该结构错误地将第②、③段汇合引向第④段，段落间的逻辑承接不符合原文。",
+      "✅ 正确。整篇文章呈总-分-总结构：第①段总领全篇；第②、③、④段从不同维度（心灵慰藉、生理层面、现实社交）并列展开分述；第⑤段引用名言总结升华。因此中间三段并列，上下分别由开头和结尾连接，构成菱形结构。",
+      "❌ 错误。该结构忽略了第⑤段的总结照应作用，将其误认为只是与前面并列的独立分论点。"
+    ]
+  },
+  {
+    "q": "What is the purpose of the passage?",
+    "option_type": "text",
+    "answer": 3,
+    "options": [
+      "A. To introduce a special chemical.",
+      "B. To tell readers to listen to music every day.",
+      "C. To show how to write songs that can comfort people.",
+      "D. To explain why music influences people and brings them close."
+    ],
+    "analysis": [
+      "❌ 以偏概全。介绍“催产素”只是第③段用于解释音乐影响人类的生理科学依据，属于局部细节，而非整篇文章的主旨目的。",
+      "❌ 无中生有。文章旨在探讨音乐的情感与社交纽带作用，并未给读者提出“每天听音乐”的具体行动建议。",
+      "❌ 错误。文章讨论的是听音乐的感受和影响，完全没有涉及“如何创作/写歌”的内容。",
+      "✅ 正确。通篇都在阐述音乐对人的抚慰、生理上的积极反馈，以及在现实中消除孤独、连接彼此的强大力量，完美契合“解释音乐为何能影响人类并拉近彼此距离”的目的。"
+    ]
+  }
+]
