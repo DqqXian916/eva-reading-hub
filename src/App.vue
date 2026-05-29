@@ -13,6 +13,7 @@ import BlankModule from './components//Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/games/BrainBreakModule.vue'
 import VocabularyModule from './components/VocabularyModule.vue'
+import OneWordModule from './components/OneWord/OneWordModule.vue'
 // --- 状态管理 ---
 const activeModule = ref('reading')
 const isAdminMode = ref(false)
@@ -33,6 +34,8 @@ const isLoading = ref(false)
 const isFullScreen = ref(false)
 const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
 const studentQuizzes = ref([])
+const currentOneWord = ref({ english: '', chinese: '' })
+
 // --- 排行榜状态 ---
 const showLeaderboard = ref(false)
 const leaderboardData = ref([])
@@ -91,6 +94,67 @@ const fetchLeaderboard = async () => {
   }
 };
 
+const fetchOneWord = async (studentId) => {
+  isLoading.value = true
+  try {
+    // 改为直接请求我们刚建的 one_words 表
+    const { data, error } = await supabase
+      .from('one_words')
+      .select('english, chinese')
+      .eq('student_id', studentId)
+      .maybeSingle() // 用 maybeSingle 避免找不到数据时抛出红色 error
+      
+    if (!error && data) {
+      currentOneWord.value = data
+    } else {
+      // 没有任何记录时的优雅兜底
+      currentOneWord.value = { 
+        english: "Click Admin Mode to record today's word.", 
+        chinese: "点击管理模式，录入今天的一言语。" 
+      }
+    }
+  } catch (e) {
+    console.error("从云端获取一言语失败:", e)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 管理端保存“一言语”
+const handleSaveOneWord = async (wordData) => {
+  if (!currentStudent.value) {
+    alert("❌ 请先在左侧选择一名学员")
+    return
+  }
+  
+  try {
+    isLoading.value = true
+    
+    // 向新表 one_words 执行 upsert
+    const { error } = await supabase
+      .from('one_words')
+      .upsert({
+        student_id: currentStudent.value.id,
+        english: wordData.english,
+        chinese: wordData.chinese,
+        updated_at: new Date()
+      }, {
+        onConflict: 'student_id' // 遇到该学生已有一言记录时直接覆盖
+      })
+
+    if (error) throw error
+    
+    // 关键：这里会用到我们刚刚在顶部定义的 currentOneWord
+    currentOneWord.value = wordData
+    alert("✅ 一言语已成功同步至 Supabase 云端")
+  } catch (e) {
+    console.error("同步云端失败:", e)
+    alert("❌ 同步失败：" + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // 辅助函数：获取本周一 00:00:00 的 ISO 字符串
 const getStartOfThisWeek = () => {
   const now = new Date();
@@ -148,6 +212,9 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchVocabulary(newStudent.id)
   } else if (newModule === 'blank') {
     await fetchBlankQuizzes(newStudent.id)
+  }
+  else if (newModule === 'sentence') {
+    await fetchOneWord(newStudent.id)
   }
 })
 
@@ -492,7 +559,7 @@ const handleBatchSaveClozes = async (clozeQuizzesArray) => {
 
   try {
     isLoading.value = true
-    
+
     // 1. 数据映射与格式兜底，注入当前学员的 student_id
     const finalData = clozeQuizzesArray.map(cloze => ({
       title: cloze.title || '未命名短文练习',
@@ -709,25 +776,27 @@ const toggleFullScreen = () => {
             完形填空</button>
           <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
+          <button :class="['module-tab', { active: activeModule === 'sentence' }]"
+            @click="activeModule = 'sentence'">🏞️ 一言 </button>
         </nav>
-       <div class="nav-right">
-  <div class="xp-display" @click="showLeaderboard = true; fetchLeaderboard()">
-    <div class="xp-icon-container">
-      <span class="xp-emoji">🏆</span>
-    </div>
-    <div class="xp-text">
-      <span class="xp-amount">{{ currentStudent?.total_xp || 0 }}</span>
-      <span class="xp-label">Exp</span>
-    </div>
-  </div>
+        <div class="nav-right">
+          <div class="xp-display" @click="showLeaderboard = true; fetchLeaderboard()">
+            <div class="xp-icon-container">
+              <span class="xp-emoji">🏆</span>
+            </div>
+            <div class="xp-text">
+              <span class="xp-amount">{{ currentStudent?.total_xp || 0 }}</span>
+              <span class="xp-label">Exp</span>
+            </div>
+          </div>
 
-  <div class="divider-line"></div>
+          <div class="divider-line"></div>
 
-  <div :class="['role-badge', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole">
-    <div class="role-dot"></div>
-    <span>{{ isAdminMode ? '管理模式' : '学员模式' }}</span>
-  </div>
-</div>
+          <div :class="['role-badge', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole">
+            <div class="role-dot"></div>
+            <span>{{ isAdminMode ? '管理模式' : '学员模式' }}</span>
+          </div>
+        </div>
       </header>
     </Transition>
 
@@ -774,8 +843,8 @@ const toggleFullScreen = () => {
 
         <template v-else-if="activeModule === 'cloze'">
           <ClozeModule :student="currentStudent" :quizzes="studentClozeQuizzes" :canEdit="isAdminMode"
-            :isFullScreen="isFullScreen" @save="saveClozeQuiz" @delete="deleteClozeQuiz" @batch-save="handleBatchSaveClozes" 
-            @toggleFull="toggleFullScreen" />
+            :isFullScreen="isFullScreen" @save="saveClozeQuiz" @delete="deleteClozeQuiz"
+            @batch-save="handleBatchSaveClozes" @toggleFull="toggleFullScreen" />
         </template>
 
         <template v-else-if="activeModule === 'vocab-test'">
@@ -804,6 +873,10 @@ const toggleFullScreen = () => {
               </div>
             </div>
           </Transition>
+        </template>
+        <template v-else-if="activeModule === 'sentence'">
+          <OneWordModule :quote="currentOneWord" :canEdit="isAdminMode" :isFullScreen="isFullScreen"
+            @toggleFull="toggleFullScreen" @save="handleSaveOneWord" />
         </template>
         <template v-else>
           <div class="placeholder">
@@ -1574,6 +1647,7 @@ body {
 .get-avatar-color {
   /* 在 JS 里定义 */
 }
+
 .nav-right {
   display: flex;
   align-items: center;
@@ -1692,8 +1766,18 @@ body {
 }
 
 @keyframes cup-shake {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-15deg); }
-  75% { transform: rotate(15deg); }
+
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  25% {
+    transform: rotate(-15deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
 }
 </style>
