@@ -536,7 +536,6 @@ const checkAnswers = () => {
     padding: 0 16px;
 }
 
-/* --- 侧边栏卡片与导航 --- */
 .nav-item-card {
     position: relative;
     padding: 16px;
@@ -549,6 +548,7 @@ const checkAnswers = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px; /* 确保内容区与操作按钮之间有安全间距 */
 }
 
 .nav-item-card:hover {
@@ -563,10 +563,17 @@ const checkAnswers = () => {
     border: 2px solid #52c41a;
 }
 
+.item-info {
+    flex: 1;        /* 关键：让文字容器充满主内容区 */
+    min-width: 0;   /* 关键：防止文字撑破父容器 */
+}
+
 .card-main-content {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;        /* 关键：让内容区占据除按钮外的剩余全部空间 */
+    min-width: 0;   /* 关键：允许 Flex 子元素缩小，触发内部文字的 ellipsis 省略号 */
 }
 
 .item-index-box {
@@ -576,6 +583,7 @@ const checkAnswers = () => {
     background: #f8fafc;
     padding: 4px 8px;
     border-radius: 6px;
+    flex-shrink: 0; /* 防止数字盒子被压缩 */
 }
 
 .active .item-index-box {
@@ -590,7 +598,8 @@ const checkAnswers = () => {
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; /* 超出部分自动变省略号 */
+    width: 100%;             /* 铺满父级 */
 }
 
 .item-meta {
@@ -604,6 +613,7 @@ const checkAnswers = () => {
     gap: 4px;
     opacity: 0;
     transition: 0.2s;
+    flex-shrink: 0; /* 关键：强行保护按钮，绝对不允许被挤压或缩小 */
 }
 
 .nav-item-card:hover .item-actions {
