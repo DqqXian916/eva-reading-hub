@@ -1,0 +1,387 @@
+[
+  {
+    "m": false,
+    "s": "It was embarrassing when I forgot her name.",
+    "cn": "令人尴尬的",
+    "en": "embarrassing",
+    "ps": "ɪmˈbærəsɪŋ"
+  },
+  {
+    "m": false,
+    "s": "I am writing on behalf of my client.",
+    "cn": "代表",
+    "en": "behalf",
+    "ps": "bɪˈhɑːf"
+  },
+  {
+    "m": false,
+    "s": "They live in a huge house with a pool.",
+    "cn": "巨大的",
+    "en": "huge",
+    "ps": "hjuːdʒ"
+  },
+  {
+    "m": false,
+    "s": "He has traveled all over Europe.",
+    "cn": "欧洲",
+    "en": "Europe",
+    "ps": "ˈjʊərəp"
+  },
+  {
+    "m": false,
+    "s": "You should consult a doctor about your pain.",
+    "cn": "请教",
+    "en": "consult",
+    "ps": "kənˈsʌlt"
+  },
+  {
+    "m": false,
+    "s": "Students can get a 10% discount on books.",
+    "cn": "折扣",
+    "en": "discount",
+    "ps": "ˈdɪskaʊnt"
+  },
+  {
+    "m": false,
+    "s": "The children are playing in the front yard.",
+    "cn": "院子",
+    "en": "yard",
+    "ps": "jɑːd"
+  },
+  {
+    "m": false,
+    "s": "The tiger sank its teeth into the deer's flesh.",
+    "cn": "肉",
+    "en": "flesh",
+    "ps": "fleʃ"
+  },
+  {
+    "m": false,
+    "s": "A cold wind blew from the northeast.",
+    "cn": "东北（部）",
+    "en": "northeast",
+    "ps": "ˌnɔːθˈiːst"
+  },
+  {
+    "m": false,
+    "s": "How much is the monthly rent for this flat?",
+    "cn": "租用",
+    "en": "rent",
+    "ps": "rent"
+  },
+  {
+    "m": false,
+    "s": "What percentage of the population is elderly?",
+    "cn": "百分率；百分数",
+    "en": "percentage",
+    "ps": "pəˈsentɪdʒ"
+  },
+  {
+    "m": false,
+    "s": "Paris is the capital city of France.",
+    "cn": "首都",
+    "en": "capital",
+    "ps": "ˈkæpɪtl"
+  },
+  {
+    "m": false,
+    "s": "We provide a service for your convenience.",
+    "cn": "便利",
+    "en": "convenience",
+    "ps": "kənˈviːniəns"
+  },
+  {
+    "m": false,
+    "s": "The army defeated the enemy after a long war.",
+    "cn": "敌人",
+    "en": "enemy",
+    "ps": "ˈenəmi"
+  },
+  {
+    "m": false,
+    "s": "We saw a family of deer drinking at the lake.",
+    "cn": "鹿",
+    "en": "deer",
+    "ps": "dɪə(r)"
+  },
+  {
+    "m": false,
+    "s": "Sweet corn is one of my favorite vegetables.",
+    "cn": "玉米",
+    "en": "corn",
+    "ps": "kɔːn"
+  },
+  {
+    "m": false,
+    "s": "This bag of potatoes weighs about five pounds.",
+    "cn": "英镑",
+    "en": "pound",
+    "ps": "paʊnd"
+  },
+  {
+    "m": false,
+    "s": "I tried to persuade her to change her mind.",
+    "cn": "说服",
+    "en": "persuade",
+    "ps": "pəˈsweɪd"
+  },
+  {
+    "m": false,
+    "s": "Put a tick next to the correct answer.",
+    "cn": "作记号",
+    "en": "tick",
+    "ps": "tɪk"
+  },
+  {
+    "m": false,
+    "s": "It was a hard struggle to win the race.",
+    "cn": "斗争",
+    "en": "struggle",
+    "ps": "ˈstrʌɡl"
+  },
+  {
+    "m": false,
+    "s": "The boy was beating a small drum loudly.",
+    "cn": "鼓",
+    "en": "drum",
+    "ps": "drʌm"
+  },
+  {
+    "m": false,
+    "s": "Smoking increases the risk of lung cancer.",
+    "cn": "癌症",
+    "en": "cancer",
+    "ps": "ˈkænsə(r)"
+  },
+  {
+    "m": false,
+    "s": "There is a wooden fan hanging from the ceiling.",
+    "cn": "天花板",
+    "en": "ceiling",
+    "ps": "ˈsiːlɪŋ"
+  },
+  {
+    "m": false,
+    "s": "My granny always bakes delicious cookies.",
+    "cn": "老奶奶",
+    "en": "granny",
+    "ps": "ˈɡræni"
+  },
+  {
+    "m": false,
+    "s": "Can you squeeze some lemon juice onto the fish?",
+    "cn": "挤压",
+    "en": "squeeze",
+    "ps": "skwiːz"
+  },
+  {
+    "m": false,
+    "s": "The track is four hundred metres long.",
+    "cn": "米",
+    "en": "metre",
+    "ps": "ˈmiːtə(r)"
+  },
+  {
+    "m": false,
+    "s": "I need a mop to clean the kitchen floor.",
+    "cn": "拖把",
+    "en": "mop",
+    "ps": "mɒp"
+  },
+  {
+    "m": false,
+    "s": "The farmer owns ten acres of land here.",
+    "cn": "英亩",
+    "en": "acre",
+    "ps": "ˈeɪkə(r)"
+  },
+  {
+    "m": false,
+    "s": "The ball rolled into a thick green bush.",
+    "cn": "灌木丛",
+    "en": "bush",
+    "ps": "bʊʃ"
+  },
+  {
+    "m": false,
+    "s": "The nail was bent, so I couldn't use it.",
+    "cn": "弯的",
+    "en": "bent",
+    "ps": "bent"
+  },
+  {
+    "m": false,
+    "s": "The actual cost was much higher than expected.",
+    "cn": "实际的",
+    "en": "actual",
+    "ps": "ˈæktʃuəl"
+  },
+  {
+    "m": false,
+    "s": "She drew the curtain to let the light in.",
+    "cn": "窗帘",
+    "en": "curtain",
+    "ps": "ˈkɜːtn"
+  },
+  {
+    "m": false,
+    "s": "How did he react when you told him the news?",
+    "cn": "反应",
+    "en": "react",
+    "ps": "riˈækt"
+  },
+  {
+    "m": false,
+    "s": "Rice is the main crop in this region.",
+    "cn": "庄稼",
+    "en": "crop",
+    "ps": "krɒp"
+  },
+  {
+    "m": false,
+    "s": "You can adjust the seat to make it comfortable.",
+    "cn": "调整",
+    "en": "adjust",
+    "ps": "əˈdʒʌst"
+  },
+  {
+    "m": false,
+    "s": "Don't forget to squeeze the toothpaste from the bottom.",
+    "cn": "牙膏",
+    "en": "toothpaste",
+    "ps": "ˈtuːθpeɪst"
+  },
+  {
+    "m": false,
+    "s": "Leaves begin to fall from trees in autumn.",
+    "cn": "秋天；落下",
+    "en": "fall",
+    "ps": "fɔːl"
+  },
+  {
+    "m": false,
+    "s": "The gas burst into flame with a loud bang.",
+    "cn": "火焰",
+    "en": "flame",
+    "ps": "fleɪm"
+  },
+  {
+    "m": false,
+    "s": "She wears a lot of silver jewellery.",
+    "cn": "珠宝",
+    "en": "jewellery",
+    "ps": "ˈdʒuːəlri"
+  },
+  {
+    "m": false,
+    "s": "Reading books can occupy your free time.",
+    "cn": "占据",
+    "en": "occupy",
+    "ps": "ˈɒkjupaɪ"
+  },
+  {
+    "m": false,
+    "s": "I noticed a red spot on his cheek.",
+    "cn": "斑点",
+    "en": "spot",
+    "ps": "spɒt"
+  },
+  {
+    "m": false,
+    "s": "The mail carrier delivered a large package today.",
+    "cn": "包裹",
+    "en": "package",
+    "ps": "ˈpækɪdʒ"
+  },
+  {
+    "m": false,
+    "s": "The bright schoolgirl answered the question quickly.",
+    "cn": "女学生",
+    "en": "schoolgirl",
+    "ps": "ˈskuːlɡɜːl"
+  },
+  {
+    "m": false,
+    "s": "The grass was damp with early morning dew.",
+    "cn": "潮湿（的）",
+    "en": "damp",
+    "ps": "dæmp"
+  },
+  {
+    "m": false,
+    "s": "The prisoner was locked up in a dark cell.",
+    "cn": "囚犯",
+    "en": "prisoner",
+    "ps": "ˈprɪznə(r)"
+  },
+  {
+    "m": false,
+    "s": "Her face was on the cover of the magazine.",
+    "cn": "封面；覆盖",
+    "en": "cover",
+    "ps": "ˈkʌvə(r)"
+  },
+  {
+    "m": false,
+    "s": "It is unfair that some people get more money for the same job.",
+    "cn": "不公正的",
+    "en": "unfair",
+    "ps": "ˌʌnˈfeə(r)"
+  },
+  {
+    "m": false,
+    "s": "Several students were absent from school today.",
+    "cn": "缺席",
+    "en": "absent",
+    "ps": "ˈæbsənt"
+  },
+  {
+    "m": false,
+    "s": "The environmental issue is a major concern for everyone.",
+    "cn": "关心；涉及",
+    "en": "concern",
+    "ps": "kənˈsɜːn"
+  },
+  {
+    "m": false,
+    "s": "They moved into a new apartment downtown.",
+    "cn": "公寓",
+    "en": "apartment",
+    "ps": "əˈpɑːtmənt"
+  },
+  {
+    "m": false,
+    "s": "I like to fry potatoes in olive oil.",
+    "cn": "油炸的",
+    "en": "fry",
+    "ps": "fraɪ"
+  },
+  {
+    "m": false,
+    "s": "The living room feels very warm and cosy.",
+    "cn": "舒适的",
+    "en": "cosy",
+    "ps": "ˈkəʊzi"
+  },
+  {
+    "m": false,
+    "s": "The hospital staff work hard to look after patients.",
+    "cn": "全体员工",
+    "en": "staff",
+    "ps": "stɑːf"
+  },
+  {
+    "m": false,
+    "s": "The story carries a deep moral message.",
+    "cn": "道德的",
+    "en": "moral",
+    "ps": "ˈmɒrəl"
+  },
+  {
+    "m": false,
+    "s": "She showed great devotion to her family.",
+    "cn": "奉献",
+    "en": "devotion",
+    "ps": "dɪˈvəʊʃn"
+  }
+]
