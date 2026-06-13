@@ -34,31 +34,44 @@ const englishCards = ref([]);
 const chineseCards = ref([]); 
 
 // --- 换装系统控制 ---
-const activeBodyOutfit = ref('default'); // default, casual-orange, yoga-purple, taekwondo, school-green, ballet, down-jacket
+const activeBodyOutfit = ref('default'); 
 const isHairAccEquipped = ref(false);
 const isEarringsEquipped = ref(false);
 const isBagEquipped = ref(false);
 const isCrownEquipped = ref(false);
 
-// --- 衣柜配置 ---
-const clothesConfig = [
-  { level: 1, name: '缎带法夹', icon: '🎀', type: 'hair-acc' },
-  { level: 2, name: '橙色休闲短袖', icon: '👕', type: 'casual-orange' },
-  { level: 3, name: '紫色瑜伽服', icon: '🧘‍♀️', type: 'yoga-purple' },
-  { level: 4, name: '珍珠耳坠', icon: '💎', type: 'earrings' },
-  { level: 5, name: '黑白跆拳道服', icon: '🥋', type: 'taekwondo' },
-  { level: 6, name: '绿色校服', icon: '🏫', type: 'school-green' },
-  { level: 7, name: '粉蓝芭蕾服', icon: '🩰', type: 'ballet' },
-  { level: 8, name: '粉色羽绒服', icon: '🧥', type: 'down-jacket' },
-  { level: 9, name: '奢雅兔包', icon: '👜', type: 'bag' },
-  { level: 10, name: '璀璨皇冠', icon: '👑', type: 'crown' }
+// --- 全量衣橱配置储备库 ---
+const allClothesPool = [
+  { name: '缎带法夹', icon: '🎀', type: 'hair-acc' },
+  { name: '橙色休闲短袖', icon: '👕', type: 'casual-orange' },
+  { name: '紫色瑜伽服', icon: '🧘‍♀️', type: 'yoga-purple' },
+  { name: '珍珠耳坠', icon: '💎', type: 'earrings' },
+  { name: '黑白跆拳道服', icon: '🥋', type: 'taekwondo' },
+  { name: '绿色校服', icon: '🏫', type: 'school-green' },
+  { name: '粉蓝芭蕾服', icon: '🩰', type: 'ballet' },
+  { name: '热情拉丁舞蹈裙', icon: '💃', type: 'dance-red' },
+  { name: '丹宁牛仔休闲装', icon: '👖', type: 'casual-denim' },
+  { name: '粉色羽绒服', icon: '🧥', type: 'down-jacket' },
+  { name: '奢雅兔包', icon: '👜', type: 'bag' },
+  { name: '流金一字肩晚礼服', icon: '👗', type: 'evening-gold' },
+  { name: '清凉海风泳装', icon: '👙', type: 'swimsuit' },
+  { name: '元气百褶网球装', icon: '🎾', type: 'tennis' },
+  { name: '璀璨皇冠', icon: '👑', type: 'crown' }
+];
+
+// 本局随机生成的 5 件高定配置
+const clothesConfig = ref([]);
+
+const clothesTypes = [
+  'casual-orange', 'yoga-purple', 'taekwondo', 'school-green', 'ballet', 
+  'down-jacket', 'dance-red', 'casual-denim', 'evening-gold', 'swimsuit', 'tennis'
 ];
 
 const selectOutfit = (item) => {
   if (favor.value < item.level) return;
   playDressUpSound();
 
-  if (['casual-orange', 'yoga-purple', 'taekwondo', 'school-green', 'ballet', 'down-jacket'].includes(item.type)) {
+  if (clothesTypes.includes(item.type)) {
     activeBodyOutfit.value = activeBodyOutfit.value === item.type ? 'default' : item.type;
   } else if (item.type === 'hair-acc') {
     isHairAccEquipped.value = !isHairAccEquipped.value;
@@ -72,9 +85,9 @@ const selectOutfit = (item) => {
 };
 
 const autoEquipLatest = (unlockedLevel) => {
-  const item = clothesConfig.find(c => c.level === unlockedLevel);
+  const item = clothesConfig.value.find(c => c.level === unlockedLevel);
   if (!item) return;
-  if (['casual-orange', 'yoga-purple', 'taekwondo', 'school-green', 'ballet', 'down-jacket'].includes(item.type)) {
+  if (clothesTypes.includes(item.type)) {
     activeBodyOutfit.value = item.type;
   } else if (item.type === 'hair-acc') {
     isHairAccEquipped.value = true;
@@ -155,7 +168,7 @@ const playErrorSound = () => {
 const handleSaveConfig = () => {
   try {
     const newWords = JSON.parse(configText.value);
-    gameStore.updateConfig(newWords, 10); 
+    gameStore.updateConfig(newWords, 5); 
     emit('updateConfig', newWords); 
     showAdmin.value = false;
     resetGame();
@@ -178,6 +191,15 @@ const initGamePool = () => {
   gameWordsPool.value = shuffled.map((word, index) => ({
     ...word,
     uid: index 
+  }));
+};
+
+// 核心改动：开启新一季时，完全随机筛选并绑定5身新衣服
+const initRandomWardrobe = () => {
+  const randomSet = shuffleArray([...allClothesPool]).slice(0, 5);
+  clothesConfig.value = randomSet.map((item, index) => ({
+    ...item,
+    level: index + 1 // 分配本局的 1 至 5 级解锁门槛
   }));
 };
 
@@ -211,7 +233,7 @@ const selectCard = (card) => {
     }
   } else {
     if (selectedChinese.value?.uid === card.uid) {
-      selectedChinese.value = null; 
+      selectedChinese.value = null;
     } else {
       selectedChinese.value = card;
     }
@@ -250,15 +272,13 @@ const selectCard = (card) => {
 
 const completeRound = () => {
   playUnlockSound();
-  const item1Level = favor.value + 1;
-  const item2Level = favor.value + 2;
+  const nextLevel = favor.value + 1;
   
-  favor.value += 2; 
+  favor.value = Math.min(5, favor.value + 1); // 5轮连连看，每轮通关精确解锁1件
   isComboAnim.value = true;
 
   setTimeout(() => {
-    autoEquipLatest(item1Level);
-    autoEquipLatest(item2Level);
+    autoEquipLatest(nextLevel);
   }, 100);
   
   setTimeout(() => {
@@ -284,6 +304,7 @@ const resetGame = () => {
   isBagEquipped.value = false;
   isCrownEquipped.value = false;
   initGamePool();
+  initRandomWardrobe(); // 新一季重置时随机刷新衣橱
   startRound();
 };
 
@@ -347,64 +368,66 @@ onUnmounted(() => window.speechSynthesis.cancel());
               <!-- ================= 核心：全新高保真 SVG 绘图引擎 ================= -->
               <svg viewBox="0 0 200 270" class="princess-vector-doll">
                 <defs>
-                  <!-- 柔和细腻的肤色渐变 -->
                   <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#fff6f0" />
                     <stop offset="100%" stop-color="#ffdcb8" />
                   </linearGradient>
-                  <!-- 极具丝滑质感的栗色秀发渐变 -->
                   <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="#5a4136" />
                     <stop offset="50%" stop-color="#3b251c" />
                     <stop offset="100%" stop-color="#21120b" />
                   </linearGradient>
-                  <!-- 牛仔渐变 -->
                   <linearGradient id="denimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#5b8bb3" />
                     <stop offset="100%" stop-color="#3c6182" />
                   </linearGradient>
-                  <!-- 芭蕾舞裙粉蓝色渐变 -->
                   <linearGradient id="balletGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="rgba(162, 210, 255, 0.9)" />
                     <stop offset="100%" stop-color="rgba(114, 182, 245, 0.5)" />
                   </linearGradient>
+                  <linearGradient id="goldDressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f3e5ab" />
+                    <stop offset="50%" stop-color="#d4af37" />
+                    <stop offset="100%" stop-color="#aa7c11" />
+                  </linearGradient>
+                  <linearGradient id="latinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ff4d4d" />
+                    <stop offset="100%" stop-color="#b30000" />
+                  </linearGradient>
+                  <linearGradient id="swimsuitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4ae3e4" />
+                    <stop offset="100%" stop-color="#00a8cc" />
+                  </linearGradient>
                 </defs>
 
-                <!-- LAYER 1: 完美收束的温婉后置披肩长发 (不再分叉，比例自然) -->
+                <!-- LAYER 1: 后置披肩长发 -->
                 <path d="M 100,28 C 80,28 64,50 64,80 C 64,115 58,155 70,190 C 78,205 122,205 130,190 C 142,155 136,115 136,80 C 136,50 120,28 100,28 Z" fill="url(#hairGrad)" />
 
                 <!-- LAYER 2: 纤细双腿 -->
                 <rect x="85" y="145" width="9" height="105" rx="4" fill="url(#skinGrad)" />
                 <rect x="106" y="145" width="9" height="105" rx="4" fill="url(#skinGrad)" />
 
-                <!-- LAYER 3: 优雅手臂 (左手经典叉腰，右手微拂垂落) -->
-                <!-- 左臂叉腰 -->
+                <!-- LAYER 3: 优雅手臂 -->
                 <path d="M 75,85 C 60,95 56,110 80,122" fill="none" stroke="url(#skinGrad)" stroke-width="7.5" stroke-linecap="round" />
-                <!-- 右臂舒展下垂 -->
                 <path d="M 125,85 C 132,102 130,122 122,142" fill="none" stroke="url(#skinGrad)" stroke-width="7.5" stroke-linecap="round" />
 
-                <!-- LAYER 4: 优雅直角肩躯干 -->
+                <!-- LAYER 4: 优雅直角肩躯干与天鹅颈 -->
                 <path d="M 75,85 L 125,85 C 122,110 115,120 112,145 L 88,145 C 85,120 78,110 75,85 Z" fill="url(#skinGrad)" />
-                <!-- 纤细天鹅颈 -->
                 <rect x="94" y="65" width="12" height="25" rx="2" fill="url(#skinGrad)" />
 
                 <!-- LAYER 5: 鹅蛋脸与精美妆容 -->
                 <circle cx="100" cy="54" r="21" fill="url(#skinGrad)" />
-                
-                <!-- 精致微卷眉毛 -->
                 <path d="M 87,46 Q 91,44 95,47" stroke="#3a2312" stroke-width="1.2" fill="none" stroke-linecap="round" />
                 <path d="M 105,47 Q 109,44 113,46" stroke="#3a2312" stroke-width="1.2" fill="none" stroke-linecap="round" />
 
-                <!-- 灵动双层高光星眸 -->
                 <g class="anime-eyes">
-                  <!-- 左眼 -->
                   <ellipse cx="91" cy="54" rx="4" ry="5.5" fill="#2c1a11" />
                   <ellipse cx="91" cy="55.5" rx="3.2" ry="4" fill="#604235" />
                   <ellipse cx="91" cy="54" rx="2" ry="2.5" fill="#150b07" />
                   <circle cx="89.5" cy="52" r="1.5" fill="#ffffff" />
                   <circle cx="92.5" cy="56" r="0.8" fill="#ffffff" />
                   <path d="M 87,51 Q 91,47 95,51" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round" />
-                  <!-- 右眼 -->
+
                   <ellipse cx="109" cy="54" rx="4" ry="5.5" fill="#2c1a11" />
                   <ellipse cx="109" cy="55.5" rx="3.2" ry="4" fill="#604235" />
                   <ellipse cx="109" cy="54" rx="2" ry="2.5" fill="#150b07" />
@@ -413,130 +436,108 @@ onUnmounted(() => window.speechSynthesis.cancel());
                   <path d="M 105,51 Q 109,47 113,51" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round" />
                 </g>
 
-                <!-- 桃子粉腮红、小巧鼻尖与蜜桃唇 -->
                 <ellipse cx="88" cy="59" rx="4" ry="2" fill="#ffb8b8" opacity="0.6" />
                 <ellipse cx="112" cy="59" rx="4" ry="2" fill="#ffb8b8" opacity="0.6" />
                 <circle cx="100" cy="58" r="1" fill="#e5c1b3" />
                 <path d="M 98,62 Q 100,64 102,62" stroke="#e06262" stroke-width="1.5" fill="none" stroke-linecap="round" />
                 
-                <!-- LAYER 6: 飘逸空气刘海 & 垂胸立体鬓角 (彻底告别生硬线条) -->
-                <!-- 柔和W型轻盈刘海 -->
+                <!-- LAYER 6: 飘逸空气刘海 & 垂胸立体鬓角 -->
                 <path d="M 77,50 C 75,28 125,28 123,50 C 114,46 107,46 100,49 C 93,46 86,46 77,50 Z" fill="url(#hairGrad)" />
-                <!-- 柔美微卷鬓角，自然贴脸 -->
                 <path d="M 78,48 C 74,68 73,95 78,115 C 81,115 81,95 81,75 Z" fill="url(#hairGrad)" />
                 <path d="M 122,48 C 126,68 127,95 122,115 C 119,115 119,95 119,75 Z" fill="url(#hairGrad)" />
-                <!-- 头顶柔和天使光环高光 -->
                 <ellipse cx="100" cy="38" rx="14" ry="2" fill="rgba(255,255,255,0.22)" />
 
 
-                <!-- ================= LAYER 7: 完美量身的高定服装 ================= -->
+                <!-- ================= LAYER 7: 服装判定显隐舱 ================= -->
                 
-                <!-- A. 默认：白丝蕾丝吊带打底衣 -->
                 <g v-if="activeBodyOutfit === 'default'" class="svg-outfit">
                   <path d="M 75,85 L 125,85 C 120,105 115,115 112,130 L 88,130 C 85,115 80,105 75,85 Z" fill="#ffffff" opacity="0.95" stroke="#f0d5cc" stroke-width="1" />
                   <line x1="84" y1="85" x2="84" y2="72" stroke="#ffffff" stroke-width="1.5" />
                   <line x1="116" y1="85" x2="116" y2="72" stroke="#ffffff" stroke-width="1.5" />
-                  <path d="M 88,130 Q 94,133 100,130 Q 106,133 112,130" fill="none" stroke="#ebd5cc" stroke-width="1.5" />
                 </g>
 
-                <!-- B. 橙色休闲短袖 -->
                 <g v-if="activeBodyOutfit === 'casual-orange'" class="svg-outfit">
                   <path d="M 74,84 L 126,84 C 122,102 115,108 112,114 L 88,114 C 85,108 78,102 74,84 Z" fill="#f26a36" />
-                  <!-- 泡泡短袖完美贴合叉腰手臂 -->
                   <path d="M 75,85 C 56,92 58,102 72,106" fill="#f26a36" />
                   <path d="M 125,85 C 144,92 142,102 128,106" fill="#f26a36" />
                   <path d="M 88,116 L 112,116 L 115,138 L 85,138 Z" fill="url(#denimGrad)" />
                 </g>
 
-                <!-- C. 紫色瑜伽服 -->
                 <g v-if="activeBodyOutfit === 'yoga-purple'" class="svg-outfit">
                   <path d="M 77,85 L 123,85 C 120,100 115,102 112,108 L 88,108 C 85,102 80,100 77,85 Z" fill="#b39ddb" />
                   <line x1="86" y1="85" x2="94" y2="72" stroke="#7e57c2" stroke-width="2.5" />
                   <line x1="114" y1="85" x2="106" y2="72" stroke="#7e57c2" stroke-width="2.5" />
                   <path d="M 88,122 L 112,122 L 114,235 L 105,235 L 100,145 L 95,235 L 86,235 Z" fill="#7e57c2" />
-                  <rect x="83" y="235" width="13" height="11" rx="2" fill="#ffffff" stroke="#ddd" stroke-width="1" />
-                  <rect x="104" y="235" width="13" height="11" rx="2" fill="#ffffff" stroke="#ddd" stroke-width="1" />
                 </g>
 
-                <!-- D. 黑白跆拳道服 -->
                 <g v-if="activeBodyOutfit === 'taekwondo'" class="svg-outfit">
                   <path d="M 87,130 L 113,130 L 115,225 L 105,225 L 100,145 L 95,225 L 85,225 Z" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" />
                   <path d="M 73,83 L 127,83 C 122,108 116,120 113,135 L 87,135 C 84,120 78,108 73,83 Z" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" />
                   <path d="M 93,83 L 100,94 L 107,83" fill="none" stroke="#222222" stroke-width="3" />
-                  <!-- 宽松道服袖 -->
-                  <path d="M 75,85 C 54,95 56,112 70,116" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" />
-                  <path d="M 125,85 C 141,100 141,120 133,135" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" />
                   <rect x="83" y="125" width="34" height="6" rx="1" fill="#231b15" />
-                  <path d="M 96,131 L 93,148 L 98,148 Z" fill="#231b15" />
                 </g>
 
-                <!-- E. 绿色校服 -->
                 <g v-if="activeBodyOutfit === 'school-green'" class="svg-outfit">
                   <path d="M 73,84 L 127,84 C 122,110 116,115 113,126 L 87,126 C 84,115 78,110 73,84 Z" fill="#0f4c3a" />
-                  <path d="M 75,85 C 55,95 55,112 71,114" fill="#0f4c3a" />
-                  <path d="M 125,85 C 139,102 139,118 132,130" fill="#0f4c3a" />
                   <path d="M 94,84 L 100,92 L 106,84 Z" fill="#ffffff" />
-                  <path d="M 98,90 L 102,90 L 101,105 L 99,105 Z" fill="#a31d1d" />
                   <path d="M 87,126 L 113,126 L 117,148 L 83,148 Z" fill="#1b634e" />
-                  <line x1="92" y1="126" x2="90" y2="148" stroke="#0f4c3a" stroke-width="1.5" />
-                  <line x1="100" y1="126" x2="100" y2="148" stroke="#0f4c3a" stroke-width="1.5" />
-                  <line x1="108" y1="126" x2="110" y2="148" stroke="#0f4c3a" stroke-width="1.5" />
                 </g>
 
-                <!-- F. 粉蓝芭蕾服 -->
                 <g v-if="activeBodyOutfit === 'ballet'" class="svg-outfit">
                   <path d="M 77,85 L 123,85 C 120,105 115,112 112,122 L 88,122 C 85,112 80,105 77,85 Z" fill="#fcd5ce" stroke="#fbc3bc" stroke-width="1" />
-                  <line x1="84" y1="85" x2="84" y2="74" stroke="#fcd5ce" stroke-width="1.5" />
-                  <line x1="116" y1="85" x2="116" y2="74" stroke="#fcd5ce" stroke-width="1.5" />
                   <ellipse cx="100" cy="122" rx="34" ry="11" fill="url(#balletGrad)" stroke="rgba(162, 210, 255, 0.6)" stroke-width="1" />
-                  <ellipse cx="100" cy="124" rx="28" ry="8" fill="rgba(255,255,255,0.3)" />
-                  <g transform="translate(0, 3)">
-                    <path d="M 84,238 L 96,238 L 96,248 L 84,248 Z" fill="#fcd5ce" />
-                    <line x1="84" y1="238" x2="96" y2="248" stroke="#f7cbd2" stroke-width="1.5" />
-                    <line x1="96" y1="238" x2="84" y2="248" stroke="#f7cbd2" stroke-width="1.5" />
-                    <path d="M 104,238 L 116,238 L 116,248 L 104,248 Z" fill="#fcd5ce" />
-                    <line x1="104" y1="238" x2="116" y2="248" stroke="#f7cbd2" stroke-width="1.5" />
-                    <line x1="116" y1="238" x2="104" y2="248" stroke="#f7cbd2" stroke-width="1.5" />
-                  </g>
                 </g>
 
-                <!-- G. 粉色羽绒服 -->
+                <g v-if="activeBodyOutfit === 'dance-red'" class="svg-outfit">
+                  <path d="M 76,85 L 124,85 L 112,125 L 88,125 Z" fill="url(#latinGrad)" />
+                  <path d="M 76,85 L 100,105 L 124,85" fill="none" stroke="#ffe5e5" stroke-width="1.5" />
+                  <path d="M 88,125 Q 65,150 75,175 Q 100,165 125,180 Q 135,145 112,125 Z" fill="url(#latinGrad)" />
+                </g>
+
+                <g v-if="activeBodyOutfit === 'casual-denim'" class="svg-outfit">
+                  <path d="M 73,85 L 127,85 L 122,128 L 78,128 Z" fill="url(#denimGrad)" stroke="#c5a059" stroke-width="1" />
+                  <path d="M 75,85 C 55,95 56,115 65,125" fill="none" stroke="url(#denimGrad)" stroke-width="8" stroke-linecap="round" />
+                  <path d="M 94,85 L 100,95 L 106,85 Z" fill="#ffffff" />
+                  <path d="M 87,128 L 113,128 L 115,235 L 102,235 L 100,145 L 98,235 L 85,235 Z" fill="#222222" />
+                </g>
+
                 <g v-if="activeBodyOutfit === 'down-jacket'" class="svg-outfit">
                   <path d="M 71,83 L 129,83 C 126,112 120,125 115,138 L 85,138 C 80,125 74,112 71,83 Z" fill="#ffb3c1" stroke="#ffa2b4" stroke-width="1" />
-                  <path d="M 75,85 C 50,95 50,112 68,118" fill="#ffb3c1" stroke="#ffa2b4" stroke-width="1.5" />
-                  <path d="M 125,85 C 145,95 145,115 134,132" fill="#ffb3c1" stroke="#ffa2b4" stroke-width="1.5" />
-                  <path d="M 75,102 Q 100,105 125,102" fill="none" stroke="#ffa2b4" stroke-width="1.5" />
-                  <path d="M 80,120 Q 100,123 120,120" fill="none" stroke="#ffa2b4" stroke-width="1.5" />
-                  <path d="M 82,82 C 90,72 110,72 118,82 C 110,88 90,88 82,82 Z" fill="#ffffff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.05))" />
-                  <path d="M 82,232 L 98,232 L 98,248 L 82,248 Z" fill="#e0a96d" rx="2" />
-                  <path d="M 102,232 L 118,232 L 118,248 L 102,248 Z" fill="#e0a96d" rx="2" />
+                  <path d="M 82,82 C 90,72 110,72 118,82 C 110,88 90,88 82,82 Z" fill="#ffffff" />
+                </g>
+
+                <g v-if="activeBodyOutfit === 'evening-gold'" class="svg-outfit">
+                  <path d="M 70,92 C 85,86 115,86 130,92 L 120,128 L 80,128 Z" fill="url(#goldDressGrad)" />
+                  <path d="M 80,128 L 120,128 C 135,180 155,225 160,250 L 40,250 C 45,225 65,180 80,128 Z" fill="url(#goldDressGrad)" />
+                </g>
+
+                <g v-if="activeBodyOutfit === 'swimsuit'" class="svg-outfit">
+                  <path d="M 84,98 Q 92,98 96,108 Q 88,114 84,98 Z" fill="url(#swimsuitGrad)" />
+                  <path d="M 116,98 Q 108,98 104,108 Q 112,114 116,98 Z" fill="url(#swimsuitGrad)" />
+                  <path d="M 96,108 L 100,75 L 104,108" fill="none" stroke="#00a8cc" stroke-width="1.5" />
+                  <path d="M 86,134 L 114,134 L 118,152 L 82,152 Z" fill="url(#swimsuitGrad)" />
+                </g>
+
+                <g v-if="activeBodyOutfit === 'tennis'" class="svg-outfit">
+                  <path d="M 77,85 L 123,85 L 114,124 L 86,124 Z" fill="#ffffff" stroke="#eeeeee" stroke-width="1" />
+                  <path d="M 86,124 L 114,124 L 120,150 L 80,150 Z" fill="#ffffff" stroke="#3ca6ff" stroke-width="1" />
+                  <line x1="91" y1="124" x2="87" y2="150" stroke="#3ca6ff" stroke-width="1.5" />
+                  <line x1="103" y1="124" x2="105" y2="150" stroke="#3ca6ff" stroke-width="1.5" />
                 </g>
 
 
-                <!-- ================= LAYER 8: 高奢配饰 (定位绝对精准，无漂浮感) ================= -->
-                
-                <!-- A. 璀璨皇冠 -->
+                <!-- ================= LAYER 8: 配饰舱 ================= -->
                 <g v-if="isCrownEquipped" class="svg-accessory">
                   <path d="M 86,33 L 89,22 L 95,28 L 100,16 L 105,28 L 111,22 L 114,33 Z" fill="#e5c1b3" stroke="#d4af37" stroke-width="1.5" />
                   <circle cx="100" cy="15" r="2" fill="#d4af37" />
-                  <circle cx="89" cy="21" r="1.5" fill="#d4af37" />
-                  <circle cx="111" cy="21" r="1.5" fill="#d4af37" />
                 </g>
 
-                <!-- B. 别致蝴蝶结发夹 (精准定位在右侧秀发分界线) -->
                 <g v-if="isHairAccEquipped" class="svg-accessory">
-                  <!-- 左侧蝴蝶结环 -->
                   <path d="M 112,38 C 113,32 120,32 121,38 C 120,44 113,44 112,38 Z" fill="#ffa2b4" />
-                  <!-- 右侧蝴蝶结环 -->
                   <path d="M 121,38 C 122,32 129,32 130,38 C 129,44 122,44 121,38 Z" fill="#ffa2b4" />
-                  <!-- 中心珍珠纽扣 -->
                   <circle cx="121" cy="38" r="3" fill="#ffffff" />
-                  <!-- 灵动丝带飘带 -->
-                  <path d="M 119,39 L 115,48 L 120,45 Z" fill="#ffa2b4" />
-                  <path d="M 123,39 L 127,48 L 122,45 Z" fill="#ffa2b4" />
                 </g>
 
-                <!-- C. 珍珠吊坠耳环 -->
                 <g v-if="isEarringsEquipped" class="svg-accessory">
                   <line x1="77" y1="58" x2="77" y2="67" stroke="#d4af37" stroke-width="1" />
                   <circle cx="77" cy="68" r="2" fill="#ffffff" stroke="#ddd" stroke-width="0.5" />
@@ -544,19 +545,16 @@ onUnmounted(() => window.speechSynthesis.cancel());
                   <circle cx="123" cy="68" r="2" fill="#ffffff" stroke="#ddd" stroke-width="0.5" />
                 </g>
 
-                <!-- D. 奢雅兔包 -->
                 <g v-if="isBagEquipped" class="svg-accessory">
                   <path d="M 124,142 C 122,126 142,126 140,142" fill="none" stroke="#d4af37" stroke-width="2.5" />
                   <rect x="122" y="142" width="22" height="18" rx="4" fill="#ffffff" stroke="#e5989b" stroke-width="1.5" />
-                  <circle cx="133" cy="151" r="2" fill="#d4af37" />
                 </g>
-
               </svg>
 
             </div>
           </div>
 
-          <!-- ================= 右栏：魔法配对沙龙 ================= -->
+          <!-- ================= 右栏：配对棋盘沙龙 ================= -->
           <div class="atelier-game-zone">
             <div v-if="!isFinished && hp > 0" class="game-board-container">
               <div class="round-badge">COLLECTION • 第 {{ currentRound }} / {{ totalRounds }} 组</div>
@@ -593,7 +591,7 @@ onUnmounted(() => window.speechSynthesis.cancel());
               <div class="settlement-symbol">{{ hp <= 0 ? '✦' : '✧' }}</div>
               <h4 class="settlement-title">{{ hp <= 0 ? 'COUTURE PAUSED' : 'ATELIER PERFECT' }}</h4>
               <p class="settlement-desc">
-                {{ hp <= 0 ? '星光有些黯淡了。别担心，整理一下思绪，重新叩响高定沙龙的大门吧。' : '绝美连线！你用智慧点亮了整座衣橱，10款年度高定礼服已尽数归档。' }}
+                {{ hp <= 0 ? '星光有些黯淡了。别担心，重新叩响高定沙龙的大门吧。' : '绝美连线！你用智慧点亮了整座衣橱，本季5款精选高定礼服已成功解锁。' }}
               </p>
               <button class="btn luxury-action-btn" @click="resetGame">
                 {{ hp <= 0 ? '重置衣橱' : '开启新一季' }}
@@ -603,15 +601,15 @@ onUnmounted(() => window.speechSynthesis.cancel());
 
         </div>
 
-        <!-- ================= 底部：换装衣橱面板 ================= -->
+        <!-- ================= 底部：本季精选 5 身衣橱 ================= -->
         <footer class="atelier-wardrobe-footer">
           <div class="wardrobe-progress">
             <div class="progress-track">
-              <div class="progress-fill" :style="{ width: (favor / 10 * 100) + '%' }"></div>
+              <div class="progress-fill" :style="{ width: (favor / 5 * 100) + '%' }"></div>
             </div>
             <div class="progress-stats">
-              <span>已珍藏设计 : {{ favor }} / 10</span>
-              <span class="guide-tip">✦ 点击已解锁卡片自由试衣 ✦</span>
+              <span>本季已珍藏设计 : {{ favor }} / 5</span>
+              <span class="guide-tip">✦ 开启新一季将重新随机抽取5件 ✦</span>
             </div>
           </div>
 
@@ -626,6 +624,7 @@ onUnmounted(() => window.speechSynthesis.cancel());
               ]"
               @click="selectOutfit(item)"
             >
+              <div class="slot-name-tag" v-if="favor >= item.level">{{ item.name }}</div>
               <div class="slot-icon">{{ item.icon }}</div>
               <div class="slot-glow"></div>
             </div>
@@ -747,19 +746,17 @@ onUnmounted(() => window.speechSynthesis.cancel());
   opacity: 0.5;
 }
 
-/* ================= SVG 矢量美少女试衣核心样式 ================= */
 .princess-vector-doll {
   width: 180px;
   height: 260px;
-  filter: drop-shadow(0 5px 15px rgba(84, 61, 52, 0.12)); /* 让纸娃娃具有手办级阴影立体感 */
+  filter: drop-shadow(0 5px 15px rgba(84, 61, 52, 0.12)); 
 }
 
-/* 换装淡入动画 */
 .svg-outfit, .svg-accessory {
   animation: dressFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ================= 右栏：极简轻奢配对棋盘 ================= */
+/* ================= 右栏：配对棋盘 ================= */
 .atelier-game-zone {
   flex: 1;
 }
@@ -791,6 +788,7 @@ onUnmounted(() => window.speechSynthesis.cancel());
   position: relative;
   font-family: inherit;
   outline: none;
+  width: 100%;
 }
 .luxury-card .card-text {
   font-size: 0.95rem;
@@ -805,37 +803,142 @@ onUnmounted(() => window.speechSynthesis.cancel());
 }
 .luxury-card:hover:not(.matched) {
   border-color: var(--gold-primary);
-  background: var(--rose-mist);
+  background: #fffdfa;
 }
 .luxury-card.selected {
-  background: var(--charcoal);
-  border-color: var(--charcoal);
-}
-.luxury-card.selected .card-text {
-  color: #ffffff;
-}
-.luxury-card.selected .card-dot {
-  background: var(--gold-primary);
+  border-color: var(--gold-primary);
+  background: var(--rose-mist);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
 }
 .luxury-card.matched {
-  background: #fcfcfc;
-  border-color: #f0f0f0;
+  border-color: transparent;
+  background: transparent;
   cursor: default;
-  opacity: 0.45;
+}
+.luxury-card.matched .card-text {
+  color: #c5c0ba;
+  text-decoration: line-through;
+}
+.luxury-card.matched .card-dot {
+  background: #e0deda;
+}
+.card-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* 结算区 */
+/* ================= 底部 5 格精致衣橱 ================= */
+.atelier-wardrobe-footer {
+  margin-top: 24px;
+  border-top: 1px solid rgba(44, 42, 41, 0.06);
+  padding-top: 16px;
+}
+.wardrobe-progress {
+  margin-bottom: 12px;
+}
+.progress-track {
+  height: 2px;
+  background: #e8e5e0;
+  width: 100%;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--gold-primary);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: #8a8580;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+.guide-tip {
+  color: var(--gold-primary);
+}
+.wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5件对齐，展示更大气舒适 */
+  gap: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.wardrobe-slot {
+  background: #ffffff;
+  border: 1px solid rgba(44, 42, 41, 0.06);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.wardrobe-slot .slot-icon {
+  font-size: 1.6rem;
+  transition: transform 0.2s ease;
+}
+.slot-name-tag {
+  position: absolute;
+  bottom: 4px;
+  font-size: 0.55rem;
+  color: #8a8580;
+  transform: scale(0.9);
+  white-space: nowrap;
+}
+.wardrobe-slot.locked {
+  background: #f2efea;
+  cursor: not-allowed;
+}
+.wardrobe-slot.locked .slot-icon {
+  filter: blur(2px) grayscale(1);
+  opacity: 0.4;
+}
+.wardrobe-slot.locked::after {
+  content: '🔒';
+  position: absolute;
+  font-size: 0.6rem;
+  bottom: 4px;
+  right: 4px;
+  opacity: 0.6;
+}
+.wardrobe-slot:not(.locked):hover {
+  border-color: var(--gold-primary);
+}
+.wardrobe-slot:not(.locked):hover .slot-icon {
+  transform: scale(1.12);
+}
+.wardrobe-slot.active-wearing {
+  border-color: var(--gold-primary);
+  background: var(--rose-mist);
+}
+.wardrobe-slot.active-wearing::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 4px;
+  height: 4px;
+  background: var(--gold-primary);
+  border-radius: 50%;
+}
+
+/* ================= 结算面板与动画 ================= */
 .atelier-settlement {
   text-align: center;
-  padding: 20px 0;
+  padding: 30px 10px;
 }
 .settlement-symbol {
   font-size: 2rem;
   color: var(--gold-primary);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .settlement-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   letter-spacing: 4px;
   color: var(--charcoal);
   margin-bottom: 8px;
@@ -845,83 +948,92 @@ onUnmounted(() => window.speechSynthesis.cancel());
   color: #7a7570;
   line-height: 1.6;
   max-width: 280px;
-  margin: 0 auto 16px auto;
+  margin: 0 auto 20px;
 }
-
-/* ================= 底部：高定衣柜多宫格 ================= */
-.wardrobe-progress {
-  margin-top: 20px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(44, 42, 41, 0.06);
-}
-.progress-track {
-  width: 100%;
-  height: 2px;
-  background: #eae5df;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--gold-primary);
-  transition: width 0.5s ease;
-}
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--charcoal);
-  font-weight: 600;
-  margin-top: 6px;
-}
-.guide-tip {
-  color: var(--gold-primary);
-}
-
-.wardrobe-grid {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-.wardrobe-slot {
-  width: 46px;
-  height: 46px;
-  background: #ffffff;
-  border: 1px solid rgba(44, 42, 41, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
+.btn {
+  border: none;
+  padding: 10px 20px;
   cursor: pointer;
-  position: relative;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  letter-spacing: 2px;
+  font-size: 0.75rem;
+  transition: all 0.2s;
 }
-.wardrobe-slot:hover:not(.locked) {
-  border-color: var(--gold-primary);
-  transform: translateY(-2px);
+.luxury-action-btn {
+  background: var(--charcoal);
+  color: #ffffff;
 }
-.wardrobe-slot.locked {
-  filter: grayscale(1) opacity(0.15);
-  background: #f7f5f2;
-  cursor: not-allowed;
+.luxury-action-btn:hover {
+  background: #423f3e;
 }
-.wardrobe-slot.active-wearing {
-  border-color: var(--charcoal);
-  background: var(--rose-mist);
+.empty-words {
+  text-align: center;
+  padding: 60px 0;
+}
+.empty-seal {
+  font-size: 2rem;
+  color: var(--gold-primary);
+  margin-bottom: 12px;
+}
+.empty-text {
+  font-size: 0.85rem;
+  color: #8a8580;
+  margin-bottom: 20px;
+}
+.admin-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border: 1px solid var(--gold-primary);
+  padding: 20px;
+  z-index: 100;
+  width: 80%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.admin-panel textarea {
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
+  font-family: monospace;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.2);
+  z-index: 99;
 }
 
-/* ================= 动画效果 ================= */
+/* --- 动态动效集锦 --- */
 @keyframes dressFade {
-  from { opacity: 0; transform: translateY(4px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-.shake-anim { animation: shake 0.3s; }
-.combo-bounce { animation: dressFade 0.4s ease-in-out; }
-.overlay { position: fixed; inset: 0; background: rgba(44,42,41,0.5); z-index: 100; backdrop-filter: blur(2px); }
-.admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #ffffff; padding: 25px; z-index: 110; width: 320px; border: 1px solid var(--gold-primary); }
-.admin-panel textarea { width: 100%; height: 150px; margin-bottom: 10px; padding: 10px; }
-.luxury-action-btn { background: var(--charcoal); color: #ffffff; border: none; padding: 8px 30px; font-size: 0.75rem; letter-spacing: 2px; cursor: pointer; }
-.floating-heart { position: absolute; animation: floatUp 1.2s forwards; pointer-events: none; z-index: 20; font-size: 1.2rem; }
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
+.combo-bounce {
+  animation: bounce 0.5s ease;
+}
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.shake-anim {
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.floating-heart {
+  position: absolute;
+  font-size: 1.2rem;
+  pointer-events: none;
+  animation: floatUp 1.2s cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+  z-index: 10;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(0.5); opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+}
 </style>
