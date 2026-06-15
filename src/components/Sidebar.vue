@@ -89,7 +89,7 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
 
 .panel-content {
   padding: 20px 15px;
-  width: 220px;
+  width: 230px;
   box-sizing: border-box;
   /* --- 新增/修改 学员列表不滚动--- */
   height: 100%;           /* 占据父级全部高度 */

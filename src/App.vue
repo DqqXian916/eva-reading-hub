@@ -34,7 +34,7 @@ const isLoading = ref(false)
 const isFullScreen = ref(false)
 const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
 const studentQuizzes = ref([])
-const currentOneWord = ref({ english: '', chinese: '' })
+const currentOneWordList = ref([]) // 存储当前学员的历史一言数组
 
 // --- 排行榜状态 ---
 const showLeaderboard = ref(false)
@@ -94,27 +94,49 @@ const fetchLeaderboard = async () => {
   }
 };
 
+// 删除单条历史一言记录
+const handleDeleteOneWord = async (wordItem) => {
+  if (!confirm(`确定要彻底删除这条历史一言吗？云端将同步抹除哦 ❤️`)) return
+
+  try {
+    isLoading.value = true
+
+    // 从 Supabase 中根据唯一的自增 id 删除
+    const { error } = await supabase
+      .from('one_words')
+      .delete()
+      .eq('id', wordItem.id)
+    if (error) throw error
+    // 同步响应式过滤本地数组
+    currentOneWordList.value = currentOneWordList.value.filter(q => q.id !== wordItem.id)
+
+    alert("✅ 该条历史纪录已彻底从云端移除")
+  } catch (e) {
+    console.error("从云端删除一言失败:", e)
+    alert("❌ 删除失败：" + e.message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const fetchOneWord = async (studentId) => {
   isLoading.value = true
   try {
-    // 改为直接请求我们刚建的 one_words 表
     const { data, error } = await supabase
       .from('one_words')
-      .select('english, chinese')
+      .select('*') // 
       .eq('student_id', studentId)
-      .maybeSingle() // 用 maybeSingle 避免找不到数据时抛出红色 error
-      
-    if (!error && data) {
-      currentOneWord.value = data
-    } else {
-      // 没有任何记录时的优雅兜底
-      currentOneWord.value = { 
-        english: "Click Admin Mode to record today's word.", 
-        chinese: "点击管理模式，录入今天的一言语。" 
-      }
+      .order('updated_at', { ascending: true })
+
+    if (error) throw error
+
+    if (data) {
+      currentOneWordList.value = [...data]
+      console.log('父组件成功从云端拉取到一言列表：', currentOneWordList.value)
     }
   } catch (e) {
     console.error("从云端获取一言语失败:", e)
+    currentOneWordList.value = []
   } finally {
     isLoading.value = false
   }
@@ -126,27 +148,27 @@ const handleSaveOneWord = async (wordData) => {
     alert("❌ 请先在左侧选择一名学员")
     return
   }
-  
   try {
     isLoading.value = true
-    
-    // 向新表 one_words 执行 upsert
-    const { error } = await supabase
+    // 执行追加
+    const { data, error } = await supabase
       .from('one_words')
-      .upsert({
+      .insert([{
         student_id: currentStudent.value.id,
         english: wordData.english,
-        chinese: wordData.chinese,
-        updated_at: new Date()
-      }, {
-        onConflict: 'student_id' // 遇到该学生已有一言记录时直接覆盖
-      })
-
+        chinese: wordData.chinese
+      }])
+      .select()
     if (error) throw error
-    
-    // 关键：这里会用到我们刚刚在顶部定义的 currentOneWord
-    currentOneWord.value = wordData
-    alert("✅ 一言语已成功同步至 Supabase 云端")
+    if (data && data.length > 0) {
+      currentOneWordList.value = [...currentOneWordList.value, data[0]]
+    } else {
+      currentOneWordList.value = [...currentOneWordList.value, {
+        ...wordData,
+        id: Date.now()
+      }]
+    }
+    alert("✅ 新的一言已成功追加至云端历史库")
   } catch (e) {
     console.error("同步云端失败:", e)
     alert("❌ 同步失败：" + e.message)
@@ -875,8 +897,10 @@ const toggleFullScreen = () => {
           </Transition>
         </template>
         <template v-else-if="activeModule === 'sentence'">
-          <OneWordModule :quote="currentOneWord" :canEdit="isAdminMode" :isFullScreen="isFullScreen"
-            @toggleFull="toggleFullScreen" @save="handleSaveOneWord" />
+          <OneWordModule :quoteList="currentOneWordList" :canEdit="isAdminMode" :isFullScreen="isFullScreen"
+            @toggleFull="toggleFullScreen" @save="handleSaveOneWord" @delete="handleDeleteOneWord" <!-- 🚀 挂载删除事件 -->
+          </OneWordModule>
+          />
         </template>
         <template v-else>
           <div class="placeholder">

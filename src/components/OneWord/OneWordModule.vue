@@ -1,32 +1,50 @@
 <script setup>
 /**
  * Props 说明：
- * quote: 当前的一言数据对象 { english: '', chinese: '' }
+ * quoteList: 一言数据历史数组 [ { id: '', english: '', chinese: '' }, ... ]
  * canEdit: 是否处于管理模式（对应父组件的 isAdminMode）
  * isFullScreen: 是否处于全屏沉浸模式
  */
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 const props = defineProps({
-  quote: Object,
+  quoteList: {
+    type: Array,
+    default: () => []
+  },
   canEdit: Boolean,
   isFullScreen: Boolean
 })
 
-const emit = defineEmits(['toggleFull', 'save'])
+// 🚀 增加 onDelete 事件，用于通知父组件从云端抹除某条历史
+const emit = defineEmits(['toggleFull', 'save', 'delete'])
 
 // 局部响应式状态
 const showChinese = ref(false)  // 控制学生端是否显示中文翻译
 const editEnglish = ref('')     // 老师端编辑的英文
 const editChinese = ref('')     // 老师端编辑的中文
 
-// 切换学生或数据更新时，动态将最新数据填入输入框
-watch(() => props.quote, (newVal) => {
-  if (newVal) {
-    editEnglish.value = newVal.english || ''
-    editChinese.value = newVal.chinese || ''
+const latestQuote = computed(() => {
+  if (!props.quoteList || props.quoteList.length === 0) return null
+  const validQuotes = props.quoteList.filter(q => q && q.english)
+  if (validQuotes.length === 0) return null
+  return validQuotes[validQuotes.length - 1]
+})
+
+// 计算属性：倒序排列的历史记录（最新的排在历史列表最上面）
+const reversedHistory = computed(() => {
+  if (!props.quoteList) return []
+  return [...props.quoteList].reverse()
+})
+
+// 智能监听：同步成功追加数据时清空输入
+watch(() => props.quoteList?.length, (newLength, oldLength) => {
+  if (oldLength !== undefined && newLength > oldLength) {
+    editEnglish.value = ''
+    editChinese.value = ''
+    showChinese.value = true 
   }
-}, { immediate: true })
+})
 
 // 提交处理
 const handleSync = () => {
@@ -49,68 +67,92 @@ const handleSync = () => {
       </div>
     </div>
 
-    <div class="content-container">
-      
-      <div v-if="canEdit" class="panel-wrapper admin-panel">
-        <div class="module-tag">一 言 语 · 录 入 模 式 🛠️</div>
+    <!-- 🚀 外层包裹一个滚动容器，防止历史记录变多时撑爆屏幕 -->
+    <div class="scroll-wrapper">
+      <div class="content-container">
         
-        <div class="inputs-group animate-slide">
-          <textarea
-            v-model="editEnglish"
-            placeholder="Today's Quote (English)..."
-            rows="3"
-            maxLength="400"
-            className="input-eng"
-          ></textarea>
+        <div v-if="canEdit" class="panel-wrapper admin-panel">
+          <div class="module-tag">一 言 语 · 录 入 模 式 🛠️</div>
           
-          <div class="center-divider minimal"></div>
-          
-          <input 
-            v-model="editChinese" 
-            type="text" 
-            placeholder="对应中文释义..." 
-            className="input-cn"
-            @keyup.enter="handleSync"
-          />
+          <div class="inputs-group animate-slide">
+            <textarea
+              v-model="editEnglish"
+              placeholder="Today's Quote (English)..."
+              rows="3"
+              maxLength="400"
+              className="input-eng"
+            ></textarea>
+            
+            <div class="center-divider minimal"></div>
+            
+            <input 
+              v-model="editChinese" 
+              type="text" 
+              placeholder="对应中文释义..." 
+              className="input-cn"
+              @keyup.enter="handleSync"
+            />
+          </div>
+
+          <div class="action-zone">
+            <button class="btn-sync" :disabled="!editEnglish.trim() || !editChinese.trim()" @click="handleSync">
+              同 步 至 云 端
+            </button>
+          </div>
         </div>
 
-        <div class="action-zone">
-          <button class="btn-sync" :disabled="!editEnglish.trim() || !editChinese.trim()" @click="handleSync">
-            同 步 至 云 端
-          </button>
-        </div>
-      </div>
+        <div v-else class="panel-wrapper student-panel">
+          <div class="header-action-row">
+            <div class="student-tag">DAILY REFLECTION（每日一言） 🌟</div>
+            
+            <button 
+              class="lang-toggle-btn" 
+              :class="{ 'is-active': showChinese }"
+              @click="showChinese = !showChinese"
+            >
+              {{ showChinese ? '隐去中文' : '对照中文' }}
+            </button>
+          </div>
 
-      <div v-else class="panel-wrapper student-panel">
-        <div class="header-action-row">
-          <div class="student-tag">DAILY REFLECTION（每日一言） 🌟</div>
-          
-          <button 
-            class="lang-toggle-btn" 
-            :class="{ 'is-active': showChinese }"
-            @click="showChinese = !showChinese"
-          >
-            {{ showChinese ? '隐去中文' : '对照中文' }}
-          </button>
-        </div>
-
-        <div class="quote-display-card">
-          <p class="article-text font-serif">
-            {{ quote?.english || 'No quote recorded for today.' }}
-          </p>
-          
-          <div class="center-divider"></div>
-          
-          <Transition name="fade-blur">
-            <p v-if="showChinese" class="chinese-translation">
-              {{ quote?.chinese || '暂无中文释义。' }}
+          <div class="quote-display-card">
+            <p class="article-text font-serif">
+              {{ latestQuote?.english || 'No quote recorded for today.' }}
             </p>
-          </Transition>
+            
+            <div class="center-divider"></div>
+            
+            <Transition name="fade-blur">
+              <p v-if="showChinese" class="chinese-translation">
+                {{ latestQuote?.chinese || '暂无中文释义。' }}
+              </p>
+            </Transition>
+          </div>
+          
+          <div class="footer-sign">TO BE CONTINUED.</div>
         </div>
-        
-        <div class="footer-sign">TO BE CONTINUED.</div>
+
       </div>
 
+      <!-- 🚀 新增：历史一言时光机面板（全屏时自动隐藏保持沉浸感） -->
+      <div v-if="!isFullScreen && reversedHistory.length > 0" class="history-container">
+        <div class="history-header">
+          <span class="history-title">📜 时 光 机</span>
+          <span class="history-count">已积累 {{ reversedHistory.length }} 条精选</span>
+        </div>
+        
+        <div class="history-list">
+          <div v-for="(item, index) in reversedHistory" :key="item.id || index" class="history-item">
+            <div class="history-content">
+              <p class="hist-eng">{{ item.english }}</p>
+              <p class="hist-cn">{{ item.chinese }}</p>
+            </div>
+            <!-- 只有管理模式下显示删除按钮 -->
+            <button v-if="canEdit" class="btn-delete-hist" @click="$emit('delete', item)" title="从云端抹除此条记录">
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -123,6 +165,15 @@ const handleSync = () => {
   height: 100%;
   width: 100%;
   background: #fafafa; /* 干净的纸张偏白调 */
+  overflow: hidden;
+}
+
+.scroll-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .sentence-toolbar {
@@ -162,10 +213,10 @@ const handleSync = () => {
 /* 核心布局结构 */
 .content-container {
   display: flex;
-  flex: 1;
+  width: 100%;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 40px 20px;
   position: relative;
 }
 
@@ -332,6 +383,101 @@ const handleSync = () => {
   background: #3b82f6;
   color: white;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* 🚀 历史时光机样式设计 */
+.history-container {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 20px;
+  margin-bottom: 50px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 2px dashed #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.history-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #475569;
+  letter-spacing: 0.1em;
+}
+
+.history-count {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+  transition: all 0.2s;
+}
+
+.history-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border-color: #e2e8f0;
+}
+
+.history-content {
+  flex: 1;
+  text-align: left;
+  padding-right: 15px;
+}
+
+.hist-eng {
+  font-family: 'Georgia', serif;
+  font-size: 15px;
+  color: #334155;
+  margin: 0 0 6px 0;
+  line-height: 1.5;
+}
+
+.hist-cn {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.btn-delete-hist {
+  background: #fff5f5;
+  border: 1px solid #ffe3e3;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-delete-hist:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: scale(1.05);
 }
 
 /* 全屏降噪模式 */
