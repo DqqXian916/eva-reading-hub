@@ -97,10 +97,10 @@ const fetchLeaderboard = async () => {
 // 删除单条历史一言记录
 const handleDeleteOneWord = async (wordItem) => {
   if (!confirm(`确定要彻底删除这条历史一言吗？云端将同步抹除哦 ❤️`)) return
-
+  
   try {
     isLoading.value = true
-
+    
     // 从 Supabase 中根据唯一的自增 id 删除
     const { error } = await supabase
       .from('one_words')
@@ -109,7 +109,7 @@ const handleDeleteOneWord = async (wordItem) => {
     if (error) throw error
     // 同步响应式过滤本地数组
     currentOneWordList.value = currentOneWordList.value.filter(q => q.id !== wordItem.id)
-
+    
     alert("✅ 该条历史纪录已彻底从云端移除")
   } catch (e) {
     console.error("从云端删除一言失败:", e)
@@ -126,8 +126,8 @@ const fetchOneWord = async (studentId) => {
       .from('one_words')
       .select('*') // 
       .eq('student_id', studentId)
-      .order('updated_at', { ascending: true })
-
+      .order('updated_at', { ascending: true }) 
+      
     if (error) throw error
 
     if (data) {
@@ -136,7 +136,7 @@ const fetchOneWord = async (studentId) => {
     }
   } catch (e) {
     console.error("从云端获取一言语失败:", e)
-    currentOneWordList.value = []
+    currentOneWordList.value = [] 
   } finally {
     isLoading.value = false
   }
@@ -158,14 +158,14 @@ const handleSaveOneWord = async (wordData) => {
         english: wordData.english,
         chinese: wordData.chinese
       }])
-      .select()
+      .select() 
     if (error) throw error
     if (data && data.length > 0) {
       currentOneWordList.value = [...currentOneWordList.value, data[0]]
     } else {
-      currentOneWordList.value = [...currentOneWordList.value, {
-        ...wordData,
-        id: Date.now()
+      currentOneWordList.value = [...currentOneWordList.value, { 
+        ...wordData, 
+        id: Date.now() 
       }]
     }
     alert("✅ 新的一言已成功追加至云端历史库")
@@ -897,10 +897,14 @@ const toggleFullScreen = () => {
           </Transition>
         </template>
         <template v-else-if="activeModule === 'sentence'">
-          <OneWordModule :quoteList="currentOneWordList" :canEdit="isAdminMode" :isFullScreen="isFullScreen"
-            @toggleFull="toggleFullScreen" @save="handleSaveOneWord" @delete="handleDeleteOneWord" <!-- 🚀 挂载删除事件 -->
-          </OneWordModule>
-          />
+ <OneWordModule 
+  :quoteList="currentOneWordList" 
+  :canEdit="isAdminMode" 
+  :isFullScreen="isFullScreen"
+  @toggleFull="toggleFullScreen" 
+  @save="handleSaveOneWord" 
+  @delete="handleDeleteOneWord" 
+/>
         </template>
         <template v-else>
           <div class="placeholder">
