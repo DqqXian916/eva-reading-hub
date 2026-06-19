@@ -12,6 +12,7 @@ import CarCrashGame from './CarCrash.vue'
 import WordFighterGame from './WordFighter.vue'
 import DrawGame from './Draw.vue'
 import WordMatchGame from './WordMatch.vue'
+import WordSnakeGame from './WordSnake.vue' // 👈 新增引入像素贪吃蛇组件
 import PrincessWardrobeGame from './PrincessWardrobe.vue'
 import { useGameStore } from '../../stores/gameStore';
 
@@ -147,6 +148,17 @@ const games = ref([
             goal: 10      // 对应换装游戏的10件衣服
         }
     },
+    {
+        id: 'word-snake',
+        name: '单词吃豆人',
+        isVue: true,
+        icon: '👾', // 经典的像素怪兽/吃豆人图标
+        color: '#ffff00', // 街机复古黄
+        config: {
+            wordList: [], // 等待后端统一注入
+            goal: 20      // 默认通关目标：吃对 20 个单词
+        }
+    }
 ])
 
 const activeGame = ref(null)
@@ -334,6 +346,12 @@ const saveGameConfig = () => {
                                     studentId: props.student.id,
                                     wordList: newWords,
                                     goal: 10 // 公主衣柜固定为10件衣服的关卡目标
+                                })" />
+                            <WordSnakeGame v-if="activeGame.id === 'word-snake'" :key="props.student.id"
+                                :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: gameStore.goal || activeGame.config.goal // 优先使用系统全局设定的 goal 目标
                                 })" />
                         </template>
 
