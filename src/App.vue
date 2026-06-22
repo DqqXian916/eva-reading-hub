@@ -14,6 +14,7 @@ import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/games/BrainBreakModule.vue'
 import VocabularyModule from './components/VocabularyModule.vue'
 import OneWordModule from './components/OneWord/OneWordModule.vue'
+import OneFilmModule from './components/OneFilm/OneFilmModule.vue'
 // --- 状态管理 ---
 const activeModule = ref('reading')
 const isAdminMode = ref(false)
@@ -35,8 +36,9 @@ const isFullScreen = ref(false)
 const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列表
 const studentQuizzes = ref([])
 const currentOneWordList = ref([]) // 存储当前学员的历史一言数组
+const studentFilms = ref([]) // 存储从云端拉取的电影数据
 
-// --- 排行榜状态 ---
+// 排行榜状态
 const showLeaderboard = ref(false)
 const leaderboardData = ref([])
 
@@ -44,7 +46,7 @@ const leaderboardData = ref([])
 const userSelections = ref([])
 const isSubmitted = ref(false)
 
-// --- 新增状态控制 ---
+// 新增状态控制
 const showAdminModal = ref(false)
 const adminPassword = ref('')
 const passwordError = ref(false)
@@ -228,15 +230,15 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   } else if (newModule === 'vocab-test') {
     await fetchVocabTests(newStudent.id) // 新增：词汇评估模块数据加载
   } else if (newModule === 'brain-break') {
-    // 可以在这里加载该学员的游戏最高分记录
     // await fetchGameScores(newStudent.id)
   } else if (newModule === 'words') {
     await fetchVocabulary(newStudent.id)
   } else if (newModule === 'blank') {
     await fetchBlankQuizzes(newStudent.id)
-  }
-  else if (newModule === 'sentence') {
+  } else if (newModule === 'sentence') {
     await fetchOneWord(newStudent.id)
+  } else if (newModule === 'film') {
+    await fetchFilms(newStudent.id)
   }
 })
 
@@ -262,6 +264,43 @@ const handleReadingSubmit = () => {
   if (correctCount === totalCount) earnedXP += 20;
   if (earnedXP > 0) {
     awardXP(earnedXP, 'reading', `完成阅读: ${activeReading.value.title}`);
+  }
+};
+
+// 获取电影推送列表
+const fetchFilms = async (studentId) => {
+  isLoading.value = true
+  const { data, error } = await supabase
+    .from('movie_posts') // 假设你的表名为 movie_posts
+    .select('*')
+    .eq('student_id', studentId)
+    .order('created_at', { ascending: false })
+  
+  if (!error) studentFilms.value = data || []
+  isLoading.value = false
+}
+
+const saveFilmPost = async (movieData) => {
+  try {
+    const { data, error } = await supabase
+      .from('movie_posts')
+      .insert([{
+        ...movieData,
+        student_id: currentStudent.value.id
+      }])
+      .select(); // 加上 .select() 有时能返回更多信息
+
+    if (error) {
+      // 打印详细错误信息
+      console.error("数据库返回错误:", error);
+      console.log("详细提示:", error.details); // <--- 这里通常会告诉你哪个策略违规了
+      console.log("错误提示:", error.hint);
+      throw error;
+    }
+    alert("发布成功！");
+    await fetchFilms(currentStudent.value.id);
+  } catch (err) {
+    alert("保存失败：" + err.message);
   }
 };
 
@@ -531,7 +570,7 @@ const handleBatchSaveQuizzes = async (quizzesArray) => {
   }
 }
 
-// --- 短文填空存取逻辑 ---
+// 短文填空存取逻辑 
 const saveClozeQuiz = async (clozeData) => {
   try {
     let res;
@@ -571,7 +610,7 @@ const saveClozeQuiz = async (clozeData) => {
   }
 }
 
-// --- 短文填空批量保存逻辑 ---
+// 短文填空批量保存逻辑 
 const handleBatchSaveClozes = async (clozeQuizzesArray) => {
   // 健壮性检查：如果没有选中任何学员，拒绝提交
   if (!currentStudent.value) {
@@ -613,6 +652,42 @@ const handleBatchSaveClozes = async (clozeQuizzesArray) => {
   }
 }
 
+const handleBatchImportFilms = async (jsonString) => {
+  try {
+    const rawData = JSON.parse(jsonString); // 解析 JSON 字符串
+    // 1. 获取所有学生列表以进行名称映射
+    const { data: studentsList } = await supabase.from('students').select('id, name');
+    // 2. 将数据转换为数据库格式
+    const batchData = rawData.map(item => {
+      // 匹配学生名称（不区分大小写）
+      const student = studentsList.find(s => 
+        s.name.trim().toLowerCase() === item.student.trim().toLowerCase()
+      );
+      if (!student) {
+        console.warn(`未找到学生: ${item.student}`);
+        return null;
+      }
+      return {
+        student_id: student.id,
+        movie_display: item.movieDisplay,
+        poster_url: item.poster,
+        quote: item.quote,
+        translation: item.translation
+      };
+    }).filter(item => item !== null);
+    // 3. 批量插入
+    const { error } = await supabase.from('movie_posts').insert(batchData);
+    if (error) throw error;
+    alert(`🚀 成功批量导入 ${batchData.length} 条电影推送！`);
+    // 如果当前选中的就是该学生，刷新列表
+    if (currentStudent.value) {
+      await fetchFilms(currentStudent.value.id);
+    }
+  } catch (e) {
+    alert("导入失败，请检查 JSON 格式：" + e.message);
+  }
+};
+
 // 保存评估结果
 const saveVocabTest = async (testData) => {
   try {
@@ -638,7 +713,7 @@ const deleteQuiz = async (id) => {
   }
 }
 
-// 必须：处理用户按 Esc 键退出的情况，保证变量同步
+// 处理用户按 Esc 键退出的情况，保证变量同步
 onMounted(() => {
   fetchStudents() // 你原有的代码
   document.addEventListener('fullscreenchange', () => {
@@ -646,7 +721,7 @@ onMounted(() => {
   })
 })
 
-// 4. 阅读模式关键函数
+// 阅读模式关键函数
 const openReading = (reading) => {
   activeReading.value = reading
   viewMode.value = 'reading'
@@ -769,7 +844,6 @@ const toggleFullScreen = () => {
     isFullScreen.value = false
   }
 }
-
 </script>
 
 <template>
@@ -800,6 +874,8 @@ const toggleFullScreen = () => {
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
           <button :class="['module-tab', { active: activeModule === 'sentence' }]"
             @click="activeModule = 'sentence'">🏞️ 一言 </button>
+                      <button :class="['module-tab', { active: activeModule === 'film' }]"
+            @click="activeModule = 'film'">🎬 一观 </button>
         </nav>
         <div class="nav-right">
           <div class="xp-display" @click="showLeaderboard = true; fetchLeaderboard()">
@@ -897,14 +973,23 @@ const toggleFullScreen = () => {
           </Transition>
         </template>
         <template v-else-if="activeModule === 'sentence'">
- <OneWordModule 
-  :quoteList="currentOneWordList" 
-  :canEdit="isAdminMode" 
-  :isFullScreen="isFullScreen"
-  @toggleFull="toggleFullScreen" 
-  @save="handleSaveOneWord" 
-  @delete="handleDeleteOneWord" 
-/>
+          <OneWordModule 
+            :quoteList="currentOneWordList" 
+            :canEdit="isAdminMode" 
+            :isFullScreen="isFullScreen"
+            @toggleFull="toggleFullScreen" 
+            @save="handleSaveOneWord" 
+            @delete="handleDeleteOneWord" 
+          />
+        </template>
+        <template v-else-if="activeModule === 'film'">
+          <OneFilmModule 
+            :student="currentStudent" 
+            :movies="studentFilms" 
+            :canEdit="isAdminMode" 
+            @save="saveFilmPost" 
+            @import="handleBatchImportFilms" 
+          />
         </template>
         <template v-else>
           <div class="placeholder">

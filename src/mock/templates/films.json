@@ -1,0 +1,66 @@
+[
+  {
+    "student_id": "84aa2877-ed18-4dd0-9851-c5d2a533c6d7",
+    "title": "超能陆战队",
+    "englishTitle": "Big Hero 6",
+    "poster": "https://posters.onesheet.org/posters/modern/2014/big-hero-6-2014-us-teaser.jpg",
+    "quote": "There are no limits to what you can achieve.",
+    "translation": "你能取得的成就，是不可限量的。"
+  },
+  {
+    "student_id": "60e9d246-baf2-4d18-8858-272e89081844",
+    "title": "疯狂动物城",
+    "englishTitle": "Zootopia",
+    "poster": "https://posters.onesheet.org/posters/modern/2016/zootopia-2016-us-international.jpg",
+    "quote": "Ready to make the world a better place?",
+    "translation": "准备好让世界变得更美好了吗？"
+  },
+  {
+    "student_id": "d3b40f2c-06c2-4a03-9af6-d525dd393595",
+    "title": "当幸福来敲门",
+    "englishTitle": "The Pursuit of Happyness",
+    "poster": "https://posters.onesheet.org/posters/modern/2006/the-pursuit-of-happyness-2006-us-international.jpg",
+    "quote": "Don't ever let somebody tell you you can't do something.",
+    "translation": "永远不要让别人告诉你，你成不了大器。"
+  },
+  {
+    "student_id": "31937373-3bc5-40e3-a9a5-ecef38ae9292",
+    "title": "爱乐之城",
+    "englishTitle": "La La Land",
+    "poster": "https://posters.onesheet.org/posters/modern/2016/la-la-land-2016-us-character.jpg",
+    "quote": "Here's to the ones who dream, foolish as they may seem.",
+    "translation": "致那些追梦的人，哪怕他们看起来有多傻。"
+  },
+  {
+    "student_id": "74ac9d4b-16c6-439d-92f0-4ac2efcaeca1",
+    "title": "寻梦环游记",
+    "englishTitle": "Coco",
+    "poster": "posters/eloise-1.jpg",
+    "quote": "The real death is that no one remembers you.",
+    "translation": "真正的死亡，是世界上没有一个人记得你。"
+  },
+  {
+    "student_id": "9cceab33-e95f-4e02-8f9d-c4f346c02ab7",
+    "title": "死亡诗社",
+    "englishTitle": "Dead Poets Society",
+    "poster": "https://posters.onesheet.org/posters/new_hollywood/1989/dead-poets-society-1989-us-theatrical.jpg",
+    "quote": "Seize the day. Make your lives extraordinary.",
+    "translation": "抓住每一天，让你的生命变得非凡。"
+  },
+  {
+    "student_id": "8447ff20-c800-4f18-bb83-8afc82600fb1",
+    "title": "魔女宅急便",
+    "englishTitle": "Kiki's Delivery Service",
+    "poster": "https://media-cache.cinematerial.com/p/500x/bdtard7b/majo-no-takkyubin-italian-re-release-movie-poster.jpg?v=1456544390",
+    "quote": "We need to find our own inspiration. Sometimes it's not easy.",
+    "translation": "我们必须寻找自己的灵感，有时候这并不容易。"
+  },
+  {
+    "student_id": "efa252e7-0e81-4872-aff4-879bd0a5dd21",
+    "title": "狮子王",
+    "englishTitle": "The Lion King",
+    "poster": "posters/james-1.jpg",
+    "quote": "The past can hurt. But the way I see it, you can either run from it, or learn from it.",
+    "translation": "过去也许会让人受伤。但在我看来，你要么逃避它，要么从中学习。"
+  }
+]
