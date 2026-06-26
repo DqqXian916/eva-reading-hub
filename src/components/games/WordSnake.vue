@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
-import { useGameStore } from '../../stores/gameStore'; 
+import { useGameStore } from '../../stores/gameStore';
 
 const props = defineProps({
   canEdit: Boolean
@@ -16,33 +16,63 @@ const hp = ref(5);
 const gameOver = ref(false);
 const isFinished = ref(false);
 const deathReason = ref('');
-
-// 管理员面板
 const showAdmin = ref(false);
 const configText = ref('');
+const feedback = ref({ text: '', show: false });
+let mouseDir = { dx: gridSize, dy: 0 }; // 1. 必须给初始值，防止崩溃
+const controlMode = ref('keyboard'); // 新增：控制模式
+let forceDirection = null; // 用于存储键盘强制覆盖的方向
+const isOpposite = (newDx, newDy) => (newDx !== 0 && newDx === -currentDx) || (newDy !== 0 && newDy === -currentDy);
 
 // Canvas 引用与游戏循环变量
 const canvasRef = ref(null);
+let previewPath = [];
+let isDrawing = false; // 是否处于按下鼠标状态
 let ctx = null;
 let gameInterval = null;
-
 // 贪吃蛇核心物理状态
-const gridSize = 30; 
-let tileCountX = 18;
-let tileCountY = 12;
+const gridSize = 30;
+let tileCountX = 24;
+let tileCountY = 16;
 let snake = [];
 let currentDx = gridSize;
 let currentDy = 0;
-let inputQueue = []; 
+let inputQueue = [];
 let animationFrameCounter = 0;
-
 // 当前题目与食物数据
 const currentQuestion = ref({});
 const correctFood = ref({});
 const wrongFood = ref({});
-
 // --- 8-Bit 晶体管音效引擎 (Web Audio API) ---
 let audioCtx = null;
+const colorMap = ref({ correct: "#00ff00", wrong: "#ff0000" });
+// 触发反馈的函数
+const triggerFeedback = (word, ch) => {
+  feedback.value = { text: `✅ ${word} = ${ch}`, show: true };
+  setTimeout(() => { feedback.value.show = false; }, 1500); // 1.5秒后消失
+};
+// 在 drawGame 函数的最后添加：
+const drawMouseAnchor = () => {
+  if (controlMode.value !== 'mouse') return;
+  // 注意：需要确保 mouseX/Y 是全局或作用域内可访问的，我们可以利用 mouseDir 还原坐标
+  // 或者在 handleMouseMove 中记录全局鼠标位置
+  if (!window.currentMousePos) return;
+  ctx.save();
+  ctx.strokeStyle = "#ffff00"; // 显眼的亮黄色
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  // 绘制十字准星
+  ctx.moveTo(window.currentMousePos.x - 10, window.currentMousePos.y);
+  ctx.lineTo(window.currentMousePos.x + 10, window.currentMousePos.y);
+  ctx.moveTo(window.currentMousePos.x, window.currentMousePos.y - 10);
+  ctx.lineTo(window.currentMousePos.x, window.currentMousePos.y + 10);
+  ctx.stroke();
+  // 绘制一个小圆圈表示锚点核心
+  ctx.arc(window.currentMousePos.x, window.currentMousePos.y, 3, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffff00";
+  ctx.fill();
+  ctx.restore();
+};
 
 const initAudio = () => {
   if (!audioCtx) {
@@ -54,38 +84,38 @@ const playArcadeSound = (type) => {
   try {
     initAudio();
     if (!audioCtx) return;
-    
+
     const now = audioCtx.currentTime;
-    
+
     if (type === 'eat') {
       // 经典街机吃豆：向上滑动的双音级联
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'triangle'; // 三角波，带有复古FC的醇厚感
-      
+
       osc.frequency.setValueAtTime(440, now); // A4
       osc.frequency.exponentialRampToValueAtTime(880, now + 0.08); // A5 极速滑音
-      
+
       gain.gain.setValueAtTime(0.15, now);
       gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
-      
+
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(now);
       osc.stop(now + 0.12);
-    } 
+    }
     else if (type === 'wrong') {
       // 经典街机受击：金属撞击下沉音
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sawtooth'; // 锯齿波，带来硬核撕裂感
-      
+
       osc.frequency.setValueAtTime(180, now);
       osc.frequency.linearRampToValueAtTime(60, now + 0.25); // 频率极速下坠
-      
+
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-      
+
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(now);
@@ -98,52 +128,37 @@ const playArcadeSound = (type) => {
 
 // --- 核心游戏逻辑 ---
 const resetGame = () => {
-  score.value = 0;
-  hp.value = 5;
-  gameOver.value = false;
-  isFinished.value = false;
+  score.value = 0; hp.value = 5; gameOver.value = false; isFinished.value = false;
   deathReason.value = '';
-  
-  // 初始化蛇身位置
   snake = [{ x: 3 * gridSize, y: 5 * gridSize }];
-  currentDx = gridSize;
-  currentDy = 0;
-  inputQueue = [];
-  
+  currentDx = gridSize; currentDy = 0; inputQueue = [];
   nextQuestion();
-  
   if (gameInterval) clearInterval(gameInterval);
-  // 每秒 7-8 帧，平衡了吃豆人的操作走位反馈感
-  gameInterval = setInterval(updateGame, 130); 
+  gameInterval = setInterval(updateGame, 130);
 };
 
 const nextQuestion = () => {
   if (!gameStore.wordList || gameStore.wordList.length === 0) return;
-  
+ // 随机化：对的单词不一定总是绿色
+  colorMap.value = {
+    correct: "#00ff00",
+    wrong: "#00ff00"
+  };
   const randIdx = Math.floor(Math.random() * gameStore.wordList.length);
   const targetWord = gameStore.wordList[randIdx];
-  
-  let wrongWord = "bug";
-  if (gameStore.wordList.length > 1) {
-    let wrongIdx;
-    do {
-      wrongIdx = Math.floor(Math.random() * gameStore.wordList.length);
-    } while (wrongIdx === randIdx);
-    wrongWord = gameStore.wordList[wrongIdx].en;
-  }
-
-  currentQuestion.value = {
-    ch: targetWord.cn,
-    word: targetWord.en.trim(),
-    wrong: wrongWord.trim()
-  };
-  
+  let wrongWord = gameStore.wordList.length > 1 ? gameStore.wordList[Math.floor(Math.random() * gameStore.wordList.length)].en : "bug";
+  currentQuestion.value = { ch: targetWord.cn, word: targetWord.en.trim(), wrong: wrongWord.trim() };
+ // 1. 生成正确食物
   correctFood.value = getRandomPosition();
   correctFood.value.text = currentQuestion.value.word;
-  
+
+  // 2. 生成错误食物，并确保与正确食物有足够距离
   do {
     wrongFood.value = getRandomPosition();
-  } while(wrongFood.value.x === correctFood.value.x && wrongFood.value.y === correctFood.value.y);
+  } while (
+    Math.abs(wrongFood.value.x - correctFood.value.x) < gridSize * 2 && 
+    Math.abs(wrongFood.value.y - correctFood.value.y) < gridSize * 2
+  );
   wrongFood.value.text = currentQuestion.value.wrong;
 };
 
@@ -159,17 +174,89 @@ const getRandomPosition = () => {
   } while (inSnake);
   return { x, y };
 };
+// 当鼠标按下时开启绘制
+const handleMouseDown = (e) => {
+  isDrawing = true;
+  updatePreviewPath(e);
+};
 
+// 鼠标松开时清理
+const handleMouseUp = () => {
+  isDrawing = false;
+  previewPath = [];
+};
+
+const updatePreviewPath = (e) => {
+  if (!isDrawing) return;
+  const rect = canvasRef.value.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  // 简易逻辑：轨迹就是从蛇头到鼠标的连线
+  previewPath = [{ x: snake[0].x, y: snake[0].y }, { x: mouseX, y: mouseY }];
+  // 同时更新 mouseDir，让蛇向这个方向靠拢
+  const dx = mouseX - snake[0].x;
+  const dy = mouseY - snake[0].y;
+  mouseDir = Math.abs(dx) > Math.abs(dy)
+    ? { dx: dx > 0 ? gridSize : -gridSize, dy: 0 }
+    : { dx: 0, dy: dy > 0 ? gridSize : -gridSize };
+};
+const drawPathPreview = () => {
+  if (!isDrawing || previewPath.length < 2) return;
+  ctx.save();
+  ctx.strokeStyle = "rgba(255, 255, 0, 0.5)"; // 半透明黄色预览线
+  ctx.setLineDash([5, 5]); // 虚线效果
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(previewPath[0].x + gridSize / 2, previewPath[0].y + gridSize / 2);
+  ctx.lineTo(previewPath[1].x, previewPath[1].y);
+  ctx.stroke();
+  ctx.restore();
+};
+const handleMouseMove = (e) => {
+  if (controlMode.value !== 'mouse') return;
+  const rect = canvasRef.value.getBoundingClientRect();
+  
+  // 核心：直接获取鼠标在 canvas 中的精确位置
+  const mouseX = (e.clientX - rect.left) * (canvasRef.value.width / rect.width);
+  const mouseY = (e.clientY - rect.top) * (canvasRef.value.height / rect.height);
+  
+  window.currentMousePos = { x: mouseX, y: mouseY };
+
+  // 转向逻辑：只要鼠标方向与蛇头中心偏移超过 10 像素就转向
+  const dx = mouseX - (snake[0].x + gridSize / 2);
+  const dy = mouseY - (snake[0].y + gridSize / 2);
+  
+  if (Math.abs(dx) > Math.abs(dy)) {
+    const nextDir = { dx: dx > 0 ? gridSize : -gridSize, dy: 0 };
+    if (!isOpposite(nextDir.dx, nextDir.dy)) mouseDir = nextDir;
+  } else {
+    const nextDir = { dx: 0, dy: dy > 0 ? gridSize : -gridSize };
+    if (!isOpposite(nextDir.dx, nextDir.dy)) mouseDir = nextDir;
+  }
+};
 const updateGame = () => {
   if (gameOver.value || isFinished.value) return;
-
-  // 精准输入缓冲机制
-  if (inputQueue.length > 0) {
-    const nextMove = inputQueue.shift();
-    currentDx = nextMove.dx;
-    currentDy = nextMove.dy;
+  // 边缘缓冲逻辑：如果蛇头在边缘，自动偏向中心
+  const buffer = gridSize * 2;
+  if (controlMode.value === 'mouse') {
+      if (snake[0].x < buffer && currentDx < 0) mouseDir = { dx: 0, dy: -gridSize };
+      if (snake[0].x > (tileCountX * gridSize - buffer) && currentDx > 0) mouseDir = { dx: 0, dy: gridSize };
   }
-
+  // 锚点逻辑：如果键盘有操作，优先级最高
+  if (forceDirection) {
+    currentDx = forceDirection.dx;
+    currentDy = forceDirection.dy;
+    mouseDir = { ...forceDirection }; // 同时同步给鼠标跟随方向，实现“锚点效果”
+    forceDirection = null;
+  } else if (controlMode.value === 'mouse') {
+    if (!isOpposite(mouseDir.dx, mouseDir.dy)) {
+      currentDx = mouseDir.dx;
+      currentDy = mouseDir.dy;
+    }
+  } else if (inputQueue.length > 0) {
+    const nextMove = inputQueue.shift();
+    currentDx = nextMove.dx; currentDy = nextMove.dy;
+  }
   const head = { x: snake[0].x + currentDx, y: snake[0].y + currentDy };
 
   // 撞墙判定
@@ -190,10 +277,11 @@ const updateGame = () => {
 
   // 食物吞噬判定
   if (head.x === correctFood.value.x && head.y === correctFood.value.y) {
+    triggerFeedback(currentQuestion.value.word, currentQuestion.value.ch)
     score.value++;
     if (score.value > highScore.value) highScore.value = score.value;
     playArcadeSound('eat'); // 触发清脆吃豆声
-    
+
     if (score.value >= gameStore.goal) {
       isFinished.value = true;
       clearInterval(gameInterval);
@@ -211,22 +299,19 @@ const updateGame = () => {
 };
 
 const handleHpLoss = (reason) => {
-  hp.value--;
-  playArcadeSound('wrong'); // 触发硬核重击音效
-  
+  hp.value--; 
+  playArcadeSound('wrong');
   if (hp.value <= 0) {
     gameOver.value = true;
     deathReason.value = reason;
     clearInterval(gameInterval);
   } else {
-    // 扣血保护：原地回档重置，防止连续撞墙死
-    snake = [{ x: 3 * gridSize, y: 5 * gridSize }];
-    currentDx = gridSize;
-    currentDy = 0;
-    inputQueue = [];
-    nextQuestion();
+    // 关键改变：不再重置整个地图，只缩短蛇身，让游戏继续进行
+    if (snake.length > 3) snake.splice(0, Math.floor(snake.length / 2));
+    nextQuestion(); 
   }
 };
+
 
 // --- Canvas 绘图 ---
 const drawGame = () => {
@@ -234,15 +319,15 @@ const drawGame = () => {
 
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, canvasRef.value.width, canvasRef.value.height);
-
-  if (correctFood.value.text) drawPixelFood(correctFood.value, "#00ff00");
-  if (wrongFood.value.text) drawPixelFood(wrongFood.value, "#ff0000");
+  drawPathPreview();
+  if (correctFood.value.text) drawPixelFood(correctFood.value, colorMap.value.correct);
+  if (wrongFood.value.text) drawPixelFood(wrongFood.value, colorMap.value.wrong);
 
   snake.forEach((part, index) => {
     if (index === 0) {
       ctx.save();
       ctx.translate(part.x + gridSize / 2, part.y + gridSize / 2);
-      
+
       let angle = 0;
       if (currentDx > 0) angle = 0;
       else if (currentDx < 0) angle = Math.PI;
@@ -253,9 +338,9 @@ const drawGame = () => {
       let isOpenMouth = (animationFrameCounter % 2 === 0);
       let mouthSize = isOpenMouth ? 0.25 * Math.PI : 0.02 * Math.PI;
 
-      ctx.fillStyle = "#ffff00"; 
+      ctx.fillStyle = "#ffff00";
       ctx.beginPath();
-      ctx.arc(0, 0, gridSize / 2 - 2, mouthSize, 2 * Math.PI - mouthSize);
+      ctx.arc(0, 0, (gridSize * 0.8) / 2, mouthSize, 2 * Math.PI - mouthSize);
       ctx.lineTo(0, 0);
       ctx.fill();
 
@@ -270,62 +355,64 @@ const drawGame = () => {
       ctx.strokeRect(part.x + 2, part.y + 2, gridSize - 4, gridSize - 4);
     }
   });
+  drawMouseAnchor();
+  // --- 新增反馈绘制逻辑 ---
+  if (feedback.value.show) {
+    ctx.save();
+    ctx.fillStyle = "rgba(255, 255, 0, 0.9)"; // 亮黄色字体
+    ctx.font = "bold 20px 'Press Start 2P', monospace";
+    ctx.textAlign = "center";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 4;
+    ctx.fillText(feedback.value.text, canvasRef.value.width / 2, canvasRef.value.height / 2);
+    ctx.restore();
+  }
 };
 
 const drawPixelFood = (food, blockColor) => {
   ctx.save();
-  // 根据单词长度动态适配包裹宽度
-  let boxWidth = gridSize + (food.text.length * 8);
-  let boxX = food.x + gridSize / 2 - boxWidth / 2;
+  // 放大背景块
+  ctx.font = "bold 16px 'Courier New', Courier, monospace";
+  const textWidth = ctx.measureText(food.text).width;
+  const boxWidth = textWidth + 40; // 左右留白更多
+  const boxHeight = gridSize + 14; // 上下高度增加
+  const boxX = food.x + gridSize / 2 - boxWidth / 2;
+  const boxY = food.y + gridSize / 2 - boxHeight / 2;
 
-  // 1. 绘制最底层白色复古外框
+  // 绘制带有立体感的边框
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(boxX - 2, food.y + 1, boxWidth + 4, gridSize - 2);
-
-  // 2. 绘制内层纯黑衬底
+  ctx.fillRect(boxX - 2, boxY - 2, boxWidth + 4, boxHeight + 4);
   ctx.fillStyle = "#000000";
-  ctx.fillRect(boxX, food.y + 3, boxWidth, gridSize - 6);
-
-  // 3. 绘制核心提示色块（红/绿）
+  ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
   ctx.fillStyle = blockColor;
-  ctx.fillRect(boxX + 3, food.y + 6, boxWidth - 6, gridSize - 12);
-  
-  // 4. 渲染文本 - 核心优化：增加强力黑边
-  ctx.font = "bold 13px 'Courier New', Courier, monospace";
+  ctx.fillRect(boxX + 3, boxY + 3, boxWidth - 6, boxHeight - 6);
+
+  // 文字加粗描边
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  
-  // 先绘制 3px 宽的黑色外描边，压住红绿背景
   ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 5;
   ctx.strokeText(food.text, food.x + gridSize / 2, food.y + gridSize / 2);
-  
-  // 再填充核心白色文本，形成高对比度反差
   ctx.fillStyle = "#ffffff";
   ctx.fillText(food.text, food.x + gridSize / 2, food.y + gridSize / 2);
-  
   ctx.restore();
 };
 // --- 精准按键响应与默认事件拦截 ---
 const handleKeyDown = (e) => {
-  initAudio(); // 用户按下任意键时自动激活 AudioContext 策略
-  
-  // 识别需要被拦截的街机控制键
-  const trackedKeys = ["ArrowLeft", "a", "ArrowUp", "w", "ArrowRight", "d", "ArrowDown", "s"];
-  if (trackedKeys.includes(e.key)) {
-    e.preventDefault(); // 强力阻止页面因方向键滚动
-  }
+  initAudio();
+  const keyMap = {
+    ArrowLeft: { dx: -gridSize, dy: 0 }, a: { dx: -gridSize, dy: 0 },
+    ArrowRight: { dx: gridSize, dy: 0 }, d: { dx: gridSize, dy: 0 },
+    ArrowUp: { dx: 0, dy: -gridSize }, w: { dx: 0, dy: -gridSize },
+    ArrowDown: { dx: 0, dy: gridSize }, s: { dx: 0, dy: gridSize }
+  };
 
-  const lastInput = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { dx: currentDx, dy: currentDy };
-  
-  if ((e.key === "ArrowLeft" || e.key === "a") && lastInput.dx === 0) {
-    inputQueue.push({ dx: -gridSize, dy: 0 });
-  } else if ((e.key === "ArrowUp" || e.key === "w") && lastInput.dy === 0) {
-    inputQueue.push({ dx: 0, dy: -gridSize });
-  } else if ((e.key === "ArrowRight" || e.key === "d") && lastInput.dx === 0) {
-    inputQueue.push({ dx: gridSize, dy: 0 });
-  } else if ((e.key === "ArrowDown" || e.key === "s") && lastInput.dy === 0) {
-    inputQueue.push({ dx: 0, dy: gridSize });
+  if (keyMap[e.key]) {
+    e.preventDefault();
+    // 核心逻辑：无论何种模式，键盘按键直接重置强制方向
+    forceDirection = keyMap[e.key];
+    // 同步更新鼠标跟随的目标，防止键盘按完后鼠标移动又跳回去
+    mouseDir = { ...forceDirection };
   }
 };
 
@@ -342,7 +429,7 @@ const handleSaveConfig = () => {
   try {
     const newWords = JSON.parse(configText.value);
     gameStore.updateConfig(newWords, gameStore.goal);
-    emit('updateConfig', newWords); 
+    emit('updateConfig', newWords);
     showAdmin.value = false;
     resetGame();
   } catch (e) {
@@ -353,33 +440,43 @@ const handleSaveConfig = () => {
 const padZero = (num) => String(num).padStart(5, '0');
 
 watch(
-  () => gameStore.wordList, 
+  () => gameStore.wordList,
   (newList) => {
     if (newList && newList.length > 0) {
       configText.value = JSON.stringify(newList, null, 2);
       nextTick(() => { resetGame(); });
     }
-  }, 
-  { immediate: true, deep: true } 
+  },
+  { immediate: true, deep: true }
 );
 
 onMounted(() => {
-  if (canvasRef.value) {
-    ctx = canvasRef.value.getContext("2d");
-    tileCountX = canvasRef.value.width / gridSize;
-    tileCountY = canvasRef.value.height / gridSize;
-  }
-  window.addEventListener("keydown", handleKeyDown, { passive: false });
+  ctx = canvasRef.value.getContext("2d");
+  window.addEventListener("keydown", handleKeyDown);
+  canvasRef.value.addEventListener("mousemove", handleMouseMove);
+  canvasRef.value.addEventListener("mousedown", handleMouseDown);
+  window.addEventListener("mouseup", handleMouseUp); // 用 window 监听可以防止松开鼠标时移出 canvas 导致无法停止绘制
+  resetGame();
 });
 
 onUnmounted(() => {
+  // 1. 清理基础监听
   window.removeEventListener("keydown", handleKeyDown);
+  canvasRef.value.removeEventListener("mousemove", handleMouseMove);
+  // 2. 新增：清理鼠标绘制相关的监听
+  canvasRef.value.removeEventListener("mousedown", handleMouseDown);
+  window.removeEventListener("mouseup", handleMouseUp);
+  // 3. 必须清理定时器，否则游戏会在后台继续运行
   if (gameInterval) clearInterval(gameInterval);
 });
 </script>
 
 <template>
   <div class="game-viewport" @click="initAudio">
+    <div class="mode-selector">
+      <button :class="{ active: controlMode === 'keyboard' }" @click="controlMode = 'keyboard'">⌨️ 键盘</button>
+      <button :class="{ active: controlMode === 'mouse' }" @click="controlMode = 'mouse'">🖱️ 鼠标跟随</button>
+    </div>
     <!-- 开发后台配置面板 -->
     <div v-if="showAdmin" class="overlay" @click="showAdmin = false"></div>
     <div v-if="showAdmin" class="admin-panel">
@@ -407,7 +504,7 @@ onUnmounted(() => {
             <span class="score-val">{{ padZero(highScore) }}</span>
           </div>
         </div>
-        
+
         <div id="question-box">
           <div id="hint-title">GOAL PROGRESS: {{ score }} / {{ gameStore.goal }}</div>
           <div v-if="gameStore.wordList.length > 0" id="question">
@@ -418,11 +515,15 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      
+
       <!-- 主画布及弹框组件区 -->
       <div id="canvas-wrapper">
-        <canvas ref="canvasRef" width="540" height="360"></canvas>
-        
+   <canvas ref="canvasRef" 
+  :width="tileCountX * gridSize" 
+  :height="tileCountY * gridSize" 
+  :style="{ width: '100%', height: 'auto', cursor: controlMode==='mouse' ? 'none' : 'default'}">
+</canvas>
+
         <!-- 遮罩黑幕：用于烘托弹窗层次 -->
         <div v-if="gameOver || isFinished" class="modal-backdrop"></div>
 
@@ -511,10 +612,12 @@ onUnmounted(() => {
   margin-bottom: 5px;
   display: block;
 }
+
 .score-val {
   color: #ffffff;
   font-weight: bold;
 }
+
 .hp-hearts {
   font-size: 11px;
   letter-spacing: 1px;
@@ -588,16 +691,22 @@ canvas {
   font-size: 20px;
   letter-spacing: 2px;
 }
+
 .game-over-view h2 {
   color: #ff3e3e;
   animation: blink 0.6s infinite steps(1, start);
 }
+
 .clear-title {
   color: #55ff55;
   animation: blink 1s infinite steps(1, start);
 }
 
-@keyframes blink { 50% { opacity: 0; } }
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
 
 .reason-text {
   font-size: 12px;
@@ -607,6 +716,7 @@ canvas {
   font-weight: bold;
   color: #e0e0e0;
 }
+
 .text-success {
   color: #55ff55 !important;
 }
@@ -618,8 +728,14 @@ canvas {
   margin-bottom: 25px;
   font-size: 11px;
 }
-.highlight { color: #ffff55; }
-.highlight-green { color: #55ff55; }
+
+.highlight {
+  color: #ffff55;
+}
+
+.highlight-green {
+  color: #55ff55;
+}
 
 button.restart-btn {
   background: #ff3e3e;
@@ -633,16 +749,19 @@ button.restart-btn {
   box-shadow: 4px 4px 0px #ffffff;
   width: 100%;
 }
+
 .clear-btn {
   background: #55ff55 !important;
   color: #000000 !important;
   box-shadow: 4px 4px 0px #000000 !important;
   border-color: #000000 !important;
 }
+
 button.restart-btn:active {
   transform: translate(3px, 3px);
   box-shadow: 1px 1px 0px #ffffff;
 }
+
 .clear-btn:active {
   box-shadow: 1px 1px 0px #000000 !important;
 }
@@ -655,8 +774,11 @@ button.restart-btn:active {
   gap: 10px;
   margin-top: 25px;
 }
+
 @media (min-width: 768px) {
-  #controls { display: none; } 
+  #controls {
+    display: none;
+  }
 }
 
 .btn {
@@ -671,18 +793,37 @@ button.restart-btn:active {
   cursor: pointer;
   box-shadow: 3px 3px 0px #ffffff;
 }
+
 .btn:active {
   background: #ffffff;
   color: #000000;
   box-shadow: 0px 0px 0px #ffffff;
   transform: translate(3px, 3px);
 }
-#btn-up { grid-column: 2; }
-#btn-left { grid-column: 1; grid-row: 2; }
-#btn-right { grid-column: 3; grid-row: 2; }
-#btn-down { grid-column: 2; grid-row: 3; }
 
-.admin-trigger-zone { margin-top: 20px; }
+#btn-up {
+  grid-column: 2;
+}
+
+#btn-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#btn-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+#btn-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.admin-trigger-zone {
+  margin-top: 20px;
+}
+
 .dev-config-btn {
   background: transparent;
   border: 1px dashed #555;
@@ -691,15 +832,71 @@ button.restart-btn:active {
   font-size: 10px;
   cursor: pointer;
 }
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; }
-.admin-panel { 
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-  background: #000000; border: 4px solid #ffffff; padding: 25px; z-index: 110; width: 320px; color: white;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 100;
 }
-.admin-panel h3 { font-size: 12px; margin-top: 0; color: #ffff55; }
-.admin-panel textarea { 
-  width: 100%; height: 180px; margin-bottom: 10px; padding: 10px; background: #111;
-  color: #55ff55; font-family: monospace; box-sizing: border-box; border: 2px solid #fff;
+
+.admin-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #000000;
+  border: 4px solid #ffffff;
+  padding: 25px;
+  z-index: 110;
+  width: 320px;
+  color: white;
 }
-.admin-save-btn { background: #55ff55 !important; color: black !important; font-family: inherit; font-size: 10px; padding: 8px 16px; }
+
+.admin-panel h3 {
+  font-size: 12px;
+  margin-top: 0;
+  color: #ffff55;
+}
+
+.admin-panel textarea {
+  width: 100%;
+  height: 180px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #111;
+  color: #55ff55;
+  font-family: monospace;
+  box-sizing: border-box;
+  border: 2px solid #fff;
+}
+
+.admin-save-btn {
+  background: #55ff55 !important;
+  color: black !important;
+  font-family: inherit;
+  font-size: 10px;
+  padding: 8px 16px;
+}
+
+.mode-selector {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.mode-selector button {
+  background: #222;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+}
+
+.mode-selector button.active {
+  background: #fff;
+  color: #000;
+}
 </style>
