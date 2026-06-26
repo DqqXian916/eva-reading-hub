@@ -235,6 +235,11 @@ const handleMouseMove = (e) => {
   }
 };
 const updateGame = () => {
+  // 增加安全检查：如果 canvas 已不存在，直接停止定时器并返回
+  if (!canvasRef.value) {
+    if (gameInterval) clearInterval(gameInterval);
+    return;
+  }
   if (gameOver.value || isFinished.value) return;
   // 边缘缓冲逻辑：如果蛇头在边缘，自动偏向中心
   const buffer = gridSize * 2;
@@ -257,6 +262,20 @@ const updateGame = () => {
     const nextMove = inputQueue.shift();
     currentDx = nextMove.dx; currentDy = nextMove.dy;
   }
+  // 1. 计算下一帧的预期坐标
+  const nextHead = { x: snake[0].x + currentDx, y: snake[0].y + currentDy };
+
+  // 2. === 在这里插入代码：防撞强制修正 ===
+  // 必须使用 canvasRef.value.width/height 确保获取到最新的画布尺寸
+  const canvasWidth = canvasRef.value.width;
+  const canvasHeight = canvasRef.value.height;
+
+  if (nextHead.x < 0) currentDx = gridSize;           // 撞左墙，强制向右
+  else if (nextHead.x >= canvasWidth) currentDx = -gridSize; // 撞右墙，强制向左
+  
+  if (nextHead.y < 0) currentDy = gridSize;           // 撞上墙，强制向下
+  else if (nextHead.y >= canvasHeight) currentDy = -gridSize; // 撞下墙，强制向上
+  // ======================================
   const head = { x: snake[0].x + currentDx, y: snake[0].y + currentDy };
 
   // 撞墙判定
@@ -460,14 +479,18 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // 1. 清理基础监听
+  // 1. 彻底清除定时器，这是防止内存泄漏和空指针的关键
+  if (gameInterval) {
+    clearInterval(gameInterval);
+    gameInterval = null;
+  }
+  // 2. 移除所有事件监听
   window.removeEventListener("keydown", handleKeyDown);
-  canvasRef.value.removeEventListener("mousemove", handleMouseMove);
-  // 2. 新增：清理鼠标绘制相关的监听
-  canvasRef.value.removeEventListener("mousedown", handleMouseDown);
+  if (canvasRef.value) {
+    canvasRef.value.removeEventListener("mousemove", handleMouseMove);
+    canvasRef.value.removeEventListener("mousedown", handleMouseDown);
+  }
   window.removeEventListener("mouseup", handleMouseUp);
-  // 3. 必须清理定时器，否则游戏会在后台继续运行
-  if (gameInterval) clearInterval(gameInterval);
 });
 </script>
 
