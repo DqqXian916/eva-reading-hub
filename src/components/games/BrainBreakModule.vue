@@ -11,6 +11,7 @@ import ShootGame from './Shoot.vue'
 import CarCrashGame from './CarCrash.vue'
 import WordFighterGame from './WordFighter.vue'
 import DrawGame from './Draw.vue'
+import ArtGalleryGame from './ArtGallery.vue' // 👈 1. 引入新做好的艺术画廊组件
 import WordMatchGame from './WordMatch.vue'
 import WordSnakeGame from './WordSnake.vue' // 👈 新增引入像素贪吃蛇组件
 import PrincessWardrobeGame from './PrincessWardrobe.vue'
@@ -136,7 +137,6 @@ const games = ref([
             goal: 20
         }
     },
-    // 在 const games = ref([ ... ]) 中追加：
     {
         id: 'wardrobe',
         name: '高定换装沙龙',
@@ -157,8 +157,17 @@ const games = ref([
         config: {
             wordList: [], // 等待后端统一注入
             goal: 20      // 默认通关目标：吃对 20 个单词
-        }
-    }
+    }},
+        {
+        id: 'gallery',
+        name: '艺术画廊',
+        isVue: true,
+        icon: '🖼️',
+        color: '#c9b088', // 配合画廊的黑金/宣纸高级色
+        config: {
+            wordList: [], 
+            goal: 20
+        }}
 ])
 
 const activeGame = ref(null)
@@ -352,6 +361,12 @@ const saveGameConfig = () => {
                                     studentId: props.student.id,
                                     wordList: newWords,
                                     goal: gameStore.goal || activeGame.config.goal // 优先使用系统全局设定的 goal 目标
+                                })" />
+                                <ArtGalleryGame v-if="activeGame.id === 'gallery'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
                                 })" />
                         </template>
 
@@ -756,5 +771,10 @@ const saveGameConfig = () => {
     align-items: center;
     justify-content: center;
     font-size: 20px;
+}
+.game-card.gallery-theme-bg {
+    background: #0a0a0a !important; /* 强制覆盖原本的 white 背景 */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: background 0.4s ease;
 }
 </style>
