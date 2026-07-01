@@ -98,7 +98,7 @@ const handleSubmit = () => {
                   <span class="icon">🔍</span> 选项 {{ String.fromCharCode(65 + hoverOptIdx) }} 详解：
                 </div>
                 <div class="analysis-text">
-                  {{ q.analysis[hoverOptIdx] }}
+                {{ q.analysis && q.analysis[hoverOptIdx] ? q.analysis[hoverOptIdx] : '暂无该选项解析' }}
                 </div>
               </template>
 
@@ -107,7 +107,7 @@ const handleSubmit = () => {
                   <span class="icon">💡</span> 答案解析：
                 </div>
                 <div class="analysis-text">
-                  {{ q.analysis[q.answer] }}
+                  {{ q.analysis && q.analysis[hoverOptIdx] ? q.analysis[hoverOptIdx] : '暂无该选项解析' }}
                 </div>
               </template>
             </div>
