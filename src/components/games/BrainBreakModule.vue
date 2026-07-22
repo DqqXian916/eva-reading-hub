@@ -15,6 +15,7 @@ import ArtGalleryGame from './ArtGallery.vue' // 👈 1. 引入新做好的艺�
 import WordMatchGame from './WordMatch.vue'
 import WordSnakeGame from './WordSnake.vue' // 👈 新增引入像素贪吃蛇组件
 import PrincessWardrobeGame from './PrincessWardrobe.vue'
+import WordLinkGame from './WordLink.vue'
 import { useGameStore } from '../../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -167,7 +168,17 @@ const games = ref([
         config: {
             wordList: [], 
             goal: 20
-        }}
+        }},
+        {
+        id: 'link',
+        name: '单词连连看',
+        isVue: true,
+        icon: '🧵',
+        color: '#66ccff', // 配合画廊的黑金/宣纸高级色
+        config: {
+            wordList: [], 
+            goal: 20
+        }},
 ])
 
 const activeGame = ref(null)
@@ -362,8 +373,14 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: gameStore.goal || activeGame.config.goal // 优先使用系统全局设定的 goal 目标
                                 })" />
-                                <ArtGalleryGame v-if="activeGame.id === 'gallery'" :wordList="activeGame.config.wordList"
-                                :key="props.student.id" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                            <ArtGalleryGame v-if="activeGame.id === 'gallery'" :wordList="activeGame.config.wordList"
+                            :key="props.student.id" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                studentId: props.student.id,
+                                wordList: newWords,
+                                goal: activeGame.config.goal
+                            })" />
+                             <WordLinkGame v-if="activeGame.id === 'link'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
                                     goal: activeGame.config.goal
