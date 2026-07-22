@@ -1,4 +1,6 @@
 <script setup>
+import { ref, computed } from 'vue'
+
 /**
  * Props 说明：
  * students: 学员列表
@@ -6,14 +8,29 @@
  * collapsed: 是否折叠
  * canEdit: 是否拥有管理权限（由 App.vue 的 isAdminMode 传入）
  */
-defineProps({
-  students: Array,
+const props = defineProps({
+  students: {
+    type: Array,
+    default: () => []
+  },
   currentStudent: Object,
   collapsed: Boolean,
   canEdit: Boolean
 })
 
 defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
+
+// 1. 新增搜索关键词状态
+const searchQuery = ref('')
+
+// 2. 增加过滤后的学员计算属性（支持按姓名忽略大小写匹配）
+const filteredStudents = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return props.students || []
+  return (props.students || []).filter(s => 
+    s.name && s.name.toLowerCase().includes(query)
+  )
+})
 </script>
 
 <template>
@@ -37,13 +54,31 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
         </button>
       </div>
 
+      <!-- 新增：搜索框区域 -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          class="search-input" 
+          placeholder="搜索学员姓名" 
+        />
+        <span 
+          v-if="searchQuery" 
+          class="clear-icon" 
+          @click="searchQuery = ''"
+          title="清空"
+        >✕</span>
+      </div>
+
       <div class="list-container">
         <div class="list-header">
           {{ canEdit ? '📋 学员库管理' : '👤 请选择当前学员' }}
         </div>
         <div class="list">
+          <!-- 修改：遍历 filteredStudents 而非原始 students -->
           <div 
-            v-for="s in students" 
+            v-for="s in filteredStudents" 
             :key="s.id" 
             :class="['item', { active: currentStudent?.id === s.id }]"
             @click="$emit('select', s)"
@@ -56,6 +91,11 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
               @click.stop="$emit('deleteStudent', s)"
               title="删除学员"
             >🗑️</span>
+          </div>
+
+          <!-- 新增：搜不到结果时的空状态 -->
+          <div v-if="filteredStudents.length === 0" class="empty-tip">
+            未找到匹配学员
           </div>
         </div>
       </div>
@@ -91,19 +131,73 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
   padding: 20px 15px;
   width: 230px;
   box-sizing: border-box;
-  /* --- 新增/修改 学员列表不滚动--- */
-  height: 100%;           /* 占据父级全部高度 */
+  height: 100%;           
   flex-direction: column;
-  display: flex;          /* 开启 Flex 布局 */
+  display: flex;          
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 12px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 28px 8px 30px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+.search-input:focus {
+  border-color: #27ae60;
+  background: #0f172a;
+}
+
+.clear-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.clear-icon:hover {
+  color: #f8fafc;
+}
+
+/* 空状态样式 */
+.empty-tip {
+  padding: 15px 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
 }
 
 .list-container {
-  flex: 1;                /* 自动撑满剩余高度 */
-  overflow-y: auto;       /* 只有这里产生滚动条 */
-  min-height: 0;          /* 这是一个 CSS 小技巧，防止 Flex 子元素溢出父级 */
-  
-  /* 美化滚动条（可选） */
-  padding-right: 4px;     /* 给右侧留点空间，避免滚动条盖住删除按钮 */
+  flex: 1;                
+  overflow-y: auto;       
+  min-height: 0;          
+  padding-right: 4px;     
 }
 
 /* 针对 Webkit 的滚动条美化 */
@@ -185,6 +279,7 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
 }
 
 .item {
+  position: relative; 
   display: flex;
   align-items: center;
   gap: 12px;
@@ -207,6 +302,25 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
   color: white;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.delete-student-btn {
+  margin-left: auto; 
+  opacity: 0; 
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.item:hover .delete-student-btn {
+  opacity: 0.6;
+}
+
+.delete-student-btn:hover {
+  opacity: 1 !important;
+  background: rgba(231, 76, 60, 0.2); 
+  transform: scale(1.2);
 }
 
 /* 切换按钮 */
@@ -244,28 +358,4 @@ defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
 
 .mini-bulb { font-size: 18px; filter: grayscale(1); opacity: 0.5; }
 .mini-add { cursor: pointer; font-size: 14px; color: #27ae60; }
-
-.item {
-  position: relative; /* 方便删除按钮定位 */
-}
-
-.delete-student-btn {
-  margin-left: auto; /* 推到最右侧 */
-  opacity: 0; /* 默认隐藏 */
-  transition: all 0.2s;
-  padding: 4px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.item:hover .delete-student-btn {
-  opacity: 0.6;
-}
-
-.delete-student-btn:hover {
-  opacity: 1 !important;
-  background: rgba(231, 76, 60, 0.2); /* 淡淡的红底 */
-  transform: scale(1.2);
-}
-
 </style>
