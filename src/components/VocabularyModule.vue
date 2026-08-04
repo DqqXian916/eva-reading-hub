@@ -7,7 +7,7 @@
           TODAY'S PICK 🍔
         </span>
 
-        <!-- 🖨️ 新增功能：一键打印/导出全部单词为 DOCX -->
+        <!-- 🖨️ 导出全部单词为 DOCX -->
         <button class="print-docx-btn" @click="exportToDocx" title="导出全部单词为Word文档">
           📝 打印
         </button>
@@ -32,22 +32,72 @@
             </span>
           </div>
         </div>
+
+        <!-- 🔍 单词状态筛选器 (全部 / 未掌握 / 已掌握) -->
+        <div class="filter-tabs">
+          <button 
+            class="tab-btn" 
+            :class="{ active: activeFilter === 'all' }" 
+            @click="setFilter('all')"
+          >
+            全部 ({{ initialWords.length }})
+          </button>
+          <button 
+            class="tab-btn" 
+            :class="{ active: activeFilter === 'unmastered' }" 
+            @click="setFilter('unmastered')"
+          >
+            不会 ({{ initialWords.length - masteredCount }})
+          </button>
+          <button 
+            class="tab-btn" 
+            :class="{ active: activeFilter === 'mastered' }" 
+            @click="setFilter('mastered')"
+          >
+            会了 ({{ masteredCount }})
+          </button>
+        </div>
       </div>
 
+      <!-- 滚动单词区域 -->
       <div class="scroll-area">
-        <div v-for="(item, index) in initialWords" :key="index" class="mini-card"
-          :class="{ 'is-active': currentIndex === index, 'is-done': item.m }" @click="selectWord(index)">
-          <div class="check-box" @click.stop="toggleMastery(index)">
-            <span class="check-mark" v-if="item.m">✓</span>
+        <template v-if="paginatedWords.length > 0">
+          <div v-for="(item) in paginatedWords" :key="item.originalIndex" class="mini-card"
+            :class="{ 'is-active': currentIndex === item.originalIndex, 'is-done': item.m }" 
+            @click="selectWordByRealIndex(item.originalIndex)">
+            <div class="check-box" @click.stop="toggleMastery(item.originalIndex)">
+              <span class="check-mark" v-if="item.m">✓</span>
+            </div>
+            <span class="en-text">{{ item.en }}</span>
           </div>
-          <span class="en-text">{{ item.en }}</span>
+        </template>
+        <div class="empty-tip" v-else>
+          无对应单词
         </div>
+      </div>
+
+      <!-- 📄 极简底部分页控制条 -->
+      <div class="pagination-bar" v-if="totalPages > 1">
+        <button class="page-btn" :disabled="currentPage === 1" @click="prevPage" title="上一页">‹</button>
+        <div class="page-jump-box">
+          <input 
+            type="number" 
+            class="page-input" 
+            v-model.number="pageInput" 
+            @keydown.enter="jumpToPage" 
+            @blur="jumpToPage"
+            min="1" 
+            :max="totalPages"
+          />
+          <span class="page-total">/ {{ totalPages }}</span>
+        </div>
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="nextPage" title="下一页">›</button>
       </div>
     </nav>
 
     <!-- 右侧详情区 -->
     <main class="detail-stage">
-      <div class="stage-content" v-if="currentWord.en">
+      <div class="stage-content" v-if="currentWord && currentWord.en">
 
         <section class="word-hero">
           <div class="hero-top">
@@ -78,15 +128,16 @@
         </section>
 
         <div class="stage-footer">
-          <button class="nav-prev" :disabled="currentIndex === 0" @click="selectWord(currentIndex - 1)">上一个 (↑)</button>
-          <!-- 加上掌握标记的快捷键提示 -->
-          <button class="nav-next" :disabled="currentIndex === initialWords.length - 1"
-            @click="selectWord(currentIndex + 1)">下一个 (Enter / ↓) [ Q 键标记 ]</button>
+          <button class="nav-prev" :disabled="isFirstInFiltered" @click="selectPrevInFiltered">上一个 (↑)</button>
+          <button class="nav-next" :disabled="isLastInFiltered" @click="selectNextInFiltered">下一个 (Enter / ↓) [ Q 键标记 ]</button>
         </div>
+      </div>
+      <div class="empty-stage" v-else>
+        <p>当前筛选状态下没有可学习的单词 ~</p>
       </div>
     </main>
 
-    <!-- ⚡ 听写清单模态弹窗（纯全显展示） -->
+    <!-- ⚡ 听写清单模态弹窗 -->
     <div class="dictation-overlay" v-if="dictationVisible" @click.self="closeDictation">
       <div class="dictation-modal">
         <button class="close-modal-btn" @click="closeDictation">✕</button>
@@ -113,7 +164,6 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-// 导入生成 docx 所需的模块
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, BorderStyle, TextRun } from 'docx'
 import { saveAs } from 'file-saver'
 
@@ -132,6 +182,107 @@ const isRevealed = ref(false)
 const dictationVisible = ref(false)
 const dictationWords = ref([])
 
+// 🔍 筛选相关状态: 'all' | 'unmastered' | 'mastered'
+const activeFilter = ref('all')
+
+// 📄 分页与跳页响应式状态
+const currentPage = ref(1)
+const pageSize = ref(20)
+const pageInput = ref(1)
+
+// 🔍 过滤后的基础列表（带原始全局索引）
+const filteredWords = computed(() => {
+  return props.initialWords
+    .map((word, index) => ({ ...word, originalIndex: index }))
+    .filter(word => {
+      if (activeFilter.value === 'mastered') return !!word.m
+      if (activeFilter.value === 'unmastered') return !word.m
+      return true
+    })
+})
+
+// 📄 基于过滤后列表计算总页数与当页数据
+const totalPages = computed(() => {
+  return Math.ceil(filteredWords.value.length / pageSize.value) || 1
+})
+
+const paginatedWords = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredWords.value.slice(start, start + pageSize.value)
+})
+
+// 当前过滤数组中选中项的位置信息
+const filteredCurrentIndex = computed(() => {
+  return filteredWords.value.findIndex(item => item.originalIndex === currentIndex.value)
+})
+
+const isFirstInFiltered = computed(() => filteredCurrentIndex.value <= 0)
+const isLastInFiltered = computed(() => filteredCurrentIndex.value === -1 || filteredCurrentIndex.value >= filteredWords.value.length - 1)
+
+// 设置筛选条件
+const setFilter = (filterType) => {
+  activeFilter.value = filterType
+  currentPage.value = 1
+  pageInput.value = 1
+  
+  if (filteredWords.value.length > 0) {
+    selectWordByRealIndex(filteredWords.value[0].originalIndex)
+  }
+}
+
+// 保持页码输入框与当前页同步
+watch(currentPage, (val) => {
+  pageInput.value = val
+})
+
+// 📄 跳页与切换逻辑
+const jumpToPage = () => {
+  let target = parseInt(pageInput.value, 10)
+  if (isNaN(target) || target < 1) target = 1
+  if (target > totalPages.value) target = totalPages.value
+  
+  currentPage.value = target
+  pageInput.value = target
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+// 选中对应全局真实索引的单词，并同步调整页码
+const selectWordByRealIndex = (realIndex) => {
+  if (realIndex < 0 || realIndex >= props.initialWords.length) return
+  currentIndex.value = realIndex
+  isRevealed.value = false
+  
+  const targetFilteredPos = filteredWords.value.findIndex(item => item.originalIndex === realIndex)
+  if (targetFilteredPos !== -1) {
+    const targetPage = Math.floor(targetFilteredPos / pageSize.value) + 1
+    if (currentPage.value !== targetPage) {
+      currentPage.value = targetPage
+    }
+  }
+
+  speak(props.initialWords[realIndex].en)
+}
+
+// 在筛选列表中切换上一个/下一个
+const selectPrevInFiltered = () => {
+  if (isFirstInFiltered.value) return
+  const prevItem = filteredWords.value[filteredCurrentIndex.value - 1]
+  if (prevItem) selectWordByRealIndex(prevItem.originalIndex)
+}
+
+const selectNextInFiltered = () => {
+  if (isLastInFiltered.value) return
+  const nextItem = filteredWords.value[filteredCurrentIndex.value + 1]
+  if (nextItem) selectWordByRealIndex(nextItem.originalIndex)
+}
+
 // 开启听写
 const startDictation = () => {
   if (props.initialWords.length === 0) return
@@ -144,14 +295,13 @@ const closeDictation = () => {
   dictationVisible.value = false
 }
 
-// 🖨️ 核心功能：构建并下载规范的 DOCX 文件
+// 🖨️ 导出 Word 文档
 const exportToDocx = () => {
   if (props.initialWords.length === 0) {
     alert("当前没有可导出的单词！")
     return
   }
 
-  // 1. 定义表头行
   const headerRow = new TableRow({
     children: [
       createCell("序号", true, "E2E8F0", 10),
@@ -162,11 +312,10 @@ const exportToDocx = () => {
     isHeader: true,
   })
 
-  // 2. 遍历注入所有数据行
   const dataRows = props.initialWords.map((word, index) => {
     return new TableRow({
       children: [
-        createCell(String(index + 1).padStart(2, '0'), false, null, 10, true), // 序号居中
+        createCell(String(index + 1).padStart(2, '0'), false, null, 10, true),
         createCell(word.en || "", false, null, 25),
         createCell(word.cn || "", false, null, 25),
         createCell(word.s || "—", false, null, 40),
@@ -174,7 +323,6 @@ const exportToDocx = () => {
     })
   })
 
-  // 3. 创建表格并配置基本样式 (100% 宽度，细微灰色边框)
   const table = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
@@ -188,7 +336,6 @@ const exportToDocx = () => {
     rows: [headerRow, ...dataRows],
   })
 
-  // 4. 组装整篇文档结构
   const doc = new Document({
     sections: [
       {
@@ -197,9 +344,9 @@ const exportToDocx = () => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `${props.student.name} 单词清单`,
+                text: `${props.student?.name || ''} 单词清单`,
                 bold: true,
-                size: 32, // 16pt 字号
+                size: 32,
               }),
             ],
             spacing: { bottom: 400 },
@@ -210,21 +357,19 @@ const exportToDocx = () => {
     ],
   })
 
-  // 5. 编译打包成 Blob 并通过 file-saver 触发下载
   Packer.toBlob(doc).then((blob) => {
-    const filename = `${props.student.name}_${new Date().toISOString().slice(0, 10)}.docx`
+    const filename = `${props.student?.name || 'student'}_${new Date().toISOString().slice(0, 10)}.docx`
     saveAs(blob, filename)
   }).catch(err => {
     console.error("生成Word文档失败：", err)
   })
 }
 
-// 辅助函数：快速创建符合排版规范的单元格
 const createCell = (text, isHeader = false, bgColor = null, widthPercent = 25, centerText = false) => {
   return new TableCell({
     width: { size: widthPercent, type: WidthType.PERCENTAGE },
     shading: bgColor ? { fill: bgColor } : undefined,
-    margins: { top: 120, bottom: 120, left: 150, right: 150 }, // 单元格内边距
+    margins: { top: 120, bottom: 120, left: 150, right: 150 },
     children: [
       new Paragraph({
         alignment: centerText ? "center" : "left",
@@ -232,8 +377,8 @@ const createCell = (text, isHeader = false, bgColor = null, widthPercent = 25, c
           new TextRun({
             text: text,
             bold: isHeader,
-            size: isHeader ? 22 : 20, // 表头字号略大
-            font: "Microsoft YaHei", // 适配中文环境字体
+            size: isHeader ? 22 : 20,
+            font: "Microsoft YaHei",
           }),
         ],
       }),
@@ -242,26 +387,29 @@ const createCell = (text, isHeader = false, bgColor = null, widthPercent = 25, c
 }
 
 // 键盘监听
-// 键盘监听
 const handleKeyDown = (e) => {
+  if (document.activeElement.classList.contains('page-input')) return
+
   if (dictationVisible.value) {
     if (e.key === 'Escape') closeDictation()
     return
   }
-  // 防止方向键导致网页上下滚动
   if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault() }
-  // ⚡ 新增：按下 Q 键勾选/取消勾选当前单词 (不区分大小写)
+  
   if (e.key === 'q' || e.key === 'Q') {
     toggleMastery(currentIndex.value)
     return
   }
   if (e.key === 'Enter') {
-    if (!isRevealed.value) { isRevealed.value = true }
-    else if (currentIndex.value < props.initialWords.length - 1) { selectWord(currentIndex.value + 1) }
-  } else if (e.key === 'ArrowDown' && currentIndex.value < props.initialWords.length - 1) {
-    selectWord(currentIndex.value + 1)
-  } else if (e.key === 'ArrowUp' && currentIndex.value > 0) {
-    selectWord(currentIndex.value - 1)
+    if (!isRevealed.value) { 
+      isRevealed.value = true 
+    } else { 
+      selectNextInFiltered()
+    }
+  } else if (e.key === 'ArrowDown') {
+    selectNextInFiltered()
+  } else if (e.key === 'ArrowUp') {
+    selectPrevInFiltered()
   }
 }
 
@@ -277,16 +425,11 @@ watch(currentIndex, () => {
 
 watch(() => props.initialWords, (newVal) => {
   if (currentIndex.value >= newVal.length) currentIndex.value = 0
+  currentPage.value = 1
 }, { deep: true, immediate: true })
 
 const currentWord = computed(() => props.initialWords[currentIndex.value] || {})
 const masteredCount = computed(() => props.initialWords.filter(word => word.m).length)
-
-const selectWord = (index) => {
-  currentIndex.value = index
-  isRevealed.value = false
-  speak(props.initialWords[index].en)
-}
 
 const toggleMastery = (index) => {
   const words = [...props.initialWords]
@@ -321,7 +464,7 @@ const formatSentence = (s, word) => {
 }
 
 .word-side-list {
-  width: 255px;
+  width: 265px;
   height: 100%;
   border-right: 1px solid #f1f5f9;
   display: flex;
@@ -331,7 +474,7 @@ const formatSentence = (s, word) => {
 }
 
 .list-header {
-  padding: 25px 20px 15px;
+  padding: 16px 16px 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -345,7 +488,121 @@ const formatSentence = (s, word) => {
   display: inline-block;
 }
 
-/* ✨ 新增：高质感打印按钮样式 */
+/* 🔍 筛选按钮组样式 */
+.filter-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 5px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #0f172a;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #27ae60;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px 10px;
+}
+
+/* 📄 极简底部分页控制条样式 */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px 12px;
+  flex-shrink: 0;
+}
+
+.page-btn {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #27ae60;
+}
+
+.page-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.page-jump-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-input {
+  width: 28px;
+  height: 20px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Monaco', monospace;
+  color: #0f172a;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid #cbd5e1;
+  border-radius: 0;
+  padding: 0;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.page-input:focus {
+  border-color: #27ae60;
+}
+
+.page-input::-webkit-inner-spin-button,
+.page-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.page-total {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  font-family: 'Monaco', monospace;
+}
+
 .print-docx-btn {
   background: #f8fafc;
   border: 1px solid #cbd5e1;
@@ -380,10 +637,11 @@ const formatSentence = (s, word) => {
   color: #1e293b;
 }
 
-.scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 10px 20px;
+.empty-tip {
+  padding: 30px 0;
+  text-align: center;
+  font-size: 13px;
+  color: #94a3b8;
 }
 
 .mini-card {
@@ -440,6 +698,15 @@ const formatSentence = (s, word) => {
   overflow-y: auto;
   background: #ffffff;
   scrollbar-gutter: stable;
+}
+
+.empty-stage {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 16px;
 }
 
 .stage-content {
@@ -578,9 +845,14 @@ const formatSentence = (s, word) => {
   box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15);
 }
 
-.nav-next:hover {
+.nav-next:hover:not(:disabled) {
   transform: translateY(-2px);
   background: #334155;
+}
+
+.nav-next:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .nav-prev {
@@ -748,7 +1020,6 @@ const formatSentence = (s, word) => {
   border-radius: 10px;
 }
 
-
 /* ==================== 听写清单弹窗样式 ==================== */
 .dictation-overlay {
   position: fixed;
@@ -893,13 +1164,8 @@ const formatSentence = (s, word) => {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes scaleUp {
@@ -907,7 +1173,6 @@ const formatSentence = (s, word) => {
     transform: scale(0.97);
     opacity: 0;
   }
-
   to {
     transform: scale(1);
     opacity: 1;

@@ -10,7 +10,6 @@ const emit = defineEmits(['save', 'cancel'])
 
 const editorRef = ref(null)
 const isShowingCn = ref(false)
-// 新增：控制 JSON 弹窗显示
 const isJsonModalOpen = ref(false)
 const jsonInput = ref('')
 
@@ -22,51 +21,50 @@ const form = reactive({
   quiz: JSON.parse(JSON.stringify(props.initialData?.quiz || []))
 })
 
+// 把换行符/字符串渲染进 contenteditable
+const updateEditorDOM = () => {
+  if (editorRef.value) {
+    // 优先使用 textContent，保证纯文本与空格/换行原样显示
+    editorRef.value.textContent = isShowingCn.value ? form.body_cn : form.body
+  }
+}
+
 // 初始化编辑器内容
 onMounted(() => {
   nextTick(() => {
-    if (editorRef.value) {
-      editorRef.value.innerHTML = isShowingCn.value ? form.body_cn : form.body
-    }
+    updateEditorDOM()
   })
 })
 
 // 监听中英切换，同步编辑器显示内容
-watch(isShowingCn, (val) => {
-  if (editorRef.value) {
-    editorRef.value.innerHTML = val ? form.body_cn : form.body
-  }
+watch(isShowingCn, () => {
+  updateEditorDOM()
 })
 
-// 新增：JSON 导入逻辑
+// JSON 导入逻辑
 const importFromJson = () => {
   try {
     const data = JSON.parse(jsonInput.value)
-    // 基础校验
     if (!data.title || !Array.isArray(data.quiz)) {
       throw new Error("JSON 格式不正确，需包含 title 和 quiz 数组")
     }
-    // 更新表单数据
     form.title = data.title
     form.body = data.body || ''
     form.body_cn = data.body_cn || ''
 
-    // 深度拷贝题目数据
     form.quiz = data.quiz.map(q => ({
       options: q.options || ['', '', '', ''],
       answer: q.answer || 0,
       analysis: q.analysis || ''
     }))
-    // 如果 body 中没有标记，尝试根据题目数量自动生成 (可选逻辑)
+
     if (!form.body.includes('[1]') && form.quiz.length > 0) {
       let placeholder = '\n\n'
       form.quiz.forEach((_, i) => placeholder += `[${i + 1}] `)
       form.body += placeholder
     }
-    // 同步到编辑器视图
-    if (editorRef.value) {
-      editorRef.value.innerHTML = isShowingCn.value ? form.body_cn : form.body
-    }
+
+    updateEditorDOM()
     isJsonModalOpen.value = false
     jsonInput.value = ''
     alert("导入成功！")
@@ -78,12 +76,16 @@ const importFromJson = () => {
 // 处理编辑器输入：同步数据并识别 [n] 标记
 const handleInput = () => {
   if (!editorRef.value) return
-  const content = editorRef.value.innerHTML
+  
+  // 关键改进：使用 innerText 获取保留了换行(\n)与连续空格的纯文本内容
+  // 替换 \r 为 \n 统一换行符
+  const content = editorRef.value.innerText.replace(/\r\n/g, '\n')
 
   if (isShowingCn.value) {
     form.body_cn = content
   } else {
     form.body = content
+    
     // 识别形如 [1], [2] 的标记
     const matches = content.match(/\[(\d+)\]/g) || []
     const count = matches.length
@@ -107,7 +109,6 @@ const submitSave = () => {
   if (!form.title.trim()) return alert("请输入练习标题")
   if (!form.body.includes('[1]')) return alert("请在正文中至少设置一个挖空标记，例如 [1]")
 
-  // 检查选项是否完整
   const isComplete = form.quiz.every(q => q.options.every(opt => opt.trim() !== ''))
   if (!isComplete) {
     if (!confirm("部分题目的选项尚未填写完整，确认要保存吗？")) return
@@ -146,15 +147,20 @@ const submitSave = () => {
         </div>
 
         <div class="editor-container">
-          <div ref="editorRef" contenteditable="true" class="cloze-editor"
-            :data-placeholder="isShowingCn ? '在此输入中文翻译内容...' : '在此录入英文原文。题目请用 [1], [2] 代替...'" @input="handleInput">
-          </div>
+          <div 
+            ref="editorRef" 
+            contenteditable="true" 
+            class="cloze-editor"
+            :data-placeholder="isShowingCn ? '在此输入中文翻译内容...' : '在此录入英文原文。题目请用 [1], [2] 代替...'" 
+            @input="handleInput"
+          ></div>
 
           <div class="editor-footer-tip">
-            提示：输入 <b>[1]</b> 即可自动生成第 1 题的 ABCD 选项配置。
+            提示：输入 <b>[1]</b> 即可自动生成第 1 题的 ABCD 选项配置。支持换行与 Tab/空格缩进。
           </div>
         </div>
       </section>
+
       <aside class="config-pane">
         <div class="pane-header">
           题目配置 ({{ form.quiz.length }})
@@ -191,6 +197,8 @@ const submitSave = () => {
           </div>
         </div>
       </aside>
+
+      <!-- JSON 弹窗 -->
       <div v-if="isJsonModalOpen" class="modal-overlay">
         <div class="json-modal">
           <h3>快速录入 (JSON)</h3>
@@ -356,14 +364,19 @@ const submitSave = () => {
   overflow: hidden;
 }
 
+/* 核心优化：cloze-editor 的换行与缩进处理 */
 .cloze-editor {
   flex: 1;
   outline: none;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 2;
   color: #1e293b;
   overflow-y: auto;
   text-align: justify;
+
+  /* 关键添加：保留换行符 \n 与连续空格/缩进 */
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .cloze-editor:empty:before {
@@ -384,12 +397,15 @@ const submitSave = () => {
   background: #f8fafc;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .config-scroll-area {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  scroll-behavior: smooth;
 }
 
 .q-config-card {
@@ -424,31 +440,34 @@ const submitSave = () => {
 }
 
 .options-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .opt-field {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .opt-label {
-  width: 24px;
+  width: auto;
+  font-size: 11px;
+  color: #64748b;
   font-weight: 800;
-  color: #94a3b8;
-  font-size: 14px;
 }
 
 .opt-field input {
-  flex: 1;
-  padding: 8px 12px;
+  width: 100%;
+  padding: 6px 8px;
   border: 1px solid #f1f5f9;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   transition: 0.2s;
+  box-sizing: border-box;
 }
 
 .opt-field input:focus {
@@ -457,11 +476,13 @@ const submitSave = () => {
 }
 
 .answer-row {
-margin-top: 10px;
+  margin-top: 10px;
   padding-top: 10px;
-  /* 维持现状或改为靠左对齐 */
-  justify-content: flex-start; 
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 15px;
+  border-top: 1px dashed #f1f5f9;
 }
 
 .answer-row label {
@@ -476,7 +497,7 @@ margin-top: 10px;
 }
 
 .answer-selector button {
-  width: 28px; /* 稍微缩小按钮 */
+  width: 28px;
   height: 28px;
   font-size: 12px;
   border-radius: 6px;
@@ -508,7 +529,7 @@ margin-top: 10px;
   margin-bottom: 12px;
   opacity: 0.5;
 }
-/* 导入按钮样式 */
+
 .btn-import-json {
   font-size: 11px;
   background: #f1f5f9;
@@ -520,7 +541,7 @@ margin-top: 10px;
 }
 .btn-import-json:hover { background: #e2e8f0; }
 
-/* 弹窗遮罩 */
+/* 弹窗遮罩与 JSON 面板样式 */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -532,7 +553,6 @@ margin-top: 10px;
   z-index: 2000;
 }
 
-/* 弹窗主体 */
 .json-modal {
   background: white;
   width: 600px;
@@ -543,10 +563,11 @@ margin-top: 10px;
 }
 .json-modal h3 { margin: 0 0 8px 0; color: #1e293b; }
 .modal-tip { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+
 .json-modal textarea {
-  width: 97%;
+  width: 100%;
   height: 300px;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: monospace;
   font-size: 13px;
   padding: 12px;
   border: 1px solid #e2e8f0;
@@ -554,6 +575,10 @@ margin-top: 10px;
   background: #f8fafc;
   resize: none;
   outline: none;
+  box-sizing: border-box;
+
+  /* 使得 JSON 编辑框也保留格式 */
+  white-space: pre;
 }
 .json-modal textarea:focus { border-color: #3b82f6; }
 
@@ -568,53 +593,7 @@ margin-top: 10px;
   padding: 8px 24px; background: #3b82f6; color: white; 
   border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
 }
-/* 确保配置面板高度固定为父容器高度 */
-.config-pane {
-  width: 400px;
-  background: #f8fafc;
-  display: flex;
-  flex-direction: column;
-  height: 100%; /* 确保高度填满 */
-  overflow: hidden; /* 关键：防止面板本身溢出 */
-}
 
-/* 确保滚动区域能够正确计算剩余空间 */
-.config-scroll-area {
-  flex: 1;
-  overflow-y: auto; /* 这里会产生滚动条 */
-  padding: 20px;
-  /* 建议添加一个平滑滚动效果 */
-  scroll-behavior: smooth;
-}
-/* 修改为 2x2 网格或者 1x4 横向 */
-.options-grid {
-  display: grid;
-  /* 如果屏幕够宽想排成一行： */
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.opt-field {
-  display: flex;
-  flex-direction: column; /* 标签在输入框上方，节省横向空间 */
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.opt-label {
-  width: auto; /* 取消固定宽度 */
-  font-size: 11px;
-  color: #64748b;
-}
-
-.opt-field input {
-  width: 100%; /* 填满 grid 单元格 */
-  padding: 6px 8px; /* 稍微收紧内边距 */
-  font-size: 13px;
-}
-
-/* 优化：当宽度不足时，自动换行成两行 */
 @media (max-width: 1200px) {
   .options-grid {
     grid-template-columns: repeat(2, 1fr);

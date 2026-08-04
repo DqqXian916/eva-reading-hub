@@ -25,17 +25,44 @@ const showChinese = ref(false)
 // --- 计算属性：解析文章 ---
 const parsedSegments = computed(() => {
   if (!activeQuiz.value?.body) return []
-  const regex = /\[(\d+)\]/g
-  const parts = []
+  
+  // 1. 先匹配完形填空占位符 [1], [2] 等
+  const slotRegex = /\[(\d+)\]/g
+  const initialParts = []
   let lastIndex = 0
   let match
-  while ((match = regex.exec(activeQuiz.value.body)) !== null) {
-    if (match.index > lastIndex) parts.push({ type: 'text', content: activeQuiz.value.body.slice(lastIndex, match.index) })
-    parts.push({ type: 'slot', qIdx: parseInt(match[1]) - 1 })
-    lastIndex = regex.lastIndex
+
+  while ((match = slotRegex.exec(activeQuiz.value.body)) !== null) {
+    if (match.index > lastIndex) {
+      initialParts.push({ type: 'text', content: activeQuiz.value.body.slice(lastIndex, match.index) })
+    }
+    initialParts.push({ type: 'slot', qIdx: parseInt(match[1]) - 1 })
+    lastIndex = slotRegex.lastIndex
   }
-  if (lastIndex < activeQuiz.value.body.length) parts.push({ type: 'text', content: activeQuiz.value.body.slice(lastIndex) })
-  return parts
+  if (lastIndex < activeQuiz.value.body.length) {
+    initialParts.push({ type: 'text', content: activeQuiz.value.body.slice(lastIndex) })
+  }
+
+  // 2. 进一步切分普通文本里的换行符 \n，生成 newline 节点
+  const finalParts = []
+  initialParts.forEach(part => {
+    if (part.type === 'slot') {
+      finalParts.push(part)
+    } else {
+      // 按照换行符切分
+      const subLines = part.content.split('\n')
+      subLines.forEach((line, index) => {
+        if (line) {
+          finalParts.push({ type: 'text', content: line })
+        }
+        // 如果不是最后一行，说明后面紧跟一个换行符
+        if (index < subLines.length - 1) {
+          finalParts.push({ type: 'newline' })
+        }
+      })
+    }
+  })
+  return finalParts
 })
 
 // --- 交互逻辑 ---
@@ -156,16 +183,21 @@ const scrollToQuestion = (idx) => {
                   {{ activeQuiz.body_cn }}
                 </div>
                 <div v-else class="text-content">
-                  <template v-for="(seg, i) in parsedSegments" :key="i">
-                    <span v-if="seg.type === 'text'">{{ seg.content }}</span>
-                    <span v-else
-                      :class="['cloze-slot', { 'active': activeQIdx === seg.qIdx, 'filled': userSelections[seg.qIdx] !== null, 'correct': isSubmitted && userSelections[seg.qIdx] === activeQuiz.quiz[seg.qIdx]?.answer, 'wrong': isSubmitted && userSelections[seg.qIdx] !== null && userSelections[seg.qIdx] !== activeQuiz.quiz[seg.qIdx]?.answer }]"
-                      @click="scrollToQuestion(seg.qIdx)">
-                      <span class="slot-idx">{{ seg.qIdx + 1 }}</span>
-                      <span class="slot-answer">{{ userSelections[seg.qIdx] !== null ? String.fromCharCode(65 +
-                        userSelections[seg.qIdx]) : '' }}</span>
-                    </span>
-                  </template>
+           <template v-for="(seg, i) in parsedSegments" :key="i">
+      <!-- 处理普通文本 -->
+      <span v-if="seg.type === 'text'">{{ seg.content }}</span>
+      
+      <!-- 新增：处理换行 -->
+      <br v-else-if="seg.type === 'newline'" />
+      
+      <!-- 处理填空槽 -->
+      <span v-else
+        :class="['cloze-slot', { 'active': activeQIdx === seg.qIdx, 'filled': userSelections[seg.qIdx] !== null, 'correct': isSubmitted && userSelections[seg.qIdx] === activeQuiz.quiz[seg.qIdx]?.answer, 'wrong': isSubmitted && userSelections[seg.qIdx] !== null && userSelections[seg.qIdx] !== activeQuiz.quiz[seg.qIdx]?.answer }]"
+        @click="scrollToQuestion(seg.qIdx)">
+        <span class="slot-idx">{{ seg.qIdx + 1 }}</span>
+        <span class="slot-answer">{{ userSelections[seg.qIdx] !== null ? String.fromCharCode(65 + userSelections[seg.qIdx]) : '' }}</span>
+      </span>
+    </template>
                 </div>
               </article>
 
@@ -960,5 +992,17 @@ const scrollToQuestion = (idx) => {
   margin-top: 0;
   padding-top: 0;
   padding-bottom: 0;
+}
+.text-content {
+  /* 新增：保留连续空格与换行样式 */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 同样建议给译文框加上换行保留 */
+.translation-box {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: #475569;
 }
 </style>
