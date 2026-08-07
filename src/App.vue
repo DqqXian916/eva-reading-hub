@@ -9,12 +9,14 @@ import EditForm from './components/Reading/EditForm.vue'
 import ReadingWorkspace from './components/Reading/ReadingWorkspace.vue'
 import QuizModule from './components/Quiz/QuizModule.vue'
 import ClozeModule from './components/Cloze/ClozeModule.vue'
-import BlankModule from './components//Blank/BlankModule.vue'
+import BlankModule from './components/Blank/BlankModule.vue'
 import VocabTestModule from './components/VocabTestModule.vue'
 import BrainBreakModule from './components/games/BrainBreakModule.vue'
 import VocabularyModule from './components/VocabularyModule.vue'
+import WordModule from './components/Word/WordModule.vue' // 新增：单词学习与记忆模块
 import OneWordModule from './components/OneWord/OneWordModule.vue'
 import OneFilmModule from './components/OneFilm/OneFilmModule.vue'
+
 // --- 状态管理 ---
 const activeModule = ref('reading')
 const isAdminMode = ref(false)
@@ -38,6 +40,10 @@ const studentQuizzes = ref([])
 const currentOneWordList = ref([]) // 存储当前学员的历史一言数组
 const studentFilms = ref([]) // 存储从云端拉取的电影数据
 
+// 单词学习模块新增状态
+const studentWordBooks = ref([]) // 储存学员生词本及练习库
+const wordStats = ref({ totalLearned: 0, todayReviewed: 0 })
+
 // 排行榜状态
 const showLeaderboard = ref(false)
 const leaderboardData = ref([])
@@ -56,7 +62,6 @@ const toggleRole = () => {
     showAdminModal.value = true
     adminPassword.value = 'eva888' // 默认填好密码
     passwordError.value = false
-    // 关键：在 DOM 更新后立即聚焦确认按钮
     nextTick(() => {
       if (confirmBtn.value) {
         confirmBtn.value.focus()
@@ -74,7 +79,6 @@ const verifyPassword = () => {
     passwordError.value = false
   } else {
     passwordError.value = true
-    // 错误动画反馈：可以在样式里写个抖动效果
   }
 }
 
@@ -85,7 +89,6 @@ const fetchLeaderboard = async () => {
     .select('amount, student_id, students(name)')
     .gte('created_at', getStartOfThisWeek());
   if (!error && data) {
-    // 按学生聚合分数
     const summary = data.reduce((acc, curr) => {
       const id = curr.student_id;
       if (!acc[id]) acc[id] = { id, name: curr.students.name, total_xp: 0 };
@@ -102,16 +105,12 @@ const handleDeleteOneWord = async (wordItem) => {
   
   try {
     isLoading.value = true
-    
-    // 从 Supabase 中根据唯一的自增 id 删除
     const { error } = await supabase
       .from('one_words')
       .delete()
       .eq('id', wordItem.id)
     if (error) throw error
-    // 同步响应式过滤本地数组
     currentOneWordList.value = currentOneWordList.value.filter(q => q.id !== wordItem.id)
-    
     alert("✅ 该条历史纪录已彻底从云端移除")
   } catch (e) {
     console.error("从云端删除一言失败:", e)
@@ -126,7 +125,7 @@ const fetchOneWord = async (studentId) => {
   try {
     const { data, error } = await supabase
       .from('one_words')
-      .select('*') // 
+      .select('*')
       .eq('student_id', studentId)
       .order('updated_at', { ascending: true }) 
       
@@ -134,7 +133,6 @@ const fetchOneWord = async (studentId) => {
 
     if (data) {
       currentOneWordList.value = [...data]
-      console.log('父组件成功从云端拉取到一言列表：', currentOneWordList.value)
     }
   } catch (e) {
     console.error("从云端获取一言语失败:", e)
@@ -152,7 +150,6 @@ const handleSaveOneWord = async (wordData) => {
   }
   try {
     isLoading.value = true
-    // 执行追加
     const { data, error } = await supabase
       .from('one_words')
       .insert([{
@@ -182,17 +179,16 @@ const handleSaveOneWord = async (wordData) => {
 // 辅助函数：获取本周一 00:00:00 的 ISO 字符串
 const getStartOfThisWeek = () => {
   const now = new Date();
-  const day = now.getDay() || 7; // 周日为0改为7
+  const day = now.getDay() || 7;
   now.setHours(0, 0, 0, 0);
   now.setDate(now.getDate() - day + 1);
   return now.toISOString();
 };
 
-// 模拟加分函数（在各模块完成后调用）
+// 模拟加分函数
 const awardXP = async (amount, moduleName, reason) => {
   if (!currentStudent.value) return;
   try {
-    // 1. 写入流水表
     const { error: logError } = await supabase
       .from('xp_logs')
       .insert([{
@@ -202,14 +198,12 @@ const awardXP = async (amount, moduleName, reason) => {
         reason: reason
       }]);
     if (logError) throw logError;
-    // 2. 更新 students 表的缓存总分 (原子性操作：当前分 + 新分)
     const newTotal = (currentStudent.value.total_xp || 0) + amount;
     const { error: updateError } = await supabase
       .from('students')
       .update({ total_xp: newTotal })
       .eq('id', currentStudent.value.id);
     if (updateError) throw updateError;
-    // 3. 同步本地状态
     currentStudent.value.total_xp = newTotal;
     console.log(`🚀 成功获取 ${amount} XP!`);
   } catch (e) {
@@ -226,13 +220,15 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
   } else if (newModule === 'quiz') {
     await fetchQuizzes(newStudent.id)
   } else if (newModule === 'cloze') {
-    await fetchClozeQuizzes(newStudent.id) // 新增：切换到填空模块时加载数据
+    await fetchClozeQuizzes(newStudent.id)
   } else if (newModule === 'vocab-test') {
-    await fetchVocabTests(newStudent.id) // 新增：词汇评估模块数据加载
+    await fetchVocabTests(newStudent.id)
   } else if (newModule === 'brain-break') {
     // await fetchGameScores(newStudent.id)
   } else if (newModule === 'words') {
     await fetchVocabulary(newStudent.id)
+  } else if (newModule === 'word-study') { // 新增：单词学习模块分支
+    await fetchWordData(newStudent.id)
   } else if (newModule === 'blank') {
     await fetchBlankQuizzes(newStudent.id)
   } else if (newModule === 'sentence') {
@@ -241,6 +237,49 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchFilms(newStudent.id)
   }
 })
+
+// 单词学习板块数据获取
+const fetchWordData = async (studentId) => {
+  isLoading.value = true
+  try {
+    const { data: configs } = await supabase
+      .from('student_configs')
+      .select('current_word_list, word_stats')
+      .eq('student_id', studentId)
+      .single()
+    
+    if (configs) {
+      studentWordBooks.value = configs.current_word_list || []
+      wordStats.value = configs.word_stats || { totalLearned: 0, todayReviewed: 0 }
+    }
+  } catch (e) {
+    console.error("获取单词数据失败:", e)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 保存/更新单词学习进度的处理函数
+const handleSaveWordProgress = async (wordData) => {
+  if (!currentStudent.value) return
+  try {
+    const { error } = await supabase
+      .from('student_configs')
+      .upsert({
+        student_id: currentStudent.value.id,
+        current_word_list: wordData.wordList,
+        word_stats: wordData.stats,
+        updated_at: new Date()
+      }, { onConflict: 'student_id' })
+
+    if (error) throw error
+    if (wordData.earnedXP) {
+      await awardXP(wordData.earnedXP, 'word-study', '完成单词单元复习/记忆训练')
+    }
+  } catch (e) {
+    console.error("更新单词进度失败:", e)
+  }
+}
 
 // 阅读理解数据获取
 const fetchReadings = async (studentId) => {
@@ -253,13 +292,10 @@ const fetchReadings = async (studentId) => {
   isLoading.value = false
 }
 
-// App.vue 里的处理函数
 const handleReadingSubmit = () => {
   isSubmitted.value = true;
-  // 计算正确率
   const correctCount = userSelections.value.filter((sel, idx) => sel === activeReading.value.quiz[idx].answer).length;
   const totalCount = activeReading.value.quiz.length;
-  // 基础分：每题 10 XP，全对额外奖 20 XP
   let earnedXP = correctCount * 10;
   if (correctCount === totalCount) earnedXP += 20;
   if (earnedXP > 0) {
@@ -267,11 +303,10 @@ const handleReadingSubmit = () => {
   }
 };
 
-// 获取电影推送列表
 const fetchFilms = async (studentId) => {
   isLoading.value = true
   const { data, error } = await supabase
-    .from('movie_posts') // 假设你的表名为 movie_posts
+    .from('movie_posts')
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
@@ -288,15 +323,9 @@ const saveFilmPost = async (movieData) => {
         ...movieData,
         student_id: currentStudent.value.id
       }])
-      .select(); // 加上 .select() 有时能返回更多信息
+      .select();
 
-    if (error) {
-      // 打印详细错误信息
-      console.error("数据库返回错误:", error);
-      console.log("详细提示:", error.details); // <--- 这里通常会告诉你哪个策略违规了
-      console.log("错误提示:", error.hint);
-      throw error;
-    }
+    if (error) throw error;
     alert("发布成功！");
     await fetchFilms(currentStudent.value.id);
   } catch (err) {
@@ -304,10 +333,9 @@ const saveFilmPost = async (movieData) => {
   }
 };
 
-// 短文填空数据获取 
 const fetchClozeQuizzes = async (studentId) => {
   isLoading.value = true
-  const { data } = await supabase.from('cloze_quizzes') // 假设你的表名为 cloze_quizzes
+  const { data } = await supabase.from('cloze_quizzes')
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
@@ -315,7 +343,6 @@ const fetchClozeQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-// 单词评估数据获取
 const fetchVocabTests = async (studentId) => {
   isLoading.value = true
   const { data } = await supabase.from('vocab_tests')
@@ -326,10 +353,9 @@ const fetchVocabTests = async (studentId) => {
   isLoading.value = false
 }
 
-// 完形填空数据获取
 const fetchBlankQuizzes = async (studentId) => {
   isLoading.value = true
-  const { data, error } = await supabase.from('blank_quizzes') // 假设表名为 blank_quizzes
+  const { data, error } = await supabase.from('blank_quizzes')
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
@@ -342,22 +368,17 @@ const fetchBlankQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-// 文章删除逻辑
 const handleDeleteReading = async (reading) => {
-  // 1. 二次确认，防止手抖
   if (!confirm(`确定要删除文章《${reading.title}》吗？此操作不可撤销哦 ❤️`)) return
   try {
     isLoading.value = true
-    // 2. 这里的 supabase.from('readings') 对应你的文章表
     const { error } = await supabase
       .from('readings')
       .delete()
       .eq('id', reading.id)
     if (error) throw error
     alert("✅ 文章已从云端抹除")
-    // 3. 关键：删除后重新刷新列表，或者手动从 readings 数组中 splice 掉
     await fetchReadings(currentStudent.value.id)
-    // 如果当前正在阅读这篇文章，重置回列表页
     if (activeReading.value?.id === reading.id) {
       viewMode.value = 'list'
       activeReading.value = null
@@ -370,20 +391,17 @@ const handleDeleteReading = async (reading) => {
 }
 
 const handleDeleteStudent = async (student) => {
-  // 1. 二次确认
   const msg = `确定要删除学员 ${student.name} 吗？\n这将同时删除该学员的所有阅读记录和题目，不可恢复！`;
   if (!confirm(msg)) return;
 
   try {
     isLoading.value = true;
-    // 2. 从 Supabase 删除数据
     const { error } = await supabase
       .from('students')
       .delete()
       .eq('id', student.id);
     if (error) throw error;
     alert("✅ 学员记录已清除");
-    // 3. 处理后续逻辑：重置当前选中，刷新列表
     if (currentStudent.value?.id === student.id) {
       currentStudent.value = null;
     }
@@ -396,20 +414,16 @@ const handleDeleteStudent = async (student) => {
   }
 };
 
-// 删除短文填空逻辑 
 const deleteClozeQuiz = async (id) => {
-  // 1. 业务风险确认
   if (!confirm('确定要删除这篇短文填空吗？此操作不可恢复 ❤️')) return
   try {
     isLoading.value = true
-    // 2. 调用 Supabase 执行删除
     const { error } = await supabase
       .from('cloze_quizzes')
       .delete()
       .eq('id', id)
     if (error) throw error
     alert("✅ 短文填空已从云端移除")
-    // 3. 刷新本地数据列表
     if (currentStudent.value) {
       await fetchClozeQuizzes(currentStudent.value.id)
     }
@@ -434,7 +448,7 @@ const handleAddNewStudent = async () => {
       if (error) throw error
 
       alert("✅ 学员添加成功！")
-      await fetchStudents() // 添加成功后刷新列表
+      await fetchStudents()
     } catch (e) {
       alert("❌ 添加失败：" + e.message)
     } finally {
@@ -443,24 +457,21 @@ const handleAddNewStudent = async () => {
   }
 }
 
-// 保存单词掌握状态和音标配置到云端 
 const handleUpdateWordProgress = async (updatedList) => {
   if (!currentStudent.value) return;
 
   try {
-    // 这里不需要 isLoading，因为是在后台静默同步，提升用户体验
     const { error } = await supabase
       .from('student_configs')
       .upsert({
         student_id: currentStudent.value.id,
-        current_word_list: updatedList, // 这里传过去的是带 m 字段的数组
+        current_word_list: updatedList,
         updated_at: new Date()
       }, {
         onConflict: 'student_id'
       });
 
     if (error) throw error;
-    // 成功后，同步更新本地 currentWordList，确保数据一致
     currentWordList.value = updatedList;
     console.log("✅ 掌握进度已同步");
   } catch (e) {
@@ -475,11 +486,10 @@ const fetchVocabulary = async (studentId) => {
     .select('current_word_list')
     .eq('student_id', studentId)
     .single()
-  // 如果数据库里有数据，确保每个单词都有 m 属性，没有就默认为 false
   const list = data?.current_word_list || []
   currentWordList.value = list.map(word => ({
     ...word,
-    m: word.m || false  // 兜底处理：如果数据库没这个字段，默认未掌握
+    m: word.m || false
   }))
   isLoading.value = false
 }
@@ -498,30 +508,17 @@ const fetchQuizzes = async (studentId) => {
 }
 
 const getAvatarColor = (index) => {
-  const colors = [
-    '#FF6B6B', // 红
-    '#4ECDC4', // 青
-    '#45B7D1', // 蓝
-    '#FFA07A', // 橙
-    '#98D8C8', // 绿
-    '#A8E6CF', // 浅绿
-    '#D4A5A5'  // 藕荷
-  ]
+  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#A8E6CF', '#D4A5A5']
   return colors[index % colors.length]
 }
 
 const handleQuizXP = (data) => {
-  // data 包含: amount, reason, module
   awardXP(data.amount, data.module, data.reason);
-  // 可选：在这里可以触发一个简单的音效或屏幕上方的微型 XP 提示动画
-  console.log(`🏆 排行榜链路已打通：已加 ${data.amount} XP`);
 };
 
-// 3. 单选题存取逻辑
 const handleSaveQuiz = async (quizData) => {
   try {
     let res;
-    // 整理要保存的数据
     const payload = {
       question: quizData.question,
       options: quizData.options,
@@ -530,10 +527,8 @@ const handleSaveQuiz = async (quizData) => {
       explanation: quizData.explanation
     }
     if (quizData.id) {
-      // 修改模式
       res = await supabase.from('quizzes').update(payload).eq('id', quizData.id)
     } else {
-      // 新增模式
       res = await supabase.from('quizzes').insert([{
         ...payload,
         student_id: currentStudent.value.id
@@ -547,22 +542,17 @@ const handleSaveQuiz = async (quizData) => {
   }
 }
 
-// 父组件新增批量保存逻辑
 const handleBatchSaveQuizzes = async (quizzesArray) => {
   try {
-    // 1. 给每道题补充 student_id
     const finalData = quizzesArray.map(quiz => ({
       ...quiz,
       student_id: currentStudent.value.id
     }))
-    // 2. Supabase 一次性 insert 整个数组
     const { error } = await supabase
       .from('quizzes')
       .insert(finalData)
     if (error) throw error
-    // 3. 只需要弹窗一次
     alert(`🚀 成功批量发布 ${finalData.length} 道题目！`)
-    // 4. 刷新列表
     await fetchQuizzes(currentStudent.value.id)
   } catch (e) {
     console.error(e)
@@ -570,24 +560,20 @@ const handleBatchSaveQuizzes = async (quizzesArray) => {
   }
 }
 
-// 短文填空存取逻辑 
 const saveClozeQuiz = async (clozeData) => {
   try {
     let res;
-    // 1. 在 payload 中明确加入 title 字段
     const payload = {
-      title: clozeData.title || '',    // 新增：保存练习标题
-      cloze_text: clozeData.cloze_text, // 包含 {{1}} 占位符的短文
-      answers: clozeData.answers,       // 存储正确答案的数组或对象
+      title: clozeData.title || '',
+      cloze_text: clozeData.cloze_text,
+      answers: clozeData.answers,
       category: clozeData.category,
       explanation: clozeData.explanation
     }
 
     if (clozeData.id) {
-      // 更新逻辑
       res = await supabase.from('cloze_quizzes').update(payload).eq('id', clozeData.id)
     } else {
-      // 插入逻辑：确保包含 student_id
       res = await supabase.from('cloze_quizzes').insert([{
         ...payload,
         student_id: currentStudent.value.id
@@ -595,24 +581,15 @@ const saveClozeQuiz = async (clozeData) => {
     }
 
     if (res.error) throw res.error
-
     alert("✅ 短文填空保存成功")
-
-    // 刷新列表数据
     await fetchClozeQuizzes(currentStudent.value.id)
-
-    // 建议：如果是新增成功，可以在这里关闭编辑模式
-    // isAdding.value = false 
-
   } catch (e) {
     console.error("Save Error:", e)
     alert("保存失败：" + e.message)
   }
 }
 
-// 短文填空批量保存逻辑 
 const handleBatchSaveClozes = async (clozeQuizzesArray) => {
-  // 健壮性检查：如果没有选中任何学员，拒绝提交
   if (!currentStudent.value) {
     alert("❌ 请先在左侧列表选择一名学员，再进行批量发布。")
     return
@@ -620,28 +597,21 @@ const handleBatchSaveClozes = async (clozeQuizzesArray) => {
 
   try {
     isLoading.value = true
-
-    // 1. 数据映射与格式兜底，注入当前学员的 student_id
     const finalData = clozeQuizzesArray.map(cloze => ({
       title: cloze.title || '未命名短文练习',
       cloze_text: cloze.cloze_text,
-      answers: cloze.answers, // 支持前端传递数组或对象格式
+      answers: cloze.answers,
       category: cloze.category || '短文填空',
       explanation: cloze.explanation || '',
-      student_id: currentStudent.value.id // 核心关联
+      student_id: currentStudent.value.id
     }))
 
-    // 2. 利用 Supabase 的原生特性，一次性全量插入数组
     const { error } = await supabase
       .from('cloze_quizzes')
       .insert(finalData)
 
     if (error) throw error
-
-    // 3. 完美的异步成功反馈
     alert(`🚀 成功批量发布 ${finalData.length} 篇短文填空练习！`)
-
-    // 4. 触发数据侧的原子级刷新，让 ClozeModule 里的视图感知最新变化
     await fetchClozeQuizzes(currentStudent.value.id)
 
   } catch (e) {
@@ -654,19 +624,13 @@ const handleBatchSaveClozes = async (clozeQuizzesArray) => {
 
 const handleBatchImportFilms = async (jsonString) => {
   try {
-    const rawData = JSON.parse(jsonString); // 解析 JSON 字符串
-    // 1. 获取所有学生列表以进行名称映射
+    const rawData = JSON.parse(jsonString);
     const { data: studentsList } = await supabase.from('students').select('id, name');
-    // 2. 将数据转换为数据库格式
     const batchData = rawData.map(item => {
-      // 匹配学生名称（不区分大小写）
       const student = studentsList.find(s => 
         s.name.trim().toLowerCase() === item.student.trim().toLowerCase()
       );
-      if (!student) {
-        console.warn(`未找到学生: ${item.student}`);
-        return null;
-      }
+      if (!student) return null;
       return {
         student_id: student.id,
         movie_display: item.movieDisplay,
@@ -675,11 +639,10 @@ const handleBatchImportFilms = async (jsonString) => {
         translation: item.translation
       };
     }).filter(item => item !== null);
-    // 3. 批量插入
+
     const { error } = await supabase.from('movie_posts').insert(batchData);
     if (error) throw error;
     alert(`🚀 成功批量导入 ${batchData.length} 条电影推送！`);
-    // 如果当前选中的就是该学生，刷新列表
     if (currentStudent.value) {
       await fetchFilms(currentStudent.value.id);
     }
@@ -688,14 +651,13 @@ const handleBatchImportFilms = async (jsonString) => {
   }
 };
 
-// 保存评估结果
 const saveVocabTest = async (testData) => {
   try {
     const { error } = await supabase.from('vocab_tests').insert([{
       student_id: currentStudent.value.id,
       score: testData.score,
       level: testData.level,
-      details: testData.details // 记录勾选了哪些词
+      details: testData.details
     }])
     if (error) throw error
     alert("🚀 词汇量评估结果已存档")
@@ -713,29 +675,24 @@ const deleteQuiz = async (id) => {
   }
 }
 
-// 处理用户按 Esc 键退出的情况，保证变量同步
 onMounted(() => {
-  fetchStudents() // 你原有的代码
+  fetchStudents()
   document.addEventListener('fullscreenchange', () => {
     isFullScreen.value = !!document.fullscreenElement
   })
 })
 
-// 阅读模式关键函数
 const openReading = (reading) => {
   activeReading.value = reading
   viewMode.value = 'reading'
   isSubmitted.value = false
   userSelections.value = new Array(reading.quiz?.length || 0).fill(null)
-
   sidebarCollapsed.value = true
 }
 
-// 保存阅读理解
 const handleSaveReading = async (formData) => {
   try {
     let res;
-    // 构造要保存的 payload，确保包含 body_cn
     const payload = {
       title: formData.title,
       body: formData.body,
@@ -743,13 +700,11 @@ const handleSaveReading = async (formData) => {
       quiz: formData.quiz
     }
     if (formData.id) {
-      // 修改模式
       res = await supabase
         .from('readings')
         .update(payload)
         .eq('id', formData.id)
     } else {
-      // 新增模式
       res = await supabase
         .from('readings')
         .insert([{
@@ -767,7 +722,6 @@ const handleSaveReading = async (formData) => {
   }
 }
 
-// 保存完形填空（Admin 模式使用）
 const saveBlankQuiz = async (blankData) => {
   try {
     isLoading.value = true
@@ -780,14 +734,11 @@ const saveBlankQuiz = async (blankData) => {
     }
     let res;
     if (blankData.id) {
-      // 修改模式
       res = await supabase.from('blank_quizzes').update(payload).eq('id', blankData.id)
     } else {
-      // 新增模式
       res = await supabase.from('blank_quizzes').insert([payload])
     }
     if (res.error) throw res.error
-    // 关键：重新拉取数据，这会通过 Props 自动更新 BlankModule 内部的列表
     await fetchBlankQuizzes(currentStudent.value.id)
     alert("✅ 完形填空已同步至云端")
   } catch (e) {
@@ -798,7 +749,6 @@ const saveBlankQuiz = async (blankData) => {
   }
 }
 
-// 删除完形填空
 const handleDeleteBlank = async (id) => {
   if (!confirm('确定要删除这篇完形填空吗？')) return
   const { error } = await supabase.from('blank_quizzes').delete().eq('id', id)
@@ -809,16 +759,15 @@ const handleDeleteBlank = async (id) => {
 const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
   try {
     isLoading.value = true
-    // 使用 upsert 针对 student_id 进行操作
     const { error } = await supabase
       .from('student_configs')
       .upsert({
         student_id: studentId,
-        current_word_list: wordList, // 对应表中的 current_word_list
-        game_goal: goal || 20,       // 对应表中的 game_goal
+        current_word_list: wordList,
+        game_goal: goal || 20,
         updated_at: new Date()
       }, {
-        onConflict: 'student_id'      // 核心：告诉 Supabase 冲突判断依据是 student_id
+        onConflict: 'student_id'
       })
 
     if (error) throw error
@@ -830,8 +779,8 @@ const handleSaveGameConfig = async ({ studentId, wordList, goal }) => {
     isLoading.value = false
   }
 }
+
 const toggleFullScreen = () => {
-  // 逻辑：如果当前不是全屏状态，就请求全屏
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().then(() => {
       isFullScreen.value = true
@@ -839,7 +788,6 @@ const toggleFullScreen = () => {
       console.error(`全屏启动失败: ${err.message}`)
     })
   } else {
-    // 如果已经是全屏，就退出
     document.exitFullscreen()
     isFullScreen.value = false
   }
@@ -860,6 +808,9 @@ const toggleFullScreen = () => {
         <nav class="nav-center">
           <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
             @click="activeModule = 'vocab-test'">📊 词汇评估</button>
+          <!-- 新增：单词学习板块导航按钮 -->
+          <button :class="['module-tab', { active: activeModule === 'word-study' }]" 
+            @click="activeModule = 'word-study'">🧠 单词学习</button>
           <button :class="['module-tab', { active: activeModule === 'words' }]" @click="activeModule = 'words'">🗂️
             单词复习</button>
           <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
@@ -874,7 +825,7 @@ const toggleFullScreen = () => {
             @click="activeModule = 'brain-break'">🎮 换个脑子</button>
           <button :class="['module-tab', { active: activeModule === 'sentence' }]"
             @click="activeModule = 'sentence'">🏞️ 一言 </button>
-                      <button :class="['module-tab', { active: activeModule === 'film' }]"
+          <button :class="['module-tab', { active: activeModule === 'film' }]"
             @click="activeModule = 'film'">🎬 一观 </button>
         </nav>
         <div class="nav-right">
@@ -949,10 +900,23 @@ const toggleFullScreen = () => {
           <VocabTestModule :student="currentStudent" :records="studentVocabTests" :canEdit="isAdminMode"
             @save="saveVocabTest" />
         </template>
+
+        <!-- 新增：单词学习板块核心渲染点 -->
+        <template v-else-if="activeModule === 'word-study'">
+          <WordModule 
+            :student="currentStudent" 
+            :wordList="studentWordBooks" 
+            :stats="wordStats" 
+            :canEdit="isAdminMode" 
+            @save-progress="handleSaveWordProgress"
+          />
+        </template>
+
         <template v-else-if="activeModule === 'words'">
           <VocabularyModule :key="currentStudent.id" :student="currentStudent" :initialWords="currentWordList"
             @update-progress="handleUpdateWordProgress" />
         </template>
+
         <template v-else-if="activeModule === 'blank'">
           <Transition name="module-fade" mode="out-in">
             <div v-if="!isLoading" :key="'content-' + currentStudent.id" class="module-content-wrapper">
@@ -972,6 +936,7 @@ const toggleFullScreen = () => {
             </div>
           </Transition>
         </template>
+
         <template v-else-if="activeModule === 'sentence'">
           <OneWordModule 
             :quoteList="currentOneWordList" 
@@ -982,6 +947,7 @@ const toggleFullScreen = () => {
             @delete="handleDeleteOneWord" 
           />
         </template>
+
         <template v-else-if="activeModule === 'film'">
           <OneFilmModule 
             :student="currentStudent" 
@@ -991,6 +957,7 @@ const toggleFullScreen = () => {
             @import="handleBatchImportFilms" 
           />
         </template>
+
         <template v-else>
           <div class="placeholder">
             <div class="card">
@@ -1007,6 +974,7 @@ const toggleFullScreen = () => {
         </div>
       </div>
     </div>
+
     <Transition name="fade">
       <div v-if="showAdminModal" class="modal-overlay" @click.self="showAdminModal = false">
         <div class="modal-content admin-auth-card">
@@ -1032,6 +1000,7 @@ const toggleFullScreen = () => {
       </div>
     </Transition>
   </div>
+
   <Transition name="fade">
     <div v-if="showLeaderboard" class="modal-overlay" @click.self="showLeaderboard = false">
       <div class="leaderboard-card">
@@ -1111,20 +1080,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 16px; /* 缩小左右外边距 */
   border-bottom: 1px solid #e2e8f0;
   z-index: 100;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  gap: 12px;
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 16px; /* 稍微缩小 logo 字体 */
   color: #1e293b;
   letter-spacing: -0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-icon {
@@ -1134,27 +1106,47 @@ body {
 .nav-center {
   display: flex;
   background: #f1f5f9;
-  padding: 4px;
-  border-radius: 12px;
-  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  gap: 2px; /* 缩小按钮间距 */
+  overflow-x: auto; /* 超出宽度时支持平滑滚动，不被挤压 */
+  white-space: nowrap;
+  max-width: calc(100vw - 380px); /* 限制最大宽度，给左右两侧留出空间 */
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 隐藏菜单栏的横向滚动条，保持干净外观 */
+.nav-center::-webkit-scrollbar {
+  display: none;
 }
 
 .module-tab {
-  padding: 8px 18px;
+  padding: 6px 12px; /* 缩小内边距：原为 8px 18px */
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 7px;
   cursor: pointer;
   font-weight: 600;
   color: #64748b;
-  transition: 0.2s;
-  font-size: 14px;
+  transition: all 0.2s ease;
+  font-size: 13px; /* 字体适度调整为 13px */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.module-tab:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .module-tab.active {
   background: #fff;
   color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* 主布局 */
@@ -1171,7 +1163,6 @@ body {
   height: 100%;
   overflow: hidden;
   overflow-y: auto;
-  /* 允许纵向滚动 */
 }
 
 /* 阅读模块专用布局 */
@@ -1372,19 +1363,9 @@ body {
 }
 
 @keyframes shake {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  75% {
-    transform: translateX(5px);
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .shake-enter-active {
@@ -1394,19 +1375,16 @@ body {
 .btn-confirm:focus {
   outline: none;
   box-shadow: 0 0 0 4px rgba(85, 171, 103, 0.4);
-  /* 蓝色光晕提示已聚焦 */
   transform: scale(1.02);
-  /* 微微放大 */
 }
 
-/* --- 极致隐蔽的感应式触发器 --- */
+/* --- 隐蔽的感应式触发器 --- */
 .nav-stealth-trigger {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 8px;
-  /* 顶部感应高度 */
   z-index: 1001;
   cursor: pointer;
   display: flex;
@@ -1414,19 +1392,16 @@ body {
   transition: all 0.3s;
 }
 
-/* 即使在折叠状态下，也只显示一条极细的线 */
 .trigger-indicator {
   width: 40px;
   height: 3px;
   background: var(--primary);
   border-radius: 0 0 4px 4px;
   opacity: 0;
-  /* 平时完全隐藏 */
   transition: all 0.3s;
   transform: translateY(-2px);
 }
 
-/* 鼠标悬浮在顶部边缘时，指示器显现 */
 .nav-stealth-trigger:hover .trigger-indicator {
   opacity: 0.6;
   transform: translateY(0);
@@ -1434,23 +1409,19 @@ body {
   width: 80px;
 }
 
-/* 当导航栏已经折叠时，指示器保持微弱可见，作为一个“触点”提示 */
 .nav-stealth-trigger.is-folded .trigger-indicator {
   opacity: 0.2;
   width: 60px;
 }
 
-/* 折叠状态下悬浮，变亮提示可以点击 */
 .nav-stealth-trigger.is-folded:hover .trigger-indicator {
   opacity: 1;
   box-shadow: 0 0 10px var(--primary);
 }
 
-/* 顶栏动画保持一致 */
 .slide-nav-enter-active,
 .slide-nav-leave-active {
   transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  /* 增加一点点弹性感 */
 }
 
 .slide-nav-enter-from,
@@ -1462,7 +1433,6 @@ body {
   transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 模块整体过渡动画 */
 .module-fade-enter-active,
 .module-fade-leave-active {
   transition: all 0.3s ease;
@@ -1479,7 +1449,6 @@ body {
   height: 100%;
 }
 
-/* 高级感加载容器 */
 .loading-state {
   flex: 1;
   display: flex;
@@ -1490,7 +1459,6 @@ body {
   background: transparent;
 }
 
-/* 双环动画 */
 .loader-visual {
   position: relative;
   width: 50px;
@@ -1520,7 +1488,6 @@ body {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* 逐字跳动动画 */
 .loading-text {
   display: flex;
   gap: 4px;
@@ -1534,61 +1501,16 @@ body {
   animation: letter-jump 1.2s infinite;
 }
 
-.loading-text span:nth-child(2) {
-  animation-delay: 0.1s;
-}
+.loading-text span:nth-child(2) { animation-delay: 0.1s; }
+.loading-text span:nth-child(3) { animation-delay: 0.2s; }
+.loading-text span:nth-child(4) { animation-delay: 0.3s; }
+.loading-text span:nth-child(5) { animation-delay: 0.4s; }
+.loading-text span:nth-child(6) { animation-delay: 0.5s; }
+.loading-text span:nth-child(7) { animation-delay: 0.6s; }
 
-.loading-text span:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.loading-text span:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.loading-text span:nth-child(5) {
-  animation-delay: 0.4s;
-}
-
-.loading-text span:nth-child(6) {
-  animation-delay: 0.5s;
-}
-
-.loading-text span:nth-child(7) {
-  animation-delay: 0.6s;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(0.8);
-    opacity: 0.2;
-  }
-
-  50% {
-    transform: scale(1.2);
-    opacity: 0.5;
-  }
-}
-
-@keyframes letter-jump {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-5px);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { transform: scale(0.8); opacity: 0.2; } 50% { transform: scale(1.2); opacity: 0.5; } }
+@keyframes letter-jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
 /* 排行榜专有样式 */
 .leaderboard-card {
@@ -1618,16 +1540,8 @@ body {
   margin-bottom: 10px;
 }
 
-.lb-trophy {
-  font-size: 40px;
-}
-
-.lb-header h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e293b;
-}
+.lb-trophy { font-size: 40px; }
+.lb-header h2 { margin: 0; font-size: 24px; font-weight: 800; color: #1e293b; }
 
 .lb-timer {
   display: inline-block;
@@ -1638,7 +1552,6 @@ body {
   color: #64748b;
 }
 
-/* 列表滚动区 */
 .lb-body {
   flex: 1;
   overflow-y: auto;
@@ -1658,13 +1571,11 @@ body {
   border: 2px solid transparent;
 }
 
-/* 即使不选中，普通条目也有淡阴影 */
 .lb-item:hover {
   background: #f8fafc;
   transform: scale(1.02);
 }
 
-/* 当前学生的特殊样式 */
 .lb-item.is-current {
   background: #f0f9ff;
   border-color: #7dd3fc;
@@ -1713,10 +1624,7 @@ body {
   text-transform: uppercase;
 }
 
-.lb-xp {
-  text-align: right;
-}
-
+.lb-xp { text-align: right; }
 .xp-num {
   font-weight: 900;
   color: #27ae60;
@@ -1730,7 +1638,6 @@ body {
   color: #94a3b8;
 }
 
-/* 底部按钮 */
 .lb-footer {
   padding: 20px 24px 30px;
   background: white;
@@ -1747,7 +1654,6 @@ body {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 5px 0 #27ae60;
-  /* 多邻国风格的厚按钮 */
   transition: all 0.1s;
 }
 
@@ -1756,25 +1662,20 @@ body {
   box-shadow: 0 2px 0 #27ae60;
 }
 
-/* 辅助函数颜色 */
-.get-avatar-color {
-  /* 在 JS 里定义 */
-}
-
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px; /* 缩小间距 */
+  flex-shrink: 0;
 }
 
-/* XP 显示区域 */
 .xp-display {
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 4px 12px 4px 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 3px 10px 3px 4px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
@@ -1792,15 +1693,15 @@ body {
 }
 
 .xp-icon-container {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   background: #fff9db;
-  border-radius: 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
-  font-size: 18px;
+  margin-right: 6px;
+  font-size: 15px;
 }
 
 .xp-text {
@@ -1810,7 +1711,7 @@ body {
 }
 
 .xp-amount {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   color: #1e293b;
 }
@@ -1822,28 +1723,26 @@ body {
   margin-top: 2px;
 }
 
-/* 分割线 */
 .divider-line {
   width: 1px;
   height: 24px;
   background: #e2e8f0;
 }
 
-/* 角色标签 */
 .role-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 14px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
 }
 
-/* 学员模式样式 */
 .is-student {
   background: #f1f5f9;
   color: #64748b;
@@ -1854,7 +1753,6 @@ body {
   color: #475569;
 }
 
-/* 管理模式样式 */
 .is-admin {
   background: #ecfdf5;
   color: #059669;
@@ -1868,29 +1766,13 @@ body {
   background: currentColor;
 }
 
-.role-chevron {
-  font-size: 10px;
-  opacity: 0.5;
-}
-
-/* 动画：让奖杯微微晃动提示点击 */
 .xp-display:hover .xp-emoji {
   animation: cup-shake 0.5s ease infinite;
 }
 
 @keyframes cup-shake {
-
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-
-  25% {
-    transform: rotate(-15deg);
-  }
-
-  75% {
-    transform: rotate(15deg);
-  }
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-15deg); }
+  75% { transform: rotate(15deg); }
 }
 </style>

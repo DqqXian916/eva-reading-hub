@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 /**
  * Props 说明：
@@ -20,10 +20,14 @@ const props = defineProps({
 
 defineEmits(['select', 'add', 'toggle', 'deleteStudent'])
 
-// 1. 新增搜索关键词状态
+// 1. 搜索关键词状态
 const searchQuery = ref('')
 
-// 2. 增加过滤后的学员计算属性（支持按姓名忽略大小写匹配）
+// 2. 分页状态
+const currentPage = ref(1)
+const pageSize = ref(8) // 每页显示的学员数量
+
+// 3. 过滤后的学员列表（支持按姓名忽略大小写匹配）
 const filteredStudents = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   if (!query) return props.students || []
@@ -31,6 +35,37 @@ const filteredStudents = computed(() => {
     s.name && s.name.toLowerCase().includes(query)
   )
 })
+
+// 4. 搜索框改变时自动切回第 1 页
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+
+// 数据减少导致页码超标时，重置当前页
+watch(() => props.students?.length, () => {
+  if (currentPage.value > totalPages.value && totalPages.value > 0) {
+    currentPage.value = totalPages.value
+  }
+})
+
+// 5. 计算总页数
+const totalPages = computed(() => {
+  return Math.ceil(filteredStudents.value.length / pageSize.value) || 1
+})
+
+// 6. 最终渲染的当页学员列表
+const paginatedStudents = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredStudents.value.slice(start, start + pageSize.value)
+})
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
 </script>
 
 <template>
@@ -54,7 +89,7 @@ const filteredStudents = computed(() => {
         </button>
       </div>
 
-      <!-- 新增：搜索框区域 -->
+      <!-- 搜索框区域 -->
       <div class="search-box">
         <span class="search-icon">🔍</span>
         <input 
@@ -72,13 +107,21 @@ const filteredStudents = computed(() => {
       </div>
 
       <div class="list-container">
-        <div class="list-header">
-          {{ canEdit ? '📋 学员库管理' : '👤 请选择当前学员' }}
+        <!-- 列表头部：左侧标题，右侧极简分页控制 -->
+        <div class="list-header-row">
+          <span class="list-title">{{ canEdit ? '📋 学员库管理' : '👤 请选择当前学员' }}</span>
+          
+          <!-- 仅优化：微调分页结构 -->
+          <div v-if="totalPages > 1" class="mini-pagination">
+            <button :disabled="currentPage === 1" class="page-arrow" @click="prevPage" title="上一页">‹</button>
+            <span class="page-num">{{ currentPage }}<span class="slash">/</span>{{ totalPages }}</span>
+            <button :disabled="currentPage === totalPages" class="page-arrow" @click="nextPage" title="下一页">›</button>
+          </div>
         </div>
+
         <div class="list">
-          <!-- 修改：遍历 filteredStudents 而非原始 students -->
           <div 
-            v-for="s in filteredStudents" 
+            v-for="s in paginatedStudents" 
             :key="s.id" 
             :class="['item', { active: currentStudent?.id === s.id }]"
             @click="$emit('select', s)"
@@ -93,7 +136,7 @@ const filteredStudents = computed(() => {
             >🗑️</span>
           </div>
 
-          <!-- 新增：搜不到结果时的空状态 -->
+          <!-- 空状态 -->
           <div v-if="filteredStudents.length === 0" class="empty-tip">
             未找到匹配学员
           </div>
@@ -118,7 +161,7 @@ const filteredStudents = computed(() => {
   border-right: 3px solid transparent;
 }
 
-/* 管理模式下给边框一个微弱的绿色提示 */
+/* 管理模式下边框绿色提示 */
 .admin-border {
   border-right-color: #27ae60;
 }
@@ -185,7 +228,6 @@ const filteredStudents = computed(() => {
   color: #f8fafc;
 }
 
-/* 空状态样式 */
 .empty-tip {
   padding: 15px 0;
   text-align: center;
@@ -197,10 +239,9 @@ const filteredStudents = computed(() => {
   flex: 1;                
   overflow-y: auto;       
   min-height: 0;          
-  padding-right: 4px;     
+  padding-right: 2px;     
 }
 
-/* 针对 Webkit 的滚动条美化 */
 .list-container::-webkit-scrollbar {
   width: 4px;
 }
@@ -268,16 +309,76 @@ const filteredStudents = computed(() => {
   transform: translateY(-2px);
 }
 
-/* 列表样式 */
-.list-header {
+/* 列表顶部行（标题 + 极简分页） */
+.list-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.list-title {
   font-size: 11px;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 12px;
-  padding-left: 5px;
+  letter-spacing: 1px;
 }
 
+/* 仅针对极简分页做细微的美化改动 */
+.mini-pagination {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.page-arrow {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.page-arrow:hover:not(:disabled) {
+  color: #ffffff;
+  background: #27ae60;
+}
+
+.page-arrow:disabled {
+  color: #475569;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.page-num {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.slash {
+  color: #475569;
+  margin: 0 1px;
+}
+
+/* 列表项目样式 */
 .item {
   position: relative; 
   display: flex;
@@ -323,7 +424,7 @@ const filteredStudents = computed(() => {
   transform: scale(1.2);
 }
 
-/* 切换按钮 */
+/* 侧边栏折叠展开控制 */
 .toggle-btn {
   position: absolute;
   right: -12px;
