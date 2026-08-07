@@ -33,6 +33,24 @@
           </div>
         </div>
 
+        <!-- 🔍 单词搜索框 -->
+        <div class="search-box">
+          <span class="search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input 
+            type="text" 
+            class="search-input" 
+            v-model="searchQuery" 
+            placeholder="搜索英文或中文..." 
+            @input="handleSearchInput"
+          />
+          <button v-if="searchQuery" class="clear-search-btn" @click="clearSearch" title="清空搜索">✕</button>
+        </div>
+
         <!-- 🔍 单词状态筛选器 (全部 / 未掌握 / 已掌握) -->
         <div class="filter-tabs">
           <button 
@@ -72,7 +90,7 @@
           </div>
         </template>
         <div class="empty-tip" v-else>
-          无对应单词
+          {{ searchQuery ? '未找到匹配单词' : '无对应单词' }}
         </div>
       </div>
 
@@ -182,21 +200,33 @@ const isRevealed = ref(false)
 const dictationVisible = ref(false)
 const dictationWords = ref([])
 
-// 🔍 筛选相关状态: 'all' | 'unmastered' | 'mastered'
-const activeFilter = ref('all')
+// 🔍 筛选与搜索相关状态
+const activeFilter = ref('all') // 'all' | 'unmastered' | 'mastered'
+const searchQuery = ref('')      // 搜索关键词
 
 // 📄 分页与跳页响应式状态
 const currentPage = ref(1)
 const pageSize = ref(20)
 const pageInput = ref(1)
 
-// 🔍 过滤后的基础列表（带原始全局索引）
+// 🔍 过滤后的基础列表（包含状态筛选与中英文关键词匹配）
 const filteredWords = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
   return props.initialWords
     .map((word, index) => ({ ...word, originalIndex: index }))
     .filter(word => {
-      if (activeFilter.value === 'mastered') return !!word.m
-      if (activeFilter.value === 'unmastered') return !word.m
+      // 1. 状态筛选
+      if (activeFilter.value === 'mastered' && !word.m) return false
+      if (activeFilter.value === 'unmastered' && word.m) return false
+
+      // 2. 搜索关键词模糊匹配 (英文 / 中文)
+      if (query) {
+        const enMatch = word.en ? word.en.toLowerCase().includes(query) : false
+        const cnMatch = word.cn ? word.cn.toLowerCase().includes(query) : false
+        return enMatch || cnMatch
+      }
+
       return true
     })
 })
@@ -218,6 +248,22 @@ const filteredCurrentIndex = computed(() => {
 
 const isFirstInFiltered = computed(() => filteredCurrentIndex.value <= 0)
 const isLastInFiltered = computed(() => filteredCurrentIndex.value === -1 || filteredCurrentIndex.value >= filteredWords.value.length - 1)
+
+// 搜索框输入监听
+const handleSearchInput = () => {
+  currentPage.value = 1
+  pageInput.value = 1
+  
+  if (filteredWords.value.length > 0) {
+    selectWordByRealIndex(filteredWords.value[0].originalIndex)
+  }
+}
+
+// 清空搜索框
+const clearSearch = () => {
+  searchQuery.value = ''
+  handleSearchInput()
+}
 
 // 设置筛选条件
 const setFilter = (filterType) => {
@@ -386,9 +432,14 @@ const createCell = (text, isHeader = false, bgColor = null, widthPercent = 25, c
   })
 }
 
-// 键盘监听
+// 键盘监听（搜索框聚焦时不触发全局快捷键）
 const handleKeyDown = (e) => {
-  if (document.activeElement.classList.contains('page-input')) return
+  if (
+    document.activeElement.classList.contains('page-input') || 
+    document.activeElement.classList.contains('search-input')
+  ) {
+    return
+  }
 
   if (dictationVisible.value) {
     if (e.key === 'Escape') closeDictation()
@@ -486,6 +537,87 @@ const formatSentence = (s, word) => {
   color: #27ae60;
   letter-spacing: 1px;
   display: inline-block;
+}
+
+/* 🔍 搜索框样式 */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.search-input {
+  width: 100%;
+  padding: 7px 28px 7px 30px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  background: #f8fafc;
+  color: #0f172a;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.search-box:hover .search-input:not(:focus) {
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+
+.search-input:focus {
+  background: #ffffff;
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12), 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.search-box:focus-within .search-icon {
+  color: #27ae60;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  background: #e2e8f0;
+  border: none;
+  font-size: 10px;
+  font-weight: bold;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.clear-search-btn:hover {
+  color: #ffffff;
+  background: #94a3b8;
+  transform: scale(1.08);
+}
+
+.clear-search-btn:active {
+  transform: scale(0.95);
 }
 
 /* 🔍 筛选按钮组样式 */

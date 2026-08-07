@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { supabase } from './supabase'
+import { storeToRefs } from 'pinia'
 
 import { useStudentStore } from './stores/useStudentStore'
 import { useReadingStore } from './stores/useReadingStore'
@@ -23,11 +24,6 @@ import OneFilmModule from './components/OneFilm/OneFilmModule.vue'
 // --- 状态管理 ---
 const activeModule = ref('reading')
 const isAdminMode = ref(false)
-const students = ref([])
-const currentStudent = ref(null)
-const readings = ref([])
-const activeReading = ref(null)    // 当前选中的文章详情
-const editingReading = ref(null)   // 正在编辑的文章对象
 const confirmBtn = ref(null) // 定义按钮引用
 const studentClozeQuizzes = ref([])
 const studentVocabTests = ref([]) // 存储词汇评估记录
@@ -42,23 +38,30 @@ const studentBlankQuizzes = ref([]) // 存储从云端拉取的完形填空列�
 const studentQuizzes = ref([])
 const currentOneWordList = ref([]) // 存储当前学员的历史一言数组
 const studentFilms = ref([]) // 存储从云端拉取的电影数据
-
 // 单词学习模块新增状态
 const studentWordBooks = ref([]) // 储存学员生词本及练习库
 const wordStats = ref({ totalLearned: 0, todayReviewed: 0 })
-
 // 排行榜状态
 const showLeaderboard = ref(false)
 const leaderboardData = ref([])
-
 // 答题状态记录
 const userSelections = ref([])
 const isSubmitted = ref(false)
-
 // 新增状态控制
 const showAdminModal = ref(false)
 const adminPassword = ref('')
 const passwordError = ref(false)
+
+
+// 实例化 Store 并解构数据与方法
+const studentStore = useStudentStore()
+// 使用 storeToRefs 确保解构出来的状态（ref）依然保持响应性
+const { students, currentStudent, isLoading: isStudentLoading } = storeToRefs(studentStore)
+const { fetchStudents, handleAddNewStudent, handleDeleteStudent, awardXP } = studentStore
+const readingStore = useReadingStore()
+const { readings, activeReading, editingReading, isLoading: isReadingLoading } = storeToRefs(readingStore)
+const { fetchReadings, handleDeleteReading } = readingStore
+
 
 const toggleRole = () => {
   if (!isAdminMode.value) {
@@ -188,31 +191,15 @@ const getStartOfThisWeek = () => {
   return now.toISOString();
 };
 
-// 模拟加分函数
-const awardXP = async (amount, moduleName, reason) => {
-  if (!currentStudent.value) return;
-  try {
-    const { error: logError } = await supabase
-      .from('xp_logs')
-      .insert([{
-        student_id: currentStudent.value.id,
-        amount: amount,
-        module: moduleName,
-        reason: reason
-      }]);
-    if (logError) throw logError;
-    const newTotal = (currentStudent.value.total_xp || 0) + amount;
-    const { error: updateError } = await supabase
-      .from('students')
-      .update({ total_xp: newTotal })
-      .eq('id', currentStudent.value.id);
-    if (updateError) throw updateError;
-    currentStudent.value.total_xp = newTotal;
-    console.log(`🚀 成功获取 ${amount} XP!`);
-  } catch (e) {
-    console.error("加分失败:", e.message);
+
+// 2. 当选中的学员发生变化时，自动获取该学员的阅读列表
+watch(currentStudent, (newStudent) => {
+  if (newStudent) {
+    fetchReadings(newStudent.id)
+  } else {
+    readings.value = []
   }
-};
+})
 
 // 1. 监听切换（学员或模块改变时重置状态并加载数据）
 watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
@@ -282,17 +269,6 @@ const handleSaveWordProgress = async (wordData) => {
   } catch (e) {
     console.error("更新单词进度失败:", e)
   }
-}
-
-// 阅读理解数据获取
-const fetchReadings = async (studentId) => {
-  isLoading.value = true
-  const { data } = await supabase.from('readings')
-    .select('*')
-    .eq('student_id', studentId)
-    .order('created_at', { ascending: false })
-  readings.value = data || []
-  isLoading.value = false
 }
 
 const handleReadingSubmit = () => {
@@ -371,52 +347,6 @@ const fetchBlankQuizzes = async (studentId) => {
   isLoading.value = false
 }
 
-const handleDeleteReading = async (reading) => {
-  if (!confirm(`确定要删除文章《${reading.title}》吗？此操作不可撤销哦 ❤️`)) return
-  try {
-    isLoading.value = true
-    const { error } = await supabase
-      .from('readings')
-      .delete()
-      .eq('id', reading.id)
-    if (error) throw error
-    alert("✅ 文章已从云端抹除")
-    await fetchReadings(currentStudent.value.id)
-    if (activeReading.value?.id === reading.id) {
-      viewMode.value = 'list'
-      activeReading.value = null
-    }
-  } catch (e) {
-    alert("❌ 删除失败：" + e.message)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const handleDeleteStudent = async (student) => {
-  const msg = `确定要删除学员 ${student.name} 吗？\n这将同时删除该学员的所有阅读记录和题目，不可恢复！`;
-  if (!confirm(msg)) return;
-
-  try {
-    isLoading.value = true;
-    const { error } = await supabase
-      .from('students')
-      .delete()
-      .eq('id', student.id);
-    if (error) throw error;
-    alert("✅ 学员记录已清除");
-    if (currentStudent.value?.id === student.id) {
-      currentStudent.value = null;
-    }
-    await fetchStudents();
-
-  } catch (e) {
-    alert("❌ 删除失败：" + e.message);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
 const deleteClozeQuiz = async (id) => {
   if (!confirm('确定要删除这篇短文填空吗？此操作不可恢复 ❤️')) return
   try {
@@ -435,28 +365,6 @@ const deleteClozeQuiz = async (id) => {
     alert("❌ 删除失败：" + e.message)
   } finally {
     isLoading.value = false
-  }
-}
-
-const handleAddNewStudent = async () => {
-  const name = prompt("请输入新学员的姓名：")
-
-  if (name && name.trim()) {
-    try {
-      isLoading.value = true
-      const { error } = await supabase
-        .from('students')
-        .insert([{ name: name.trim() }])
-
-      if (error) throw error
-
-      alert("✅ 学员添加成功！")
-      await fetchStudents()
-    } catch (e) {
-      alert("❌ 添加失败：" + e.message)
-    } finally {
-      isLoading.value = false
-    }
   }
 }
 
@@ -495,11 +403,6 @@ const fetchVocabulary = async (studentId) => {
     m: word.m || false
   }))
   isLoading.value = false
-}
-
-const fetchStudents = async () => {
-  const { data } = await supabase.from('students').select('*').order('name')
-  students.value = data || []
 }
 
 const fetchQuizzes = async (studentId) => {
