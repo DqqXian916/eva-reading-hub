@@ -78,7 +78,6 @@ const nextPage = () => {
       <div class="simple-logo">
         <div class="bulb-icon">💡</div>
         <div class="logo-text-group">
-          <div class="brand-name">EVA READ</div>
           <div class="brand-tagline">{{ canEdit ? 'ADMIN PANEL' : 'STUDENT CENTER' }}</div>
         </div>
       </div>
@@ -276,13 +275,16 @@ const nextPage = () => {
   font-weight: 800;
   font-size: 16px;
   letter-spacing: 1px;
+  color:#f8fafc
 }
 
 .brand-tagline {
   color: #64748b;
-  font-size: 9px;
   font-weight: bold;
   letter-spacing: 0.5px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 
 /* 管理员按钮 */

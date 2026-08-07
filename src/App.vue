@@ -2,6 +2,9 @@
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { supabase } from './supabase'
 
+import { useStudentStore } from './stores/useStudentStore'
+import { useReadingStore } from './stores/useReadingStore'
+
 // 导入组件
 import Sidebar from './components/Sidebar.vue'
 import ReadingList from './components/Reading/ReadingList.vue'
@@ -102,7 +105,7 @@ const fetchLeaderboard = async () => {
 // 删除单条历史一言记录
 const handleDeleteOneWord = async (wordItem) => {
   if (!confirm(`确定要彻底删除这条历史一言吗？云端将同步抹除哦 ❤️`)) return
-  
+
   try {
     isLoading.value = true
     const { error } = await supabase
@@ -127,8 +130,8 @@ const fetchOneWord = async (studentId) => {
       .from('one_words')
       .select('*')
       .eq('student_id', studentId)
-      .order('updated_at', { ascending: true }) 
-      
+      .order('updated_at', { ascending: true })
+
     if (error) throw error
 
     if (data) {
@@ -136,7 +139,7 @@ const fetchOneWord = async (studentId) => {
     }
   } catch (e) {
     console.error("从云端获取一言语失败:", e)
-    currentOneWordList.value = [] 
+    currentOneWordList.value = []
   } finally {
     isLoading.value = false
   }
@@ -157,14 +160,14 @@ const handleSaveOneWord = async (wordData) => {
         english: wordData.english,
         chinese: wordData.chinese
       }])
-      .select() 
+      .select()
     if (error) throw error
     if (data && data.length > 0) {
       currentOneWordList.value = [...currentOneWordList.value, data[0]]
     } else {
-      currentOneWordList.value = [...currentOneWordList.value, { 
-        ...wordData, 
-        id: Date.now() 
+      currentOneWordList.value = [...currentOneWordList.value, {
+        ...wordData,
+        id: Date.now()
       }]
     }
     alert("✅ 新的一言已成功追加至云端历史库")
@@ -247,7 +250,7 @@ const fetchWordData = async (studentId) => {
       .select('current_word_list, word_stats')
       .eq('student_id', studentId)
       .single()
-    
+
     if (configs) {
       studentWordBooks.value = configs.current_word_list || []
       wordStats.value = configs.word_stats || { totalLearned: 0, todayReviewed: 0 }
@@ -310,7 +313,7 @@ const fetchFilms = async (studentId) => {
     .select('*')
     .eq('student_id', studentId)
     .order('created_at', { ascending: false })
-  
+
   if (!error) studentFilms.value = data || []
   isLoading.value = false
 }
@@ -627,7 +630,7 @@ const handleBatchImportFilms = async (jsonString) => {
     const rawData = JSON.parse(jsonString);
     const { data: studentsList } = await supabase.from('students').select('id, name');
     const batchData = rawData.map(item => {
-      const student = studentsList.find(s => 
+      const student = studentsList.find(s =>
         s.name.trim().toLowerCase() === item.student.trim().toLowerCase()
       );
       if (!student) return null;
@@ -801,49 +804,101 @@ const toggleFullScreen = () => {
     </div>
     <Transition name="slide-nav">
       <header v-if="isNavVisible" class="top-nav">
+        <!-- 左侧：品牌 Logo -->
         <div class="nav-brand">
-          <span class="brand-icon">⚡</span>
+          <div class="brand-logo">⚡</div>
           <span class="brand-name">EVA ENGLISH</span>
         </div>
+
+        <!-- 中间：精简后的分类导航菜单 -->
         <nav class="nav-center">
-          <button :class="['module-tab', { active: activeModule === 'vocab-test' }]"
-            @click="activeModule = 'vocab-test'">📊 词汇评估</button>
-          <!-- 新增：单词学习板块导航按钮 -->
-          <button :class="['module-tab', { active: activeModule === 'word-study' }]" 
-            @click="activeModule = 'word-study'">🧠 单词学习</button>
-          <button :class="['module-tab', { active: activeModule === 'words' }]" @click="activeModule = 'words'">🗂️
-            单词复习</button>
-          <button :class="['module-tab', { active: activeModule === 'quiz' }]" @click="activeModule = 'quiz'">📝
-            单选训练</button>
-          <button :class="['module-tab', { active: activeModule === 'reading' }]" @click="activeModule = 'reading'">📖
-            阅读训练</button>
-          <button :class="['module-tab', { active: activeModule === 'cloze' }]" @click="activeModule = 'cloze'">✍️
-            短文填空</button>
-          <button :class="['module-tab', { active: activeModule === 'blank' }]" @click="activeModule = 'blank'">🖋️
-            完形填空</button>
-          <button :class="['module-tab', { active: activeModule === 'brain-break' }]"
-            @click="activeModule = 'brain-break'">🎮 换个脑子</button>
-          <button :class="['module-tab', { active: activeModule === 'sentence' }]"
-            @click="activeModule = 'sentence'">🏞️ 一言 </button>
-          <button :class="['module-tab', { active: activeModule === 'film' }]"
-            @click="activeModule = 'film'">🎬 一观 </button>
-        </nav>
-        <div class="nav-right">
-          <div class="xp-display" @click="showLeaderboard = true; fetchLeaderboard()">
-            <div class="xp-icon-container">
-              <span class="xp-emoji">🏆</span>
-            </div>
-            <div class="xp-text">
-              <span class="xp-amount">{{ currentStudent?.total_xp || 0 }}</span>
-              <span class="xp-label">Exp</span>
+          <!-- 分组 1：词汇专区 -->
+          <div class="nav-group">
+            <button :class="['group-btn', { active: ['vocab-test', 'word-study', 'words'].includes(activeModule) }]">
+              <span>💪🏻 Word Pump</span>
+              <span class="chevron">▾</span>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" :class="{ active: activeModule === 'vocab-test' }"
+                @click="activeModule = 'vocab-test'">
+                <span class="item-icon">📊</span>
+                <div class="item-text"><span class="title">词汇评估</span><span class="desc">实时测试掌握词汇量</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'word-study' }"
+                @click="activeModule = 'word-study'">
+                <span class="item-icon">🧠</span>
+                <div class="item-text"><span class="title">单词记忆</span><span class="desc">单元记忆与智能复习</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'words' }" @click="activeModule = 'words'">
+                <span class="item-icon">🗂️</span>
+                <div class="item-text"><span class="title">单词复习</span><span class="desc">强化复习与消灭难词</span></div>
+              </div>
             </div>
           </div>
 
-          <div class="divider-line"></div>
+          <!-- 分组 2：综合训练 -->
+          <div class="nav-group">
+            <button :class="['group-btn', { active: ['quiz', 'reading', 'cloze', 'blank'].includes(activeModule) }]">
+              <span>🥊 Brain Combo</span>
+              <span class="chevron">▾</span>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" :class="{ active: activeModule === 'reading' }"
+                @click="activeModule = 'reading'">
+                <span class="item-icon">📖</span>
+                <div class="item-text"><span class="title">阅读理解</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'quiz' }" @click="activeModule = 'quiz'">
+                <span class="item-icon">📝</span>
+                <div class="item-text"><span class="title">单选训练</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'cloze' }" @click="activeModule = 'cloze'">
+                <span class="item-icon">✍️</span>
+                <div class="item-text"><span class="title">短文填空</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'blank' }" @click="activeModule = 'blank'">
+                <span class="item-icon">🖋️</span>
+                <div class="item-text"><span class="title">完形填空</span></div>
+              </div>
+            </div>
+          </div>
 
-          <div :class="['role-badge', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole">
-            <div class="role-dot"></div>
-            <span>{{ isAdminMode ? '管理模式' : '学员模式' }}</span>
+          <!-- 分组 3：趣味拓展 -->
+          <div class="nav-group">
+            <button :class="['group-btn', { active: ['sentence', 'film', 'brain-break'].includes(activeModule) }]">
+              <span>🍧 Chill & Refill </span>
+              <span class="chevron">▾</span>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" :class="{ active: activeModule === 'sentence' }"
+                @click="activeModule = 'sentence'">
+                <span class="item-icon">🏞️</span>
+                <div class="item-text"><span class="title">一言</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'film' }" @click="activeModule = 'film'">
+                <span class="item-icon">🎬</span>
+                <div class="item-text"><span class="title">一观</span></div>
+              </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'brain-break' }"
+                @click="activeModule = 'brain-break'">
+                <span class="item-icon">🎮</span>
+                <div class="item-text"><span class="title">换个脑子</span></div>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <!-- 右侧：XP & 角色切换胶囊组件 -->
+        <div class="nav-right">
+          <div class="xp-badge" @click="showLeaderboard = true; fetchLeaderboard()">
+            <span class="xp-icon">🏆</span>
+            <span class="xp-num">{{ currentStudent?.total_xp || 0 }}</span>
+            <span class="xp-unit">XP</span>
+          </div>
+
+          <div :class="['role-pill', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole" title="双击切换模式">
+            <span class="status-dot"></span>
+            <span class="role-text">{{ isAdminMode ? '管理' : '学员' }}</span>
           </div>
         </div>
       </header>
@@ -903,13 +958,8 @@ const toggleFullScreen = () => {
 
         <!-- 新增：单词学习板块核心渲染点 -->
         <template v-else-if="activeModule === 'word-study'">
-          <WordModule 
-            :student="currentStudent" 
-            :wordList="studentWordBooks" 
-            :stats="wordStats" 
-            :canEdit="isAdminMode" 
-            @save-progress="handleSaveWordProgress"
-          />
+          <WordModule :student="currentStudent" :wordList="studentWordBooks" :stats="wordStats" :canEdit="isAdminMode"
+            @save-progress="handleSaveWordProgress" />
         </template>
 
         <template v-else-if="activeModule === 'words'">
@@ -938,24 +988,13 @@ const toggleFullScreen = () => {
         </template>
 
         <template v-else-if="activeModule === 'sentence'">
-          <OneWordModule 
-            :quoteList="currentOneWordList" 
-            :canEdit="isAdminMode" 
-            :isFullScreen="isFullScreen"
-            @toggleFull="toggleFullScreen" 
-            @save="handleSaveOneWord" 
-            @delete="handleDeleteOneWord" 
-          />
+          <OneWordModule :quoteList="currentOneWordList" :canEdit="isAdminMode" :isFullScreen="isFullScreen"
+            @toggleFull="toggleFullScreen" @save="handleSaveOneWord" @delete="handleDeleteOneWord" />
         </template>
 
         <template v-else-if="activeModule === 'film'">
-          <OneFilmModule 
-            :student="currentStudent" 
-            :movies="studentFilms" 
-            :canEdit="isAdminMode" 
-            @save="saveFilmPost" 
-            @import="handleBatchImportFilms" 
-          />
+          <OneFilmModule :student="currentStudent" :movies="studentFilms" :canEdit="isAdminMode" @save="saveFilmPost"
+            @import="handleBatchImportFilms" />
         </template>
 
         <template v-else>
@@ -1075,28 +1114,42 @@ body {
 
 /* 导航栏 */
 .top-nav {
-  height: var(--nav-h);
-  background: #fff;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px; /* 缩小左右外边距 */
-  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  gap: 12px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  cursor: pointer;
+}
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
+
+.brand-name {
   font-weight: 800;
-  font-size: 16px; /* 稍微缩小 logo 字体 */
-  color: #1e293b;
-  letter-spacing: -0.5px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+  color: #0f172a;
 }
 
 .brand-icon {
@@ -1105,16 +1158,8 @@ body {
 
 .nav-center {
   display: flex;
-  background: #f1f5f9;
-  padding: 3px;
-  border-radius: 10px;
-  gap: 2px; /* 缩小按钮间距 */
-  overflow-x: auto; /* 超出宽度时支持平滑滚动，不被挤压 */
-  white-space: nowrap;
-  max-width: calc(100vw - 380px); /* 限制最大宽度，给左右两侧留出空间 */
-  -webkit-overflow-scrolling: touch;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  align-items: center;
+  gap: 8px;
 }
 
 /* 隐藏菜单栏的横向滚动条，保持干净外观 */
@@ -1122,8 +1167,49 @@ body {
   display: none;
 }
 
+.nav-group {
+  position: relative;
+}
+
+.group-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-btn .chevron {
+  font-size: 10px;
+  opacity: 0.5;
+  transition: transform 0.2s ease;
+}
+
+.nav-group:hover .group-btn {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.nav-group:hover .chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.group-btn.active {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
 .module-tab {
-  padding: 6px 12px; /* 缩小内边距：原为 8px 18px */
+  padding: 6px 12px;
+  /* 缩小内边距：原为 8px 18px */
   border: none;
   background: transparent;
   border-radius: 7px;
@@ -1131,7 +1217,8 @@ body {
   font-weight: 600;
   color: #64748b;
   transition: all 0.2s ease;
-  font-size: 13px; /* 字体适度调整为 13px */
+  font-size: 13px;
+  /* 字体适度调整为 13px */
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -1363,9 +1450,19 @@ body {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 .shake-enter-active {
@@ -1501,16 +1598,61 @@ body {
   animation: letter-jump 1.2s infinite;
 }
 
-.loading-text span:nth-child(2) { animation-delay: 0.1s; }
-.loading-text span:nth-child(3) { animation-delay: 0.2s; }
-.loading-text span:nth-child(4) { animation-delay: 0.3s; }
-.loading-text span:nth-child(5) { animation-delay: 0.4s; }
-.loading-text span:nth-child(6) { animation-delay: 0.5s; }
-.loading-text span:nth-child(7) { animation-delay: 0.6s; }
+.loading-text span:nth-child(2) {
+  animation-delay: 0.1s;
+}
 
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse { 0%, 100% { transform: scale(0.8); opacity: 0.2; } 50% { transform: scale(1.2); opacity: 0.5; } }
-@keyframes letter-jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.loading-text span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.loading-text span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.loading-text span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+.loading-text span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+.loading-text span:nth-child(7) {
+  animation-delay: 0.6s;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+}
+
+@keyframes letter-jump {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
 
 /* 排行榜专有样式 */
 .leaderboard-card {
@@ -1540,8 +1682,16 @@ body {
   margin-bottom: 10px;
 }
 
-.lb-trophy { font-size: 40px; }
-.lb-header h2 { margin: 0; font-size: 24px; font-weight: 800; color: #1e293b; }
+.lb-trophy {
+  font-size: 40px;
+}
+
+.lb-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+}
 
 .lb-timer {
   display: inline-block;
@@ -1624,7 +1774,10 @@ body {
   text-transform: uppercase;
 }
 
-.lb-xp { text-align: right; }
+.lb-xp {
+  text-align: right;
+}
+
 .xp-num {
   font-weight: 900;
   color: #27ae60;
@@ -1665,7 +1818,8 @@ body {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 10px; /* 缩小间距 */
+  gap: 10px;
+  /* 缩小间距 */
   flex-shrink: 0;
 }
 
@@ -1771,8 +1925,147 @@ body {
 }
 
 @keyframes cup-shake {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-15deg); }
-  75% { transform: rotate(15deg); }
+
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  25% {
+    transform: rotate(-15deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
+}
+/* Dropdown 下拉悬浮菜单 */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  min-width: 180px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.nav-group:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(4px);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.dropdown-item.active {
+  background: #f0fdf4;
+}
+
+.dropdown-item.active .title {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.item-icon {
+  font-size: 16px;
+}
+
+.item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-text .title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.item-text .desc {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+/* 右侧工具栏微缩胶囊 */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.xp-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.xp-badge:hover {
+  transform: scale(1.03);
+  background: #fef3c7;
+}
+
+.xp-icon { font-size: 14px; }
+.xp-num { font-weight: 800; font-size: 14px; color: #d97706; }
+.xp-unit { font-size: 10px; font-weight: 700; color: #b45309; }
+
+/* 角色 Pill */
+.role-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.role-pill.is-student {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.role-pill.is-admin {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 </style>
