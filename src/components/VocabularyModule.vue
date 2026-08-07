@@ -474,18 +474,42 @@ watch(currentIndex, () => {
   }, 50)
 })
 
-watch(() => props.initialWords, (newVal) => {
-  if (currentIndex.value >= newVal.length) currentIndex.value = 0
+// 仅当单词总条数发生变化（如加载新单词包）时重置索引和页码
+watch(() => props.initialWords.length, (newLength) => {
+  if (currentIndex.value >= newLength) {
+    currentIndex.value = 0
+  }
   currentPage.value = 1
-}, { deep: true, immediate: true })
+}, { immediate: true })
 
 const currentWord = computed(() => props.initialWords[currentIndex.value] || {})
 const masteredCount = computed(() => props.initialWords.filter(word => word.m).length)
 
+// 切换单词掌握状态
 const toggleMastery = (index) => {
   const words = [...props.initialWords]
   words[index].m = !words[index].m
+  // 记录操作前当前单词在筛选列表中的位置
+  const currentPosInFiltered = filteredCurrentIndex.value
+  // 向父组件派发更新
   emit('update-progress', words)
+  // 如果是在按分类筛选（如“不会”/“会了”）的模式下，当前单词状态改变后会从当前视图消失
+  // 此时自动选中原位置上的下一个单词
+  if (activeFilter.value !== 'all') {
+    setTimeout(() => {
+      if (filteredWords.value.length === 0) return
+      // 取原位置的单词，若已经是最后一项则取新的最后一项
+      const nextTargetPos = Math.min(currentPosInFiltered, filteredWords.value.length - 1)
+      const targetItem = filteredWords.value[nextTargetPos]
+      if (targetItem) {
+        currentIndex.value = targetItem.originalIndex
+        // 确保页码不会溢出
+        if (currentPage.value > totalPages.value) {
+          currentPage.value = totalPages.value
+        }
+      }
+    }, 0)
+  }
 }
 
 const speak = (text) => {
