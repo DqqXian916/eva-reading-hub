@@ -253,16 +253,23 @@ const isLastInFiltered = computed(() => filteredCurrentIndex.value === -1 || fil
 const handleSearchInput = () => {
   currentPage.value = 1
   pageInput.value = 1
-  
   if (filteredWords.value.length > 0) {
-    selectWordByRealIndex(filteredWords.value[0].originalIndex)
+    const targetRealIndex = filteredWords.value[0].originalIndex
+    currentIndex.value = targetRealIndex
+    isRevealed.value = false
+    // 静音切换：此处不再调用 speak()，避免打字时连续发音
   }
 }
 
 // 清空搜索框
 const clearSearch = () => {
   searchQuery.value = ''
-  handleSearchInput()
+  currentPage.value = 1
+  pageInput.value = 1
+  if (filteredWords.value.length > 0) {
+    currentIndex.value = filteredWords.value[0].originalIndex
+    isRevealed.value = false
+  }
 }
 
 // 设置筛选条件
