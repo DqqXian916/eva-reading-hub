@@ -11,10 +11,11 @@ import ShootGame from './Shoot.vue'
 import CarCrashGame from './CarCrash.vue'
 import WordFighterGame from './WordFighter.vue'
 import DrawGame from './Draw.vue'
-import ArtGalleryGame from './ArtGallery.vue' // 👈 1. 引入新做好的艺术画廊组件
+import ArtGalleryGame from './ArtGallery.vue'
 import WordMatchGame from './WordMatch.vue'
-import WordSnakeGame from './WordSnake.vue' // 👈 新增引入像素贪吃蛇组件
+import WordSnakeGame from './WordSnake.vue'
 import PrincessWardrobeGame from './PrincessWardrobe.vue'
+import BadmintonGame from './Badminton.vue'
 import WordLinkGame from './WordLink.vue'
 import { useGameStore } from '../../stores/gameStore';
 
@@ -158,27 +159,41 @@ const games = ref([
         config: {
             wordList: [], // 等待后端统一注入
             goal: 20      // 默认通关目标：吃对 20 个单词
-    }},
-        {
+        }
+    },
+    {
         id: 'gallery',
         name: '艺术画廊',
         isVue: true,
         icon: '🖼️',
         color: '#c9b088', // 配合画廊的黑金/宣纸高级色
         config: {
-            wordList: [], 
+            wordList: [],
             goal: 20
-        }},
-        {
+        }
+    },
+    {
         id: 'link',
         name: '单词连连看',
         isVue: true,
         icon: '🧵',
         color: '#66ccff', // 配合画廊的黑金/宣纸高级色
         config: {
-            wordList: [], 
+            wordList: [],
             goal: 20
-        }},
+        }
+    },
+    {
+        id: 'badminton',
+        name: '扣杀！Smash Time',
+        isVue: true,
+        icon: '🏸',
+        color: '#0b6b4f', // 赛场绿/活力黄风格色
+        config: {
+            wordList: [], // 由后端统一注入
+            goal: 20
+        }
+    }
 ])
 
 const activeGame = ref(null)
@@ -374,12 +389,18 @@ const saveGameConfig = () => {
                                     goal: gameStore.goal || activeGame.config.goal // 优先使用系统全局设定的 goal 目标
                                 })" />
                             <ArtGalleryGame v-if="activeGame.id === 'gallery'" :wordList="activeGame.config.wordList"
-                            :key="props.student.id" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
-                                studentId: props.student.id,
-                                wordList: newWords,
-                                goal: activeGame.config.goal
-                            })" />
-                             <WordLinkGame v-if="activeGame.id === 'link'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <WordLinkGame v-if="activeGame.id === 'link'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                            <BadmintonGame v-if="activeGame.id === 'badminton'" :wordList="activeGame.config.wordList"
                                 :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
@@ -789,8 +810,10 @@ const saveGameConfig = () => {
     justify-content: center;
     font-size: 20px;
 }
+
 .game-card.gallery-theme-bg {
-    background: #0a0a0a !important; /* 强制覆盖原本的 white 背景 */
+    background: #0a0a0a !important;
+    /* 强制覆盖原本的 white 背景 */
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     transition: background 0.4s ease;
 }
