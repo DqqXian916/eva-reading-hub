@@ -124,7 +124,7 @@ const nextPage = () => {
             :class="['item', { active: currentStudent?.id === s.id }]"
             @click="$emit('select', s)"
           >
-            <span class="user-avatar">{{ currentStudent?.id === s.id ? '🔥' : '🥷🏻' }}</span>
+            <span class="user-avatar">{{ currentStudent?.id === s.id ? '🚩' : '👣' }}</span>
             <span class="user-name">{{ s.name }}</span>
             <span 
               v-if="canEdit" 
