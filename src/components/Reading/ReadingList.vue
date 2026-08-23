@@ -63,8 +63,7 @@ defineEmits(['toggle', 'open', 'goEdit', 'delete', 'onEditClick'])
 
       <div v-else-if="currentStudent" class="empty-bookshelf">
         <div class="empty-icon">📚</div>
-        <p>书架空空的</p>
-        <p class="sub-tip">{{ canEdit ? '点击上方按钮开始录入' : '等老师为你布置内容哦' }}</p>
+        <p>这里空空的</p>
       </div>
     </div>
   </aside>

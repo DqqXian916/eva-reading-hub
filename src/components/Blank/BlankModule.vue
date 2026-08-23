@@ -246,9 +246,8 @@ const scrollToQuestion = (idx) => {
 
           <div v-else class="empty-guide-stage">
             <div class="guide-content">
-              <div class="guide-icon">👈</div>
-              <h3>开始训练</h3>
-              <p>请从左侧列表选择一个完形填空文章</p>
+              <div class="guide-icon">🌳</div>
+              <h3>开始练习？</h3>
             </div>
           </div>
         </main>

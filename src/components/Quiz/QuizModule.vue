@@ -307,7 +307,7 @@ const handleDelete = (id) => {
 
       <div v-if="!selectedQuiz && !isAdding" class="empty-state">
         <div class="empty-icon">🍃</div>
-        <p>请从左侧选择题目开始挑战</p>
+        <p>开始练习？</p>
       </div>
       <div v-if="isBatchImporting" class="quiz-editor-overlay glass-effect">
         <div class="editor-container-large">

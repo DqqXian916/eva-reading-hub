@@ -76,9 +76,9 @@ const nextPage = () => {
 
     <div v-show="!collapsed" class="panel-content">
       <div class="simple-logo">
-        <div class="bulb-icon">💡</div>
+        <div class="bulb-icon">🎋</div>
         <div class="logo-text-group">
-          <div class="brand-tagline">{{ canEdit ? 'ADMIN PANEL' : "Chase the light." }}</div>
+          <div class="brand-tagline">{{ canEdit ? 'ADMIN PANEL' : "Grow Wild." }}</div>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ const nextPage = () => {
       <div class="list-container">
         <!-- 列表头部：左侧标题，右侧极简分页控制 -->
         <div class="list-header-row">
-          <span class="list-title">{{ canEdit ? '📋 学员库管理' : '✨ 选定学员' }}</span>
+          <span class="list-title">{{ canEdit ? '📋 学员库管理' : ' 选定学员' }}</span>
           
           <!-- 仅优化：微调分页结构 -->
           <div v-if="totalPages > 1" class="mini-pagination">
@@ -358,7 +358,7 @@ const nextPage = () => {
 
 .page-arrow:hover:not(:disabled) {
   color: #ffffff;
-  background: #27ae60;
+  background: #7BA57B;
 }
 
 .page-arrow:disabled {

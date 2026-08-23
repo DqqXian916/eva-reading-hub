@@ -709,7 +709,7 @@ const toggleFullScreen = () => {
       <header v-if="isNavVisible" class="top-nav">
         <!-- 左侧：品牌 Logo -->
         <div class="nav-brand">
-          <div class="brand-logo">🍃</div>
+          <div class="brand-logo">🏔️</div>
           <span class="brand-name">Eva English</span>
         </div>
 
@@ -718,7 +718,7 @@ const toggleFullScreen = () => {
           <!-- 分组 1：词汇专区 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['vocab-test', 'word-study', 'words'].includes(activeModule) }]">
-              <span>💪🏻 Word Pump</span>
+              <span>🪵 Word Pump</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
@@ -742,7 +742,7 @@ const toggleFullScreen = () => {
           <!-- 分组 2：综合训练 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['quiz', 'reading', 'cloze', 'blank'].includes(activeModule) }]">
-              <span>🥊 Brain Combo</span>
+              <span>🌳 Brain Combo</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
@@ -769,7 +769,7 @@ const toggleFullScreen = () => {
           <!-- 分组 3：趣味拓展 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['sentence', 'film', 'brain-break'].includes(activeModule) }]">
-              <span>🍧 Chill & Refill </span>
+              <span>🍶 Chill & Refill </span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
@@ -794,7 +794,7 @@ const toggleFullScreen = () => {
         <!-- 右侧：XP & 角色切换胶囊组件 -->
         <div class="nav-right">
           <div class="xp-badge" @click="showLeaderboard = true; fetchLeaderboard()">
-            <span class="xp-icon">🏆</span>
+            <span class="xp-icon">📜</span>
             <span class="xp-num">{{ currentStudent?.total_xp || 0 }}</span>
             <span class="xp-unit">XP</span>
           </div>
@@ -824,7 +824,7 @@ const toggleFullScreen = () => {
           <main class="content-space">
             <div v-if="viewMode === 'list' || viewMode === 'welcome'" class="placeholder">
               <div class="card">
-                <h2>📚 {{ currentStudent.name }} 的书架</h2>
+                <h2>🍀 开始训练？</h2>
               </div>
             </div>
 
@@ -910,8 +910,7 @@ const toggleFullScreen = () => {
 
       <div v-else class="full-welcome">
         <div class="welcome-card">
-          <h1>👋 Hello!</h1>
-          <p>请先从左侧选择一个学员开始教学</p>
+          <h1>👋 Hello，World!</h1>
         </div>
       </div>
     </div>
@@ -1050,10 +1049,8 @@ body {
 .brand-name {
 /* 1. 引入 Bodoni Moda 或 Didot 字体 */
   font-family: "Bodoni Moda", "Didot", "Bodoni MT", "Cinzel", serif;
-  
-  /* 2. 限制在 Header 里的合适字号（原 80px 太大了） */
-  font-size: 16px; 
-  font-weight: 800;
+  font-size: 18px; 
+  font-weight: 900;
   line-height: 1;
   color: #1c5426; /* 配合深色/浅色导航栏 */
   
@@ -1122,7 +1119,7 @@ body {
 }
 
 .group-btn.active {
-  background: #7a8b64;
+  background: #1c5426;
   color: #f7f1e5;
 }
 

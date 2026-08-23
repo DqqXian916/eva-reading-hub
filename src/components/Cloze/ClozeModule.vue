@@ -440,8 +440,7 @@ const checkAnswers = () => {
                         </div>
                     </div>
                     <div class="empty-text">
-                        <h3>准备好开始了吗？</h3>
-                        <p>从左侧题库挑选一个练习，或者开启一段新的知识录入</p>
+                        <h3>开始练习？</h3>
                     </div>
                 </div>
             </div>

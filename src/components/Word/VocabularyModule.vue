@@ -146,8 +146,22 @@
         </section>
 
         <div class="stage-footer">
-          <button class="nav-prev" :disabled="isFirstInFiltered" @click="selectPrevInFiltered">上一个 (↑)</button>
-          <button class="nav-next" :disabled="isLastInFiltered" @click="selectNextInFiltered">下一个 (Enter / ↓) [ Q 键标记 ]</button>
+          <button 
+            class="nav-prev" 
+            :class="{ 'is-active': isPrevActive }"
+            :disabled="isFirstInFiltered" 
+            @click="selectPrevInFiltered"
+          >
+            ↑
+          </button>
+          <button 
+            class="nav-next" 
+            :class="{ 'is-active': isNextActive }"
+            :disabled="isLastInFiltered" 
+            @click="selectNextInFiltered"
+          >
+            ↓ [Q]
+          </button>
         </div>
       </div>
       <div class="empty-stage" v-else>
@@ -200,6 +214,20 @@ const isRevealed = ref(false)
 const dictationVisible = ref(false)
 const dictationWords = ref([])
 
+// ⚡ 底部上下导航按钮高亮控制状态
+const isPrevActive = ref(false)
+const isNextActive = ref(false)
+
+const triggerPrevHighlight = () => {
+  isPrevActive.value = true
+  setTimeout(() => { isPrevActive.value = false }, 150)
+}
+
+const triggerNextHighlight = () => {
+  isNextActive.value = true
+  setTimeout(() => { isNextActive.value = false }, 150)
+}
+
 // 🔍 筛选与搜索相关状态
 const activeFilter = ref('all') // 'all' | 'unmastered' | 'mastered'
 const searchQuery = ref('')      // 搜索关键词
@@ -216,11 +244,9 @@ const filteredWords = computed(() => {
   return props.initialWords
     .map((word, index) => ({ ...word, originalIndex: index }))
     .filter(word => {
-      // 1. 状态筛选
       if (activeFilter.value === 'mastered' && !word.m) return false
       if (activeFilter.value === 'unmastered' && word.m) return false
 
-      // 2. 搜索关键词模糊匹配 (英文 / 中文)
       if (query) {
         const enMatch = word.en ? word.en.toLowerCase().includes(query) : false
         const cnMatch = word.cn ? word.cn.toLowerCase().includes(query) : false
@@ -231,7 +257,6 @@ const filteredWords = computed(() => {
     })
 })
 
-// 📄 基于过滤后列表计算总页数与当页数据
 const totalPages = computed(() => {
   return Math.ceil(filteredWords.value.length / pageSize.value) || 1
 })
@@ -241,7 +266,6 @@ const paginatedWords = computed(() => {
   return filteredWords.value.slice(start, start + pageSize.value)
 })
 
-// 当前过滤数组中选中项的位置信息
 const filteredCurrentIndex = computed(() => {
   return filteredWords.value.findIndex(item => item.originalIndex === currentIndex.value)
 })
@@ -249,7 +273,6 @@ const filteredCurrentIndex = computed(() => {
 const isFirstInFiltered = computed(() => filteredCurrentIndex.value <= 0)
 const isLastInFiltered = computed(() => filteredCurrentIndex.value === -1 || filteredCurrentIndex.value >= filteredWords.value.length - 1)
 
-// 搜索框输入监听
 const handleSearchInput = () => {
   currentPage.value = 1
   pageInput.value = 1
@@ -257,11 +280,9 @@ const handleSearchInput = () => {
     const targetRealIndex = filteredWords.value[0].originalIndex
     currentIndex.value = targetRealIndex
     isRevealed.value = false
-    // 静音切换：此处不再调用 speak()，避免打字时连续发音
   }
 }
 
-// 清空搜索框
 const clearSearch = () => {
   searchQuery.value = ''
   currentPage.value = 1
@@ -272,7 +293,6 @@ const clearSearch = () => {
   }
 }
 
-// 设置筛选条件
 const setFilter = (filterType) => {
   activeFilter.value = filterType
   currentPage.value = 1
@@ -283,12 +303,10 @@ const setFilter = (filterType) => {
   }
 }
 
-// 保持页码输入框与当前页同步
 watch(currentPage, (val) => {
   pageInput.value = val
 })
 
-// 📄 跳页与切换逻辑
 const jumpToPage = () => {
   let target = parseInt(pageInput.value, 10)
   if (isNaN(target) || target < 1) target = 1
@@ -306,7 +324,6 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++
 }
 
-// 选中对应全局真实索引的单词，并同步调整页码
 const selectWordByRealIndex = (realIndex) => {
   if (realIndex < 0 || realIndex >= props.initialWords.length) return
   currentIndex.value = realIndex
@@ -323,7 +340,6 @@ const selectWordByRealIndex = (realIndex) => {
   speak(props.initialWords[realIndex].en)
 }
 
-// 在筛选列表中切换上一个/下一个
 const selectPrevInFiltered = () => {
   if (isFirstInFiltered.value) return
   const prevItem = filteredWords.value[filteredCurrentIndex.value - 1]
@@ -336,7 +352,6 @@ const selectNextInFiltered = () => {
   if (nextItem) selectWordByRealIndex(nextItem.originalIndex)
 }
 
-// 开启听写
 const startDictation = () => {
   if (props.initialWords.length === 0) return
   const shuffled = [...props.initialWords].sort(() => 0.5 - Math.random())
@@ -348,7 +363,6 @@ const closeDictation = () => {
   dictationVisible.value = false
 }
 
-// 🖨️ 导出 Word 文档
 const exportToDocx = () => {
   if (props.initialWords.length === 0) {
     alert("当前没有可导出的单词！")
@@ -439,7 +453,7 @@ const createCell = (text, isHeader = false, bgColor = null, widthPercent = 25, c
   })
 }
 
-// 键盘监听（搜索框聚焦时不触发全局快捷键）
+// ⌨️ 键盘监听（支持 ArrowUp/ArrowDown/Enter 的按钮高亮）
 const handleKeyDown = (e) => {
   if (
     document.activeElement.classList.contains('page-input') || 
@@ -462,11 +476,14 @@ const handleKeyDown = (e) => {
     if (!isRevealed.value) { 
       isRevealed.value = true 
     } else { 
+      triggerNextHighlight()
       selectNextInFiltered()
     }
   } else if (e.key === 'ArrowDown') {
+    triggerNextHighlight()
     selectNextInFiltered()
   } else if (e.key === 'ArrowUp') {
+    triggerPrevHighlight()
     selectPrevInFiltered()
   }
 }
@@ -481,7 +498,6 @@ watch(currentIndex, () => {
   }, 50)
 })
 
-// 仅当单词总条数发生变化（如加载新单词包）时重置索引和页码
 watch(() => props.initialWords.length, (newLength) => {
   if (currentIndex.value >= newLength) {
     currentIndex.value = 0
@@ -492,25 +508,18 @@ watch(() => props.initialWords.length, (newLength) => {
 const currentWord = computed(() => props.initialWords[currentIndex.value] || {})
 const masteredCount = computed(() => props.initialWords.filter(word => word.m).length)
 
-// 切换单词掌握状态
 const toggleMastery = (index) => {
   const words = [...props.initialWords]
   words[index].m = !words[index].m
-  // 记录操作前当前单词在筛选列表中的位置
   const currentPosInFiltered = filteredCurrentIndex.value
-  // 向父组件派发更新
   emit('update-progress', words)
-  // 如果是在按分类筛选（如“不会”/“会了”）的模式下，当前单词状态改变后会从当前视图消失
-  // 此时自动选中原位置上的下一个单词
   if (activeFilter.value !== 'all') {
     setTimeout(() => {
       if (filteredWords.value.length === 0) return
-      // 取原位置的单词，若已经是最后一项则取新的最后一项
       const nextTargetPos = Math.min(currentPosInFiltered, filteredWords.value.length - 1)
       const targetItem = filteredWords.value[nextTargetPos]
       if (targetItem) {
         currentIndex.value = targetItem.originalIndex
-        // 确保页码不会溢出
         if (currentPage.value > totalPages.value) {
           currentPage.value = totalPages.value
         }
@@ -986,6 +995,7 @@ const formatSentence = (s, word) => {
   padding-bottom: 60px;
 }
 
+/* ⚡ 导航按钮基础样式 */
 .nav-prev,
 .nav-next {
   flex: 1;
@@ -993,12 +1003,13 @@ const formatSentence = (s, word) => {
   border-radius: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #e2e8f0;
   font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
 }
 
 .nav-next {
@@ -1009,13 +1020,11 @@ const formatSentence = (s, word) => {
 }
 
 .nav-next:hover:not(:disabled) {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #ffffff;
   transform: translateY(-2px);
-  background: #334155;
-}
-
-.nav-next:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.25);
 }
 
 .nav-prev {
@@ -1024,13 +1033,35 @@ const formatSentence = (s, word) => {
 }
 
 .nav-prev:hover:not(:disabled) {
-  background: #f8fafc;
-  color: #0f172a;
+  background: #f0fdf4;
+  border-color: #27ae60;
+  color: #27ae60;
+  transform: translateY(-2px);
 }
 
+/* ⚡ 键盘切换时的微缩放与发光高亮类 */
+.nav-next.is-active:not(:disabled) {
+  background: #6bb392!important;
+  border-color: #6bb392 !important;
+  color: #ffffff !important;
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.4);
+}
+
+.nav-prev.is-active:not(:disabled) {
+  background: #6bb392!important;
+  border-color: #6bb392 !important;
+  color: #ffffff !important;
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.nav-next:disabled,
 .nav-prev:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .voice-btn {
@@ -1138,13 +1169,10 @@ const formatSentence = (s, word) => {
 }
 
 @keyframes plankton-life {
-
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1) rotate(0deg);
     filter: drop-shadow(0 0 0px rgba(39, 174, 96, 0));
   }
-
   50% {
     transform: scale(1.1) rotate(3deg);
     filter: drop-shadow(0 0 3px rgba(39, 174, 96, 0.4));
@@ -1163,15 +1191,8 @@ const formatSentence = (s, word) => {
 }
 
 @keyframes led-blink {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 ::-webkit-scrollbar {
