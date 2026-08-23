@@ -185,7 +185,7 @@ const games = ref([
     },
     {
         id: 'badminton',
-        name: '扣杀！Smash Time',
+        name: '扣杀！',
         isVue: true,
         icon: '🏸',
         color: '#0b6b4f', // 赛场绿/活力黄风格色
