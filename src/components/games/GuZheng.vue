@@ -4,18 +4,52 @@
 
     <div v-if="!isLoaded && words.length > 0" class="loading-overlay">
       <div class="loader"></div>
-      <p class="loading-text">正在校准《将军令》古法金谱...</p>
+      <p class="loading-text">正在校准《{{ currentPiece.name }}》古法金谱...</p>
     </div>
 
     <div class="game-header">
       <div class="brand-box">
         <span class="brand-tag">- Guzheng echo -</span>
-        <h2 class="game-title">{{ isAutoPlaying ? '全曲演奏中 · 摇指' : '拨词 · 将军令' }}</h2>
+        <h2 class="game-title">
+          {{ isAutoPlaying ? `全曲演奏中 · ${currentPiece.technique}` : `拨词 · ${currentPiece.name}` }}
+        </h2>
       </div>
-      <div class="stat-group" v-if="!isAutoPlaying">
-        <div class="stat-item highlight">
-          <span class="label">SCORE：</span>
-          <span class="value">{{ score }}</span>
+
+      <div class="header-right-controls" v-if="!isAutoPlaying">
+        <!-- 考级难度/曲目选择器 -->
+        <div class="level-selector-wrapper">
+          <button class="level-btn" @click.stop="showLevelMenu = !showLevelMenu">
+            <span class="level-badge">{{ currentPiece.levelTag }}</span>
+            <span class="piece-title">{{ currentPiece.name }}</span>
+            <span class="arrow-icon" :class="{ 'is-open': showLevelMenu }">▾</span>
+          </button>
+          
+          <transition name="dropdown">
+            <div v-if="showLevelMenu" class="level-dropdown-menu" @click.stop>
+              <div class="menu-scroll-container">
+                <div 
+                  v-for="piece in PIECE_LEVELS" 
+                  :key="piece.id" 
+                  class="menu-item"
+                  :class="{ 'is-active': piece.id === currentPiece.id }"
+                  @click="changePiece(piece)"
+                >
+                  <div class="item-header">
+                    <span class="item-level">{{ piece.levelTag }}</span>
+                    <span class="item-name">{{ piece.name }}</span>
+                  </div>
+                  <div class="item-tech">技法：{{ piece.technique }}</div>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+
+        <div class="stat-group">
+          <div class="stat-item highlight">
+            <span class="label">SCORE：</span>
+            <span class="value">{{ score }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -49,7 +83,7 @@
       </div>
 
       <div v-else class="word-card auto-mode">
-        <div class="auto-word-tag">技法：大撮 / 摇指</div>
+        <div class="auto-word-tag">技法：{{ currentPiece.technique }}</div>
         <transition name="fade-fast" mode="out-in">
           <div :key="'auto-word-' + autoPlayIndex" class="sentence-reveal" v-if="words[autoPlayIndex]">
              <p class="play-done">{{ words[autoPlayIndex].en.toLowerCase() }}</p>
@@ -83,9 +117,9 @@
     <transition name="fade">
       <div v-if="isFinished && !isAutoPlaying" class="result-overlay">
         <div class="result-card">
-          <div class="result-header">合奏圆满</div>
+          <div class="result-header">合奏圆满 · 《{{ currentPiece.name }}》</div>
           <div class="result-score">{{ score }}</div>
-          <div class="achievement-tag">获得评价：金弦摇指</div>
+          <div class="achievement-tag">获得评价：{{ currentPiece.levelTag }}·金弦通关</div>
           <button class="primary-btn" @click="startFullShow">展示完整成果</button>
           <button class="secondary-btn" @click="initGame">重新练习</button>
         </div>
@@ -99,8 +133,71 @@ import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue';
 import * as Tone from 'tone';
 
 const props = defineProps({ wordList: Array });
-const JIANG_JUN_LING = ["D3", "D3", "E3", "G3", "A3", "A3", "G3", "A3", "D4", "B3", "A3", "G3", "E3", "D3", "E3", "G3", "A3", "G3", "E3", "D3", "B2", "D3", "D3"];
+
+// 扩充后的 8 大考级曲目库（精细化调整原曲音程与节奏感）
+const PIECE_LEVELS = [
+  {
+    id: 'lvl1_1',
+    levelTag: '一级 · 入门',
+    name: '沧海一声笑',
+    technique: '托 / 抹 / 勾',
+    notes: ["G4", "E4", "D4", "C4", "A3", "C4", "D4", "E4", "G4", "E4", "D4", "C4", "D4"]
+  },
+  {
+    id: 'lvl1_2',
+    levelTag: '一级 · 经典',
+    name: '关山月',
+    technique: '托劈 / 勾托',
+    notes: ["G3", "C4", "D4", "E4", "G4", "E4", "D4", "C4", "A3", "C4", "D4", "E4", "D4", "C4"]
+  },
+  {
+    id: 'lvl4_1',
+    levelTag: '四级 · 基础',
+    name: '高山流水',
+    technique: '吟弦 / 按音',
+    notes: ["D3", "G3", "A3", "C4", "D4", "E4", "G4", "A4", "C5", "A4", "G4", "E4", "D4", "C4", "A3", "G3"]
+  },
+  {
+    id: 'lvl4_2',
+    levelTag: '四级 · 进阶',
+    name: '渔舟唱晚',
+    technique: '花指 / 勾托抹托',
+    notes: ["D4", "E4", "G4", "A4", "C5", "D5", "C5", "A4", "G4", "E4", "D4", "E4", "G4", "A4", "G4", "E4", "D4"]
+  },
+  {
+    id: 'lvl6',
+    levelTag: '六级 · 中阶',
+    name: '寒鸦戏水',
+    technique: '按颤音 / 双弹',
+    notes: ["A3", "C4", "E4", "F4", "A4", "B4", "A4", "F4", "E4", "C4", "B3", "A3", "C4", "E4", "A4"]
+  },
+  {
+    id: 'lvl7',
+    levelTag: '七级 · 高阶',
+    name: '战台风',
+    technique: '快四点 / 扫摇',
+    notes: ["D3", "D3", "E3", "G3", "A3", "C4", "D4", "D4", "E4", "D4", "C4", "A3", "G3", "E3", "D3", "E3", "G3", "A3"]
+  },
+  {
+    id: 'lvl8',
+    levelTag: '八级 · 演奏级',
+    name: '将军令',
+    technique: '大撮 / 连续摇指',
+    notes: ["D3", "D3", "E3", "G3", "A3", "A3", "G3", "A3", "D4", "B3", "A3", "G3", "E3", "D3", "E3", "G3", "A3", "G3", "E3", "D3", "B2", "D3", "D3"]
+  },
+  {
+    id: 'lvl10',
+    levelTag: '十级 · 专业级',
+    name: '雪山春晓',
+    technique: '快速指序 / 轮指',
+    notes: ["E4", "G4", "A4", "C5", "D5", "E5", "G5", "E5", "D5", "C5", "A4", "G4", "E4", "G4", "A4", "C5", "A4", "G4", "E4", "D4", "C4"]
+  }
+];
+
 const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
+const currentPiece = ref(PIECE_LEVELS[0]);
+const showLevelMenu = ref(false);
 
 const words = ref([]);
 const currentIndex = ref(0);
@@ -128,7 +225,12 @@ const progressPercentage = computed(() => {
   return ((idx + 1) / words.value.length) * 100;
 });
 
-// 修复后的高亮逻辑
+const changePiece = (piece) => {
+  currentPiece.value = piece;
+  showLevelMenu.value = false;
+  initGame();
+};
+
 const highlightWord = (s, target) => {
   if (!s) return "";
   const word = (target || currentWord.value.en || "").trim();
@@ -148,7 +250,8 @@ const initAudio = () => {
 
 const playNote = (key, mode = 'manual') => {
   if (!isLoaded.value || !sampler) return;
-  const note = JIANG_JUN_LING[melodyStep % JIANG_JUN_LING.length];
+  const currentMelody = currentPiece.value.notes;
+  const note = currentMelody[melodyStep % currentMelody.length];
   const now = Tone.now();
   if (mode === 'auto') {
     sampler.triggerAttackRelease(note, "1n", now, 0.9);
@@ -247,12 +350,17 @@ const initGame = () => {
   }
 };
 
-const handleGlobalClick = async () => { if (Tone.context.state !== 'running') await Tone.start(); };
+const handleGlobalClick = async () => { 
+  if (showLevelMenu.value) showLevelMenu.value = false;
+  if (Tone.context.state !== 'running') await Tone.start(); 
+};
+
 const getCharClass = (i) => {
   const c = currentWordText.value[i];
   if (!/[a-z]/.test(c)) return 'char-symbol';
   return i < charIndex.value ? 'char-done' : (i === charIndex.value ? 'char-active' : 'char-pending');
 };
+
 const isGreenString = (k) => (alphabet.indexOf(k) + 1) % 5 === 0;
 
 onMounted(() => {
@@ -263,9 +371,6 @@ onMounted(() => {
   };
   window.addEventListener('keydown', keyHandler);
   onUnmounted(() => { isUnmounted = true; window.removeEventListener('keydown', keyHandler); });
-  // setTimeout(() => {
-  //   startFullShow();
-  // }, 1000);
 });
 
 watch(() => props.wordList, initGame, { immediate: true });
@@ -276,15 +381,74 @@ watch(() => props.wordList, initGame, { immediate: true });
 
 .guzheng-game-container { width: 100%; height: 100%; background: #050505; display: flex; flex-direction: column; position: relative; color: #b89c6d; font-family: 'Noto Serif SC', serif; overflow: hidden; }
 .bg-decoration { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(184, 156, 109, 0.05) 0%, transparent 70%); pointer-events: none; }
-.game-header { padding: 40px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 10; }
+.game-header { padding: 40px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 30; }
 .game-title { margin: 0; font-size: 26px; color: #d4af37; letter-spacing: 4px; text-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+
+.header-right-controls { display: flex; align-items: center; gap: 24px; }
+
+.level-selector-wrapper { position: relative; }
+.level-btn {
+  background: rgba(184, 156, 109, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 8px 16px;
+  color: #d4af37;
+  font-family: 'Noto Serif SC', serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.level-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+.level-badge { background: #d4af37; color: #000; font-size: 11px; padding: 2px 6px; font-weight: 600; }
+.piece-title { font-size: 14px; letter-spacing: 1px; }
+.arrow-icon { font-size: 12px; transition: transform 0.3s ease; }
+.arrow-icon.is-open { transform: rotate(180deg); }
+
+.level-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  background: #0a0908;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  z-index: 50;
+}
+.menu-scroll-container {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.menu-scroll-container::-webkit-scrollbar { width: 4px; }
+.menu-scroll-container::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); }
+
+.menu-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(184, 156, 109, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:hover, .menu-item.is-active {
+  background: rgba(212, 175, 55, 0.12);
+}
+.menu-item.is-active .item-name { color: #d4af37; }
+.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.item-level { font-size: 11px; opacity: 0.6; color: #b89c6d; }
+.item-name { font-size: 14px; color: #e5e5e5; font-weight: 600; }
+.item-tech { font-size: 11px; opacity: 0.5; color: #b89c6d; }
 
 .progress-bar-container { position: absolute; top: 10px; width: 50%; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20; left: 25%; pointer-events: none; }
 .progress-track { width: 100%; height: 1px; background: rgba(184, 156, 109, 0.1); }
 .progress-fill { height: 100%; background: #d4af37; transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px #d4af37; }
 .progress-counter { font-size: 10px; opacity: 0.5; letter-spacing: 3px; font-weight: 300; }
 
-/* 增加顶部内边距，防止内容与进度条重叠 */
 .word-stage { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding-top: 60px; }
 
 .word-display { font-size: 5.5rem; font-weight: 600; letter-spacing: 12px; display: flex; gap: 5px; }
@@ -293,7 +457,6 @@ watch(() => props.wordList, initGame, { immediate: true });
 .char-done { color: #221d17; }
 .char-pending { opacity: 0.05; }
 
-/* --- 极简古风：文字外圈晕染发光效果 --- */
 .play-done {
   font-family: "Noto Serif SC", serif;
   font-size: 5rem;
@@ -301,7 +464,6 @@ watch(() => props.wordList, initGame, { immediate: true });
   letter-spacing: 20px;
   margin: 0;
   color: #fdfaf2; 
-  /* 三层发光：核心、扩散、外圈晕染 */
   text-shadow: 
     0 0 5px rgba(212, 175, 55, 0.8),
     0 0 15px rgba(212, 175, 55, 0.4),
@@ -321,7 +483,6 @@ watch(() => props.wordList, initGame, { immediate: true });
 .sentence-en { font-size: 1.6rem; color: #ccc; font-weight: 300; font-style: italic; max-width: 850px; line-height: 1.8; }
 .sentence-en.large { font-size: 2.2rem; color: #fff; line-height: 1.6; text-shadow: 0 0 40px rgba(212, 175, 55, 0.5); }
 
-/* 句子中的单词高亮样式 */
 :deep(.word-highlight) {
   color: #d4af37 !important;
   font-weight: 600;
@@ -330,7 +491,6 @@ watch(() => props.wordList, initGame, { immediate: true });
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
-/* 琴弦板 */
 .guzheng-board { height: 200px; display: flex; padding: 0 60px; border-top: 1px solid rgba(184, 156, 109, 0.05); }
 .string-wrapper { flex: 1; display: flex; justify-content: center; cursor: pointer; padding: 0 5px; }
 .string { 
@@ -357,4 +517,7 @@ watch(() => props.wordList, initGame, { immediate: true });
 .result-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.97); display: flex; justify-content: center; align-items: center; z-index: 100; }
 .primary-btn { background: #d4af37; color: #000; border: none; padding: 20px 60px; font-size: 16px; cursor: pointer; margin: 15px; letter-spacing: 2px; }
 .secondary-btn { background: none; border: 1px solid #d4af37; color: #d4af37; padding: 20px 60px; cursor: pointer; margin: 15px; letter-spacing: 2px; }
+
+.dropdown-enter-active, .dropdown-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-8px); }
 </style>
