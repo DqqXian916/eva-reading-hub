@@ -5,7 +5,7 @@
     <div class="gallery-header">
       <div class="brand-box">
         <span class="brand-tag">- SILK & INK ART -</span>
-        <h2 class="gallery-title">{{ isAdminMode ? '天工物志 · 馆藏管理' : '教研工坊 · 艺术画廊' }}</h2>
+        <h2 class="gallery-title">{{ isAdminMode ? '天工物志 · 馆藏管理' : '艺术画廊' }}</h2>
       </div>
       
       <div class="action-group">

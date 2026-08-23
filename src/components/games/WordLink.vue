@@ -1,19 +1,11 @@
 <template>
-  <div class="word-match-viewport">
-    <!-- 后台配置弹窗 -->
-    <div v-if="showAdmin" class="overlay" @click="showAdmin = false"></div>
-    <div v-if="showAdmin" class="admin-panel">
-      <h3>词库配置</h3>
-      <textarea v-model="configText" placeholder="请输入 JSON 格式词库"></textarea>
-      <button class="btn main-action-btn" @click="handleSaveConfig">保存并重启</button>
-    </div>
-
+  <div class="word-match-viewport" :class="`phase-round-${currentRound}`">
     <div id="game-container">
-      <!-- 森林晨露风格 Header -->
+      <!-- Header：极简流光气泡 -->
       <div class="game-header">
-        <div class="header-pill">
-          <span class="leaf-icon">🍃</span>
-          <span class="text">ROUND {{ currentRound }} / 3</span>
+        <div class="header-pill title-pill">
+          <span class="icon">{{ roundIcons[currentRound - 1] }}</span>
+          <span class="text">{{ roundTitles[currentRound - 1] }}</span>
         </div>
 
         <div class="header-pill progress-pill">
@@ -27,95 +19,129 @@
 
         <div class="header-actions">
           <button class="icon-btn" @click="startRound(currentRound)" title="重新洗牌">↺</button>
-          <button v-if="canEdit" class="icon-btn" @click="showAdmin = true">⚙️</button>
         </div>
       </div>
 
-      <!-- 🌿 森系卡牌场域 (Forest Floating Zone) -->
+      <!-- 🌌 极简天地灵动场域 -->
       <div 
         class="forest-field" 
         ref="boardRef" 
         v-if="gameStore.wordList.length > 0 && !isGameFinished"
         @mousemove="handlePointerMove"
       >
-        <!-- 藤蔓/微光能量牵引线 (SVG) -->
+        <!-- 💧 浇灌灵动粒子 Canvas 层 -->
+        <canvas ref="particleCanvasRef" class="particle-layer"></canvas>
+
+        <!-- 灵动连线 SVG -->
         <svg class="energy-layer">
           <defs>
-            <linearGradient id="forestBeam" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#10b981" />
-              <stop offset="100%" stop-color="#84cc16" />
+            <linearGradient id="rainLine" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#22c55e" />
+            </linearGradient>
+            <linearGradient id="earthLine" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#4ade80" />
+              <stop offset="100%" stop-color="#38bdf8" />
             </linearGradient>
           </defs>
 
-          <!-- 静态已配对链接痕迹 -->
-          <line
-            v-for="link in matchedLinks"
-            :key="link.id"
-            :x1="link.x1" :y1="link.y1"
-            :x2="link.x2" :y2="link.y2"
-            stroke="rgba(16, 185, 129, 0.3)"
-            stroke-width="2"
-            stroke-dasharray="4,6"
-          />
-
-          <!-- 鼠标实时牵引绿色藤蔓线 -->
-          <path
-            v-if="selectedCardPos && pointerPos"
-            :d="getTetherPath(selectedCardPos.x, selectedCardPos.y, pointerPos.x, pointerPos.y)"
-            fill="none"
-            stroke="url(#forestBeam)"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            class="active-tether"
-          />
+          <g v-if="selectedCard && selectedCardPos && pointerPos">
+            <!-- 底层柔和发光轨道 -->
+            <path
+              :d="getTetherPath(selectedCardPos.x, selectedCardPos.y, pointerPos.x, pointerPos.y)"
+              fill="none"
+              :stroke="selectedCard.type === 'cn' ? 'rgba(56, 189, 248, 0.25)' : 'rgba(74, 222, 128, 0.25)'"
+              :stroke-width="4 + currentRound"
+              stroke-linecap="round"
+            />
+            <!-- 动态流向粒子线 -->
+            <path
+              :d="getTetherPath(selectedCardPos.x, selectedCardPos.y, pointerPos.x, pointerPos.y)"
+              fill="none"
+              :stroke="selectedCard.type === 'cn' ? 'url(#rainLine)' : 'url(#earthLine)'"
+              :stroke-width="2 + currentRound * 0.5"
+              stroke-linecap="round"
+              :class="[
+                'active-tether',
+                selectedCard.type === 'cn' ? 'rain-drop-flow' : 'earth-glow-flow'
+              ]"
+            />
+          </g>
         </svg>
 
-        <!-- 悬浮单词卡片节点 -->
+        <!-- 极简节点 -->
         <div
           v-for="card in activeNodes"
           :key="card.id"
           :ref="(el) => setCardRef(el, card.id)"
           class="word-node"
-          :class="{
-            'is-en': card.type === 'en',
-            'is-cn': card.type === 'cn',
-            'is-selected': selectedCard?.id === card.id,
-            'is-matched': card.isMatched,
-            'is-error': errorCardIds.includes(card.id)
-          }"
+          :class="[
+            `level-${currentRound}`,
+            {
+              'is-en': card.type === 'en',
+              'is-cn': card.type === 'cn',
+              'is-selected': selectedCard?.id === card.id,
+              'is-matched': card.isMatched,
+              'is-error': errorCardIds.includes(card.id)
+            }
+          ]"
           :style="getNodeStyle(card)"
           @click="handleNodeClick($event, card)"
         >
-          <div class="node-content">
-            <span class="node-type-tag">{{ card.type === 'en' ? 'EN' : 'CN' }}</span>
+          <!-- 💧 中文：水滴形态 -->
+          <div v-if="card.type === 'cn'" class="node-content pure-drop">
+            <span class="drop-icon">💧</span>
+            <span class="drop-light"></span>
             <span class="node-text">{{ card.text }}</span>
-            <button v-if="card.type === 'en'" class="audio-pulse" @click.stop="speak(card.text)">
+          </div>
+
+          <!-- 🌱 英文：树苗胶囊形态 -->
+          <div v-else class="node-content pure-leaf">
+            <div class="sprout-icon">
+              <svg v-if="currentRound === 1" viewBox="0 0 24 24" width="18" height="18" fill="none">
+                <path d="M12 20V11" stroke="#16a34a" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 12C12 12 8 11 7 7C11 7 12 10 12 10Z" fill="#bbf7d0" stroke="#16a34a" />
+              </svg>
+              <svg v-else-if="currentRound === 2" viewBox="0 0 24 24" width="20" height="20" fill="none">
+                <path d="M12 22V9" stroke="#15803d" stroke-width="2" stroke-linecap="round" />
+                <path d="M12 14C12 14 6 12 5 7C11 7 12 12 12 12Z" fill="#4ade80" stroke="#15803d" />
+                <circle cx="12" cy="6" r="2.5" fill="#fef08a" stroke="#ca8a04" />
+              </svg>
+              <svg v-else viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M12 22V7" stroke="#14532d" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M12 15C12 15 3 13 2 6C10 6 12 13 12 13Z" fill="#86efac" stroke="#15803d" />
+                <path d="M12 11C12 11 21 9 22 3C14 3 12 9 12 9Z" fill="#eab308" stroke="#ca8a04" />
+              </svg>
+            </div>
+
+            <span class="node-text">{{ card.text }}</span>
+            <!-- <button 
+              class="audio-btn" 
+              @click.stop.prevent="speak(card.text)" 
+              title="朗读"
+            >
               🔊
-            </button>
+            </button> -->
           </div>
         </div>
       </div>
 
-      <!-- 结算界面 -->
+      <!-- 空灵结算界面 -->
       <div v-else-if="isGameFinished" class="finish-zone">
-        <div class="forest-trophy">🌱</div>
-        <h2>自然共鸣完成</h2>
-        <p>你以敏捷的记忆净化了所有卡牌，最高连击 <strong>{{ maxCombo }}</strong> 次</p>
-        <button class="btn main-action-btn" @click="initGame">再次探索森林</button>
+        <div class="finish-icon">🌳</div>
+        <h2> 万物蔚然</h2>
+        <p>最高连击 <strong>{{ maxCombo }}</strong> 次</p>
+        <button class="btn main-action-btn" @click="initGame">再次开启共鸣</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useGameStore } from '../../stores/gameStore'
-import confetti from 'canvas-confetti'
 
-const props = defineProps({ canEdit: Boolean })
-const emit = defineEmits(['updateConfig', 'saveConfig'])
 const gameStore = useGameStore()
-
 const WORDS_PER_ROUND = 5
 const currentRound = ref(1)
 const activeNodes = ref([])
@@ -125,14 +151,18 @@ const combo = ref(0)
 const maxCombo = ref(0)
 const isGameFinished = ref(false)
 
-const matchedLinks = ref([])
-const pointerPos = ref(null)
-const showAdmin = ref(false)
-const configText = ref('')
+// 简短干练的二字文案
+const roundTitles = ['晨露', '甘霖', '蔚然']
+const roundIcons = ['💧', '🌿', '✨']
 
+const pointerPos = ref(null)
 const boardRef = ref(null)
+const particleCanvasRef = ref(null)
 const nodeRefs = new Map()
+
 let audioCtx = null
+let particles = []
+let animationFrameId = null
 
 const setCardRef = (el, id) => { if (el) nodeRefs.set(id, el) }
 
@@ -151,6 +181,219 @@ const selectedCardPos = computed(() => {
   }
 })
 
+/* ================= 🍃 Web Audio API 沉稳自然声音合成器 ================= */
+const initAudioContext = () => {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume()
+  }
+}
+
+/**
+ * 💧 1. 匹配成功：沉稳水滴与深潭回响
+ * 降低了基频，使用正弦波与三角波混合，营造饱满、润泽的低频甘霖感。
+ */
+const playWaterDropSound = () => {
+  initAudioContext()
+  if (!audioCtx) return
+
+  const now = audioCtx.currentTime
+  
+  // 主水滴（正弦波，低频，厚重）
+  const osc1 = audioCtx.createOscillator()
+  const gain1 = audioCtx.createGain()
+  // 基频从 1200Hz 降至 600Hz，显得更沉稳饱满
+  const baseFreq = 600 + combo.value * 50 
+  osc1.type = 'sine'
+  osc1.frequency.setValueAtTime(baseFreq * 0.8, now)
+  osc1.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.05)
+  osc1.frequency.exponentialRampToValueAtTime(baseFreq * 0.9, now + 0.15)
+  
+  gain1.gain.setValueAtTime(0.01, now)
+  gain1.gain.linearRampToValueAtTime(0.18, now + 0.03) // 增加音量
+  gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3) // 延长余音
+
+  // 深潭共鸣（三角波，极低频，增加厚度）
+  const osc2 = audioCtx.createOscillator()
+  const gain2 = audioCtx.createGain()
+  osc2.type = 'triangle'
+  osc2.frequency.setValueAtTime(baseFreq * 0.3, now)
+  
+  gain2.gain.setValueAtTime(0.01, now)
+  gain2.gain.linearRampToValueAtTime(0.06, now + 0.08)
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5) // 更长的低频衰减
+
+  osc1.connect(gain1); gain1.connect(audioCtx.destination)
+  osc2.connect(gain2); gain2.connect(audioCtx.destination)
+
+  osc1.start(now); osc1.stop(now + 0.3)
+  osc2.start(now); osc2.stop(now + 0.5)
+}
+
+/**
+ * 🍃 2. 匹配错误：大地地气震动声
+ * 替换了高频白噪声，使用棕色噪声（Brown Noise，低频更多）并经过低通滤波，模拟深沉的土石摩擦或地气震动。
+ */
+const playWindRustleSound = () => {
+  initAudioContext()
+  if (!audioCtx) return
+
+  const bufferSize = audioCtx.sampleRate * 0.3 // 增加时长
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  
+  // 生成棕色噪声 ( Brown Noise: 低频能量远高于高频 )
+  let lastOut = 0.0
+  for (let i = 0; i < bufferSize; i++) {
+    let white = Math.random() * 2 - 1
+    data[i] = (lastOut + (0.02 * white)) / 1.02
+    lastOut = data[i]
+    data[i] *= 3.5 // 补偿棕色噪声较低的音量
+  }
+
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+
+  // 低通滤波器：彻底切除高频，留下沉稳的低频地气感
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.setValueAtTime(300, audioCtx.currentTime) // 极低截止频率
+  filter.Q.setValueAtTime(1.0, audioCtx.currentTime)
+
+  const gain = audioCtx.createGain()
+  const now = audioCtx.currentTime
+  gain.gain.setValueAtTime(0.01, now)
+  gain.gain.linearRampToValueAtTime(0.1, now + 0.08) // 稍微增大音量
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3) // 延长时长
+
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+
+  noise.start(now)
+  noise.stop(now + 0.3)
+}
+
+/**
+ * 🐦 3. 关卡开启/切换：空谷幽琴（降调鸟鸣，模拟悠扬木琴）
+ * 将鸟鸣音效降调、放慢攻击速度，模拟空谷中悠扬、沉稳的木琴或石磬声。
+ */
+const playBirdChirpSound = () => {
+  initAudioContext()
+  if (!audioCtx) return
+
+  const now = audioCtx.currentTime
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+
+  osc.type = 'sine'
+  // 将频率从 2400Hz 左右降至 500Hz 左右，模拟木质共鸣
+  osc.frequency.setValueAtTime(450, now)
+  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08)
+  osc.frequency.exponentialRampToValueAtTime(400, now + 0.18)
+  osc.frequency.exponentialRampToValueAtTime(550, now + 0.28)
+
+  // 柔和的攻击（Attack）曲线
+  gain.gain.setValueAtTime(0.001, now)
+  gain.gain.linearRampToValueAtTime(0.1, now + 0.06) // 较慢的淡入
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4) // 较长的衰减
+
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+
+  osc.start(now)
+  osc.stop(now + 0.4)
+}
+
+/* ================= 🌊 Canvas 粒子系统 ================= */
+class WaterLeafParticle {
+  constructor(x, y) {
+    this.x = x
+    this.y = y
+    this.type = Math.random() > 0.4 ? 'water' : 'leaf'
+    const angle = Math.random() * Math.PI * 2
+    const speed = 2 + Math.random() * 5
+
+    this.vx = Math.cos(angle) * speed
+    this.vy = Math.sin(angle) * speed - (this.type === 'leaf' ? 1.5 : 0.5)
+    this.radius = this.type === 'water' ? 2 + Math.random() * 3.5 : 3 + Math.random() * 2
+    this.alpha = 1
+    this.decay = 0.015 + Math.random() * 0.02
+    this.gravity = this.type === 'water' ? 0.15 : 0.04
+    this.rotation = Math.random() * Math.PI * 2
+    this.rotSpeed = (Math.random() - 0.5) * 0.1
+    this.color = this.type === 'water' 
+      ? `rgba(${56 + Math.floor(Math.random() * 50)}, ${189 + Math.floor(Math.random() * 50)}, 248,`
+      : `rgba(${74 + Math.floor(Math.random() * 50)}, ${222 + Math.floor(Math.random() * 30)}, 128,`
+  }
+
+  update() {
+    this.x += this.vx
+    this.y += this.vy
+    this.vy += this.gravity
+    this.vx *= 0.98
+    this.rotation += this.rotSpeed
+    this.alpha -= this.decay
+  }
+
+  draw(ctx) {
+    ctx.save()
+    ctx.globalAlpha = Math.max(0, this.alpha)
+    ctx.translate(this.x, this.y)
+    ctx.rotate(this.rotation)
+
+    if (this.type === 'water') {
+      ctx.beginPath()
+      ctx.arc(0, 0, this.radius, 0, Math.PI * 2)
+      ctx.fillStyle = `${this.color} ${this.alpha})`
+      ctx.fill()
+    } else {
+      ctx.beginPath()
+      ctx.ellipse(0, 0, this.radius * 1.8, this.radius * 0.8, 0, 0, Math.PI * 2)
+      ctx.fillStyle = `${this.color} ${this.alpha})`
+      ctx.fill()
+    }
+    ctx.restore()
+  }
+}
+
+const triggerWaterSplash = (x, y) => {
+  if (!boardRef.value) return
+  const rect = boardRef.value.getBoundingClientRect()
+  const localX = x - rect.left
+  const localY = y - rect.top
+
+  const particleCount = 28 + currentRound.value * 8
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new WaterLeafParticle(localX, localY))
+  }
+}
+
+const renderParticles = () => {
+  if (!particleCanvasRef.value) return
+  const canvas = particleCanvasRef.value
+  const ctx = canvas.getContext('2d')
+
+  if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
+    canvas.width = canvas.clientWidth
+    canvas.height = canvas.clientHeight
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i]
+    p.update()
+    p.draw(ctx)
+    if (p.alpha <= 0) particles.splice(i, 1)
+  }
+
+  animationFrameId = requestAnimationFrame(renderParticles)
+}
+
+/* ================= 游戏交互逻辑 ================= */
 const initGame = () => {
   currentRound.value = 1
   combo.value = 0
@@ -159,90 +402,63 @@ const initGame = () => {
   startRound(1)
 }
 
-// 严格受控的网格+微抖动分布算法，避免超界与卡牌重叠
 const startRound = (roundNum) => {
   if (!gameStore.wordList || gameStore.wordList.length === 0) return
-  matchedLinks.value = []
   selectedCard.value = null
+  pointerPos.value = null
   errorCardIds.value = []
+
+  playBirdChirpSound() // 播放悠扬空谷琴音
 
   const shuffled = [...gameStore.wordList].sort(() => Math.random() - 0.5)
   const activeWords = shuffled.slice(0, WORDS_PER_ROUND)
 
-  // 10 个卡牌的受控预设坐标网格 (X: 12%~82%, Y: 18%~78%)
-  const gridPositions = [
-    { x: 14, y: 20 }, { x: 50, y: 18 }, { x: 82, y: 22 },
-    { x: 26, y: 48 }, { x: 72, y: 46 },
-    { x: 12, y: 76 }, { x: 48, y: 78 }, { x: 84, y: 74 },
-    { x: 38, y: 28 }, { x: 62, y: 68 }
-  ].sort(() => Math.random() - 0.5)
+  const cnSlots = [{ x: 18, y: 18 }, { x: 38, y: 32 }, { x: 52, y: 16 }, { x: 70, y: 35 }, { x: 85, y: 20 }].sort(() => Math.random() - 0.5)
+  const enSlots = [{ x: 15, y: 68 }, { x: 34, y: 82 }, { x: 50, y: 65 }, { x: 68, y: 84 }, { x: 85, y: 70 }].sort(() => Math.random() - 0.5)
 
   let pool = []
   activeWords.forEach((item, i) => {
     const pairId = item.id || item.en || i
-    
-    // 中文节点
-    const pos1 = gridPositions.pop()
+    const cnSlot = cnSlots.pop()
     pool.push({
       id: `cn-${roundNum}-${i}-${Math.random()}`,
       pairId, type: 'cn', text: item.cn, isMatched: false,
-      seedX: pos1.x, seedY: pos1.y,
-      duration: 3.5 + Math.random() * 2,
-      delay: Math.random() * -4
+      seedX: cnSlot.x, seedY: cnSlot.y,
+      duration: 4 + Math.random() * 2, delay: Math.random() * -4
     })
 
-    // 英文节点
-    const pos2 = gridPositions.pop()
+    const enSlot = enSlots.pop()
     pool.push({
       id: `en-${roundNum}-${i}-${Math.random()}`,
       pairId, type: 'en', text: item.en, isMatched: false,
-      seedX: pos2.x, seedY: pos2.y,
-      duration: 3.5 + Math.random() * 2,
-      delay: Math.random() * -4
+      seedX: enSlot.x, seedY: enSlot.y,
+      duration: 4 + Math.random() * 2, delay: Math.random() * -4
     })
   })
 
   activeNodes.value = pool
 }
 
-const getNodeStyle = (card) => {
-  return {
-    left: `${card.seedX}%`,
-    top: `${card.seedY}%`,
-    animationDuration: `${card.duration}s`,
-    animationDelay: `${card.delay}s`
-  }
-}
+const getNodeStyle = (card) => ({
+  left: `${card.seedX}%`, top: `${card.seedY}%`,
+  animationDuration: `${card.duration}s`, animationDelay: `${card.delay}s`
+})
 
 const handlePointerMove = (e) => {
   if (!selectedCard.value || !boardRef.value) return
   const bRect = boardRef.value.getBoundingClientRect()
-  pointerPos.value = {
-    x: e.clientX - bRect.left,
-    y: e.clientY - bRect.top
-  }
+  pointerPos.value = { x: e.clientX - bRect.left, y: e.clientY - bRect.top }
 }
 
 const handleNodeClick = (event, card) => {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  initAudioContext()
   if (card.isMatched || errorCardIds.value.length > 0) return
 
   if (card.type === 'en') speak(card.text)
 
-  if (!selectedCard.value) {
-    selectedCard.value = card
-    return
-  }
-
-  if (selectedCard.value.id === card.id) {
-    selectedCard.value = null
-    return
-  }
-
-  if (selectedCard.value.type === card.type) {
-    selectedCard.value = card
-    return
-  }
+  if (!selectedCard.value) { selectedCard.value = card; return }
+  if (selectedCard.value.id === card.id) { selectedCard.value = null; pointerPos.value = null; return }
+  if (selectedCard.value.type === card.type) { selectedCard.value = card; return }
 
   const c1 = selectedCard.value
   const c2 = card
@@ -253,9 +469,10 @@ const handleNodeClick = (event, card) => {
     combo.value++
     if (combo.value > maxCombo.value) maxCombo.value = combo.value
 
-    playSuccessSound()
-    triggerConfetti(event.clientX, event.clientY)
+    playWaterDropSound() // 播放沉稳润泽的水滴音效
+    triggerWaterSplash(event.clientX, event.clientY)
     selectedCard.value = null
+    pointerPos.value = null
 
     if (roundMatchedCount.value === currentWordsCount.value) {
       setTimeout(handleRoundComplete, 600)
@@ -263,43 +480,19 @@ const handleNodeClick = (event, card) => {
   } else {
     combo.value = 0
     errorCardIds.value = [c1.id, c2.id]
+    playWindRustleSound() // 播放沉闷大地地气震动声
     setTimeout(() => {
       errorCardIds.value = []
       selectedCard.value = null
+      pointerPos.value = null
     }, 450)
   }
 }
 
 const getTetherPath = (x1, y1, x2, y2) => {
   const mx = (x1 + x2) / 2
-  const my = (y1 + y2) / 2 - 15
+  const my = (y1 + y2) / 2
   return `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`
-}
-
-const playSuccessSound = () => {
-  if (!audioCtx) return
-  const now = audioCtx.currentTime
-  const osc = audioCtx.createOscillator()
-  const gain = audioCtx.createGain()
-  osc.type = 'sine'
-  osc.frequency.setValueAtTime(523.25 + combo.value * 40, now)
-  osc.frequency.exponentialRampToValueAtTime(880, now + 0.15)
-  gain.gain.setValueAtTime(0.12, now)
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
-  osc.connect(gain)
-  gain.connect(audioCtx.destination)
-  osc.start(now)
-  osc.stop(now + 0.2)
-}
-
-const triggerConfetti = (x, y) => {
-  confetti({
-    particleCount: 12,
-    spread: 50,
-    origin: { x: x / window.innerWidth, y: y / window.innerHeight },
-    colors: ['#10b981', '#84cc16', '#a7f3d0'],
-    scalar: 0.7
-  })
 }
 
 const handleRoundComplete = () => {
@@ -308,253 +501,227 @@ const handleRoundComplete = () => {
     startRound(currentRound.value)
   } else {
     isGameFinished.value = true
+    playBirdChirpSound()
   }
 }
 
 const speak = (text) => {
   if (!text || !('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
+  
   const msg = new SpeechSynthesisUtterance(text)
   msg.lang = 'en-US'
-  window.speechSynthesis.speak(msg)
+  msg.rate = 0.9
+  msg.pitch = 1.0
+
+  setTimeout(() => {
+    window.speechSynthesis.speak(msg)
+  }, 10)
 }
 
-const handleSaveConfig = () => {
-  try {
-    const newWords = JSON.parse(configText.value)
-    gameStore.updateConfig(newWords, gameStore.goal)
-    emit('updateConfig', newWords)
-    showAdmin.value = false
-    initGame()
-  } catch (e) { alert('JSON 格式不正确') }
-}
+onMounted(() => {
+  animationFrameId = requestAnimationFrame(renderParticles)
+})
 
-watch(() => gameStore.wordList, (nl) => {
-  if (nl?.length > 0) {
-    configText.value = JSON.stringify(nl, null, 2)
-    initGame()
-  }
-}, { immediate: true, deep: true })
+onUnmounted(() => {
+  if (animationFrameId) cancelAnimationFrame(animationFrameId)
+})
+
+watch(() => gameStore.wordList, (nl) => { if (nl?.length > 0) initGame() }, { immediate: true })
 </script>
 
 <style scoped>
-/* 🌿 莫兰迪森林晨露主配色方案 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
 .word-match-viewport {
-  width: 100%;
-  min-height: 560px;
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #e0f2fe 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #2d3748;
-  position: relative;
-  overflow: hidden;
+  width: 100%; height: 100%; min-height: 100%;
+  background: #f8fafc;
+  display: flex; justify-content: center; align-items: center;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #0f172a; position: relative; overflow: hidden; box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #game-container {
-  width: 100%;
-  max-width: 860px;
-  height: 520px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 32px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(16, 185, 129, 0.05);
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% 30%, #f0f9ff 0%, #f0fdf4 100%);
+  border-radius: 28px; padding: 20px 28px;
+  display: flex; flex-direction: column; position: relative; box-sizing: border-box;
 }
 
-/* 顶部清爽状态栏 */
-.game-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 10;
-}
+.game-header { display: flex; align-items: center; gap: 12px; z-index: 10; flex-shrink: 0; }
 
 .header-pill {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 6px 16px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 600; color: #334155;
+  display: flex; align-items: center; gap: 8px; backdrop-filter: blur(16px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  letter-spacing: 0.02em;
 }
 
-.leaf-icon { font-size: 13px; }
+.title-pill {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700; color: #0284c7; letter-spacing: 0.05em;
+}
 
 .progress-pill {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  justify-content: center;
-  background: rgba(241, 245, 249, 0.6);
+  flex: 1; position: relative; overflow: hidden; justify-content: center; background: rgba(241, 245, 249, 0.6);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
 }
 
-.progress-bar {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  background: linear-gradient(90deg, #a7f3d0, #6ee7b7);
-  transition: width 0.3s ease;
-}
+.progress-bar { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #38bdf8, #4ade80); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-.combo-pill { opacity: 0.6; transition: all 0.3s; }
-.combo-pill.active { opacity: 1; background: #dcfce7; border-color: #86efac; color: #166534; }
-
-.header-actions { display: flex; gap: 8px; margin-left: auto; }
-.icon-btn {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  color: #64748b;
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center;
-}
-.icon-btn:hover { background: #ffffff; color: #0f172a; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
-/* 🌿 森林卡牌场域 */
-.forest-field {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  margin-top: 12px;
-  overflow: hidden; /* 保证内部绝对不溢出 */
-}
-
-.energy-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.active-tether {
-  filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3));
-}
-
-/* 🍃 卡牌样式与受控微浮动 */
-.word-node {
-  position: absolute;
-  z-index: 3;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  animation: gentleFloat 4s ease-in-out infinite alternate;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s, opacity 0.4s;
-}
-
-.node-content {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 1);
-  backdrop-filter: blur(8px);
-  padding: 8px 16px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.08);
-  white-space: nowrap;
-}
-
-.node-type-tag {
-  font-size: 9px;
+.combo-pill {
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 6px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
+  transition: all 0.3s ease;
 }
 
-.is-en .node-type-tag { background: #e0f2fe; color: #0284c7; }
-.is-cn .node-type-tag { background: #dcfce7; color: #15803d; }
+.combo-pill.active { background: #f0fdf4; color: #166534; box-shadow: 0 0 12px rgba(74, 222, 128, 0.3); }
 
-.node-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
+.icon-btn { background: rgba(255, 255, 255, 0.8); border: none; color: #64748b; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; }
+.icon-btn:hover { transform: rotate(180deg); }
+
+.forest-field { flex: 1; position: relative; width: 100%; margin-top: 10px; overflow: hidden; }
+
+/* 💧 Canvas 粒子层 */
+.particle-layer {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 4;
 }
 
-.word-node:hover {
-  transform: translate(-50%, -50%) scale(1.05);
-  z-index: 10;
+.energy-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+
+/* 🌧️ 1. 雨滴流向 */
+.active-tether.rain-drop-flow {
+  stroke-dasharray: 6 12;
+  animation: rainDropFlow 0.7s linear infinite;
+  filter: drop-shadow(0 2px 6px rgba(2, 132, 199, 0.4));
 }
 
-.word-node:hover .node-content {
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.12);
+/* 🌱 2. 绿光流向 */
+.active-tether.earth-glow-flow {
+  stroke-dasharray: 4 10;
+  animation: earthGlowFlow 0.7s linear infinite;
+  filter: drop-shadow(0 -2px 6px rgba(22, 163, 74, 0.4));
 }
 
-/* 抹茶绿选中高亮 */
-.word-node.is-selected {
-  transform: translate(-50%, -50%) scale(1.08);
-  z-index: 20;
+@keyframes rainDropFlow { from { stroke-dashoffset: 36; } to { stroke-dashoffset: 0; } }
+@keyframes earthGlowFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 28; } }
+
+/* ================= 节点及形态 ================= */
+.word-node {
+  position: absolute; z-index: 3; cursor: pointer; transform: translate(-50%, -50%);
+  animation: floatBreathing 4s ease-in-out infinite alternate;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.word-node.is-selected .node-content {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-color: transparent;
-  color: #ffffff;
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+/* 💧 中文：水滴形态 */
+.pure-drop {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 22px; border-radius: 28px 28px 28px 6px;
+  box-shadow: 0 10px 25px -5px rgba(186, 230, 253, 0.5);
+  backdrop-filter: blur(12px); display: flex; align-items: center; gap: 6px; position: relative;
+  transition: all 0.3s ease;
 }
 
-.word-node.is-selected .node-text { color: #ffffff; }
-.word-node.is-selected .node-type-tag { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+.drop-icon { font-size: 13px; opacity: 0.85; }
 
-/* 消除淡出 */
-.word-node.is-matched {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.2);
-  pointer-events: none;
+.drop-light {
+  position: absolute; top: 5px; left: 10px; width: 8px; height: 4px;
+  background: rgba(255, 255, 255, 0.95); border-radius: 10px; transform: rotate(-25deg);
 }
 
-/* 配对错误红框震动 */
-.word-node.is-error {
-  animation: gentleShake 0.4s ease-in-out;
-}
-.word-node.is-error .node-content {
-  border-color: #fca5a5;
-  background: #fef2f2;
+/* 🌱 英文：树苗胶囊形态 */
+.pure-leaf {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 20px; border-radius: 99px;
+  box-shadow: 0 10px 25px -5px rgba(187, 247, 208, 0.5);
+  backdrop-filter: blur(12px); display: flex; align-items: center; gap: 8px;
+  transition: all 0.3s ease;
 }
 
-.audio-pulse {
-  background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.5; transition: opacity 0.2s;
-}
-.audio-pulse:hover { opacity: 1; }
+.sprout-icon { display: flex; align-items: center; justify-content: center; }
 
-/* 限制极小幅度的悬浮浮动 (±4px)，确保绝不溢出容器 */
-@keyframes gentleFloat {
+/* 🌸 中文字体：思源宋体 (Noto Serif SC) */
+.pure-drop .node-text { 
+  font-family: 'Noto Serif SC', "Songti SC", "STSong", serif;
+  font-size: 16px;
+  font-weight: 700; 
+  color: #0369a1; 
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* 🌿 英文字体：Plus Jakarta Sans */
+.pure-leaf .node-text { 
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; 
+  font-weight: 700; 
+  color: #15803d; 
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.audio-btn {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 13px; opacity: 0.65; padding: 4px; margin-left: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; user-select: none;
+}
+.audio-btn:hover { opacity: 1; transform: scale(1.18); }
+.audio-btn:active { transform: scale(0.92); }
+
+/* ================= 阶梯样式 ================= */
+.level-1.is-cn .pure-drop { border: 1.5px solid rgba(186, 230, 253, 0.8); }
+.level-1.is-en .pure-leaf { border: 1.5px solid rgba(187, 247, 208, 0.8); }
+
+.level-2.is-cn .pure-drop { border: 2px solid #38bdf8; box-shadow: 0 10px 22px -2px rgba(56, 189, 248, 0.35); }
+.level-2.is-en .pure-leaf { border: 2px solid #4ade80; box-shadow: 0 10px 22px -2px rgba(74, 222, 128, 0.35); }
+
+.level-3.is-cn .pure-drop { border: 2.5px solid #0284c7; box-shadow: 0 0 22px rgba(56, 189, 248, 0.45); }
+.level-3.is-en .pure-leaf { border: 2.5px solid #eab308; box-shadow: 0 0 22px rgba(234, 179, 8, 0.4); }
+
+.word-node.is-cn.is-selected .pure-drop {
+  background: #0284c7 !important; transform: scale(1.1);
+  box-shadow: 0 14px 30px rgba(2, 132, 199, 0.45) !important;
+}
+.word-node.is-cn.is-selected .node-text { color: #ffffff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+
+.word-node.is-en.is-selected .pure-leaf {
+  background: #16a34a !important; transform: scale(1.1);
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.45) !important;
+}
+.word-node.is-en.is-selected .node-text { color: #ffffff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+
+.word-node:hover { transform: translate(-50%, -50%) scale(1.08); z-index: 10; }
+.word-node.is-matched { opacity: 0; transform: translate(-50%, -50%) scale(0.1); pointer-events: none; }
+.word-node.is-error { animation: shake 0.35s ease-in-out; }
+
+@keyframes floatBreathing {
   0% { transform: translate(-50%, -50%) translateY(0px); }
-  100% { transform: translate(-50%, -50%) translateY(-5px); }
+  100% { transform: translate(-50%, -50%) translateY(-7px); }
 }
-
-@keyframes gentleShake {
+@keyframes shake {
   0%, 100% { transform: translate(-50%, -50%); }
-  25% { transform: translate(-54%, -50%); }
-  75% { transform: translate(-46%, -50%); }
+  25% { transform: translate(-53%, -50%); }
+  75% { transform: translate(-47%, -50%); }
 }
 
-/* 后台与结算 */
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); z-index: 100; }
-.admin-panel {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: #ffffff; padding: 24px; border-radius: 20px; z-index: 110; width: 320px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+.finish-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.finish-icon { font-size: 3.5rem; margin-bottom: 12px; }
+.finish-zone h2 { font-family: 'Noto Serif SC', serif; font-weight: 700; color: #0f172a; margin-bottom: 8px; letter-spacing: 0.05em; }
+.finish-zone p { color: #64748b; font-size: 14px; margin-bottom: 24px; letter-spacing: 0.02em; }
+.main-action-btn { 
+  padding: 12px 32px; background: #0284c7; border: none; border-radius: 99px; color: #ffffff; 
+  font-family: 'Noto Serif SC', serif; font-weight: 700; cursor: pointer; 
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3); letter-spacing: 0.08em; transition: transform 0.2s, box-shadow 0.2s;
 }
-.admin-panel textarea { width: 100%; height: 140px; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; border-radius: 8px; padding: 8px; margin: 12px 0; font-family: monospace; }
-.main-action-btn { width: 100%; padding: 10px; background: #10b981; border: none; border-radius: 12px; color: #ffffff; font-weight: 700; cursor: pointer; }
-
-.finish-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #334155; }
-.forest-trophy { font-size: 3.5rem; margin-bottom: 12px; }
-.finish-zone h2 { font-weight: 700; margin-bottom: 6px; }
-.finish-zone p { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+.main-action-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(2, 132, 199, 0.4); }
 </style>

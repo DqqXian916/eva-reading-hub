@@ -174,9 +174,9 @@ const games = ref([
     },
     {
         id: 'link',
-        name: '单词连连看',
+        name: '甘霖折翠',
         isVue: true,
-        icon: '🧵',
+        icon: '💧',
         color: '#66ccff', // 配合画廊的黑金/宣纸高级色
         config: {
             wordList: [],
