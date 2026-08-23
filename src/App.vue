@@ -710,7 +710,7 @@ const toggleFullScreen = () => {
         <!-- 左侧：品牌 Logo -->
         <div class="nav-brand">
           <div class="brand-logo">🏔️</div>
-          <span class="brand-name">Eva English</span>
+          <span class="brand-name">EVA ENGLISH</span>
         </div>
 
         <!-- 中间：精简后的分类导航菜单 -->

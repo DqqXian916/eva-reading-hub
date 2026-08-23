@@ -76,9 +76,8 @@ const nextPage = () => {
 
     <div v-show="!collapsed" class="panel-content">
       <div class="simple-logo">
-        <div class="bulb-icon">🎋</div>
         <div class="logo-text-group">
-          <div class="brand-tagline">{{ canEdit ? 'ADMIN PANEL' : "Grow Wild." }}</div>
+          <div class="brand-tagline">{{ canEdit ? 'ADMIN PANEL' :  "\"Defy Gravity.\""  }}</div>
         </div>
       </div>
 
@@ -282,8 +281,8 @@ const nextPage = () => {
   color: #64748b;
   font-weight: bold;
   letter-spacing: 0.5px;
-  font-weight: 800;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 11px;
   letter-spacing: 1px;
 }
 
