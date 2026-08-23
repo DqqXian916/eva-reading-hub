@@ -161,8 +161,8 @@
         <button class="close-modal-btn" @click="closeDictation">✕</button>
 
         <div class="modal-header">
-          <h3>📋 10词听写清单</h3>
-          <button class="refresh-list-btn" @click="startDictation">🔄 换一组</button>
+          <h3>10词清单</h3>
+          <button class="refresh-list-btn" @click="startDictation">🔄 </button>
         </div>
 
         <div class="dictation-list-container">
@@ -565,7 +565,7 @@ const formatSentence = (s, word) => {
 .header-tag {
   font-size: 10px;
   font-weight: 800;
-  color: #27ae60;
+  color: #78A355;
   letter-spacing: 1px;
   display: inline-block;
 }
@@ -846,8 +846,8 @@ const formatSentence = (s, word) => {
 }
 
 .is-done .check-box {
-  background: #27ae60;
-  border-color: #27ae60;
+  background: #6bb392;
+  border-color: #6bb392;
 }
 
 .check-mark {
@@ -962,7 +962,7 @@ const formatSentence = (s, word) => {
 }
 
 .sentence-card {
-  border-left: 4px solid #27ae60;
+  border-left: 4px solid #6e8b74;
   padding: 5px 25px;
   margin-bottom: 10px;
 }
@@ -975,7 +975,7 @@ const formatSentence = (s, word) => {
 }
 
 :deep(.highlight) {
-  color: #27ae60;
+  color: #7BA57B;
   border-bottom: 2px solid #27ae6033;
 }
 
@@ -1321,7 +1321,7 @@ const formatSentence = (s, word) => {
 .item-cn {
   font-size: 14px;
   font-weight: 600;
-  color: #27ae60;
+  color: #355E3B;
   margin-left: auto;
   text-align: right;
 }

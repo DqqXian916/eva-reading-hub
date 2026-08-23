@@ -105,7 +105,7 @@ defineEmits(['toggle', 'open', 'goEdit', 'delete', 'onEditClick'])
 .avatar-circle {
   width: 44px;
   height: 44px;
-  background: #27ae60;
+  background: #6bb392;
   color: white;
   border-radius: 12px;
   display: flex;

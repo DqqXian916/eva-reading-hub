@@ -709,8 +709,8 @@ const toggleFullScreen = () => {
       <header v-if="isNavVisible" class="top-nav">
         <!-- 左侧：品牌 Logo -->
         <div class="nav-brand">
-          <div class="brand-logo">⚡</div>
-          <span class="brand-name">EVA ENGLISH</span>
+          <div class="brand-logo">🍃</div>
+          <span class="brand-name">Eva English</span>
         </div>
 
         <!-- 中间：精简后的分类导航菜单 -->
@@ -825,7 +825,6 @@ const toggleFullScreen = () => {
             <div v-if="viewMode === 'list' || viewMode === 'welcome'" class="placeholder">
               <div class="card">
                 <h2>📚 {{ currentStudent.name }} 的书架</h2>
-                <p>请点击中间列表中的文章进行阅读</p>
               </div>
             </div>
 
@@ -1049,10 +1048,27 @@ body {
 }
 
 .brand-name {
+/* 1. 引入 Bodoni Moda 或 Didot 字体 */
+  font-family: "Bodoni Moda", "Didot", "Bodoni MT", "Cinzel", serif;
+  
+  /* 2. 限制在 Header 里的合适字号（原 80px 太大了） */
+  font-size: 16px; 
   font-weight: 800;
-  font-size: 15px;
-  letter-spacing: -0.3px;
-  color: #0f172a;
+  line-height: 1;
+  color: #1c5426; /* 配合深色/浅色导航栏 */
+  
+  /* 3. 避免全大写导致的“黑块感”，推荐混排或控制字符间距 */
+  letter-spacing: 0.02em;
+  white-space: nowrap; /* 防止换行撑开导航 */
+  
+  /* 4. 开启高级高对比度渲染 */
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* 允许在 Flex 布局中自适应微调 */
+  display: inline-flex;
+  align-items: center;
 }
 
 .brand-icon {
@@ -1106,8 +1122,8 @@ body {
 }
 
 .group-btn.active {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: #7a8b64;
+  color: #f7f1e5;
 }
 
 .module-tab {
@@ -1924,8 +1940,8 @@ body {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: #fdf6d0;
+  border: 1px solid #fffbeb;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
