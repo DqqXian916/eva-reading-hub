@@ -8,26 +8,294 @@
  * scoreInfo: 得分汇总文字
  */
 import { ref } from 'vue'
-defineProps({
+
+const props = defineProps({
   activeReading: Object,
   isFullScreen: Boolean,
   userSelections: Array,
   isSubmitted: Boolean,
   scoreInfo: String
 })
-const hoverIdx = ref(null) // 记录当前悬停的题目索引
-const hoverOptIdx = ref(null) // 记录当前悬停的选项索引
-const showChinese = ref(false)  // 新增：控制语言显示的状态
+
+const hoverIdx = ref(null)
+const hoverOptIdx = ref(null)
+const showChinese = ref(false)
+
 const emit = defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
+
 const handleSubmit = () => {
-  // 这里不需要在子组件算分，直接告诉父组件“我提交了”
-  // 父组件会在 handleReadingSubmit 里根据 userSelections 算分
-  emit('submit');
-};
+  emit('submit')
+}
+
+/**
+ * 核心：完美无损打印 PDF 报告
+ */
+const handlePrintReport = () => {
+  const reading = props.activeReading
+  if (!reading) return
+
+  // 1. 获取文章正文 HTML
+  const articleHtml = (showChinese.value && reading.body_cn) ? reading.body_cn : reading.body
+
+  // 2. 拼接题目与解析
+  let quizHtml = ''
+  if (reading.quiz && reading.quiz.length) {
+    quizHtml = reading.quiz.map((q, qIdx) => {
+      const userSel = props.userSelections ? props.userSelections[qIdx] : null
+      const isCorrect = userSel === q.answer
+      const statusText = isCorrect ? '✓ 正确' : '✕ 错误'
+      const statusClass = isCorrect ? 'correct' : 'wrong'
+
+      // A. 渲染组合题声明语句框 sub_q (例如 ①②③④ 列表)
+      let subQHtml = ''
+      if (q.sub_q && q.sub_q.length) {
+        const subItems = q.sub_q.map(item => `
+          <div class="stmt-item">
+            <span class="stmt-idx">${item.slice(0, 1)}</span>
+            <span class="stmt-txt">${item.slice(1)}</span>
+          </div>
+        `).join('')
+        subQHtml = `<div class="statements-box">${subItems}</div>`
+      }
+
+      // B. 渲染选项 (自动清洗重复字母)
+      let optionsHtml = ''
+      if (q.options && q.options.length) {
+        optionsHtml = q.options.map((opt, oIdx) => {
+          let optText = opt
+          if (q.option_type === 'image_base64') {
+            optText = `<img src="${opt.data}" style="max-height:60px; vertical-align:middle;" />`
+          } else if (typeof opt === 'string') {
+            // 如果选项自带 "A. " 或 "A. A." 则自动去重
+            optText = opt.replace(/^[A-Z]\.\s*/i, '')
+          }
+
+          const optLetter = String.fromCharCode(65 + oIdx)
+          let labelExtra = ''
+          if (props.isSubmitted) {
+            if (userSel === oIdx && oIdx !== q.answer) {
+              labelExtra = ' <strong style="color:#ef4444; margin-left:8px;">(你的答案 ✕)</strong>'
+            }
+            if (oIdx === q.answer) {
+              labelExtra = ' <strong style="color:#16a34a; margin-left:8px;">(正确答案 ✓)</strong>'
+            }
+          }
+
+          return `<div class="opt-item"><span class="opt-letter">${optLetter}.</span> ${optText}${labelExtra}</div>`
+        }).join('')
+      }
+
+      // C. 渲染解析内容 (兼容数组解析与字符串解析)
+      let analysisContent = '暂无该题解析'
+      if (q.analysis) {
+        if (Array.isArray(q.analysis)) {
+          analysisContent = q.analysis[q.answer] || q.analysis[0] || '暂无解析'
+        } else {
+          analysisContent = q.analysis
+        }
+      }
+
+      return `
+        <div class="question-card">
+          <div class="q-header">
+            <div class="q-title"><strong>${qIdx + 1}.</strong> ${q.q}</div>
+            ${props.isSubmitted ? `<span class="status-tag ${statusClass}">${statusText}</span>` : ''}
+          </div>
+
+          ${subQHtml}
+
+          <div class="options-list">
+            ${optionsHtml}
+          </div>
+
+          ${props.isSubmitted ? `
+            <div class="analysis-box">
+              <div class="analysis-title">💡 答案解析：</div>
+              <div class="analysis-body">${analysisContent}</div>
+            </div>
+          ` : ''}
+        </div>
+      `
+    }).join('')
+  }
+
+  // 3. 打开独立窗口构建打印文档
+  const printWindow = window.open('', '_blank')
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${reading.title || '阅读分析报告'}</title>
+      <style>
+        @page {
+          size: A4;
+          margin: 0;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+          color: #1e293b;
+          line-height: 1.6;
+          padding: 15mm 12mm;
+          margin: 0;
+        }
+        .header-box {
+          border-bottom: 2px solid #0f172a;
+          padding-bottom: 10px;
+          margin-bottom: 16px;
+        }
+        .report-title {
+          font-size: 20px;
+          font-weight: bold;
+          margin: 0 0 6px 0;
+          color: #0f172a;
+        }
+        .meta-info {
+          font-size: 12px;
+          color: #64748b;
+          display: flex;
+          justify-content: space-between;
+        }
+        .section-box {
+          margin-bottom: 20px;
+        }
+        .section-title {
+          font-size: 14px;
+          font-weight: bold;
+          border-left: 4px solid #3b82f6;
+          padding-left: 8px;
+          margin-bottom: 10px;
+          color: #0f172a;
+        }
+        .article-content {
+          background: #f8fafc;
+          padding: 14px 16px;
+          border-radius: 6px;
+          font-size: 13.5px;
+          line-height: 1.75;
+          border: 1px solid #e2e8f0;
+          text-align: justify;
+        }
+        .article-content img {
+          max-width: 100%;
+          border-radius: 6px;
+          margin: 10px 0;
+        }
+        .question-card {
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 12px 14px;
+          margin-bottom: 12px;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          background: #ffffff;
+        }
+        .q-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          font-size: 13.5px;
+          margin-bottom: 8px;
+        }
+        .q-title {
+          font-weight: 600;
+          color: #0f172a;
+          flex: 1;
+        }
+        .status-tag {
+          font-size: 11px;
+          font-weight: bold;
+          padding: 2px 8px;
+          border-radius: 4px;
+          white-space: nowrap;
+          margin-left: 10px;
+        }
+        .status-tag.correct { background: #dcfce7; color: #15803d; }
+        .status-tag.wrong { background: #fee2e2; color: #b91c1c; }
+        
+        .statements-box {
+          margin: 6px 0 10px 16px;
+          padding: 8px 12px;
+          background-color: #f1f5f9;
+          border-radius: 6px;
+          font-size: 12.5px;
+        }
+        .stmt-item {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 4px;
+          color: #334155;
+        }
+        .stmt-idx { font-weight: bold; color: #64748b; }
+
+        .options-list {
+          margin: 6px 0;
+          font-size: 13px;
+        }
+        .opt-item {
+          margin-bottom: 5px;
+          color: #334155;
+          line-height: 1.5;
+        }
+        .opt-letter {
+          font-weight: bold;
+          margin-right: 4px;
+        }
+        .analysis-box {
+          margin-top: 8px;
+          background: #f8fafc;
+          padding: 8px 10px;
+          border-radius: 4px;
+          font-size: 12.5px;
+          color: #334155;
+          border-left: 3px solid #94a3b8;
+          line-height: 1.6;
+        }
+        .analysis-title {
+          font-weight: bold;
+          margin-bottom: 3px;
+          color: #1e293b;
+        }
+        .analysis-body img {
+          max-width: 100%;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header-box">
+        <h1 class="report-title">${reading.title || '阅读完成报告'}</h1>
+        <div class="meta-info">
+          <span>${props.scoreInfo || ''}</span>
+          <span>打印时间：${new Date().toLocaleString()}</span>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">一、阅读文章（Reading Material）</div>
+        <div class="article-content">${articleHtml}</div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">二、题目与解析（Quiz & Analysis）</div>
+        ${quizHtml}
+      </div>
+    </body>
+    </html>
+  `)
+
+  printWindow.document.close()
+  printWindow.focus()
+
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 350)
+}
 </script>
 
 <template>
   <div :class="['reading-view', { 'is-full-screen': isFullScreen }]">
+    <!-- 顶部工具栏 -->
     <div class="reading-toolbar">
       <div class="exclusive-badge">✨ Eva老师 爱徒专用 ❤️</div>
       <div class="tool-group">
@@ -39,6 +307,7 @@ const handleSubmit = () => {
     </div>
 
     <div class="content-container">
+      <!-- 文章栏 -->
       <article class="article-col">
         <div class="article-header">
           <div class="header-top-row">
@@ -56,6 +325,7 @@ const handleSubmit = () => {
           class="article-text rich-content" :class="{ 'cn-mode': showChinese && activeReading.body_cn }"></div>
       </article>
 
+      <!-- 答题栏 -->
       <aside class="quiz-col">
         <div class="questions-list">
           <div v-for="(q, qIdx) in activeReading.quiz" :key="qIdx" class="question-card">
@@ -74,7 +344,7 @@ const handleSubmit = () => {
                 { selected: userSelections[qIdx] === oIdx },
                 { correct: isSubmitted && oIdx === q.answer },
                 { wrong: isSubmitted && userSelections[qIdx] === oIdx && oIdx !== q.answer },
-                { 'is-image-opt': q.option_type === 'image_base64' } // 新增类名
+                { 'is-image-opt': q.option_type === 'image_base64' }
               ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })"
                 @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)"
                 @mouseleave="hoverIdx = null, hoverOptIdx = null">
@@ -97,26 +367,26 @@ const handleSubmit = () => {
                 <div class="analysis-label hover-mode">
                   <span class="icon">🔍</span> 选项 {{ String.fromCharCode(65 + hoverOptIdx) }} 详解：
                 </div>
-                <div class="analysis-text">
-                {{ q.analysis && q.analysis[hoverOptIdx] ? q.analysis[hoverOptIdx] : '暂无该选项解析' }}
-                </div>
+                <div class="analysis-text" v-html="q.analysis && q.analysis[hoverOptIdx] ? q.analysis[hoverOptIdx] : '暂无该选项解析'"></div>
               </template>
 
               <template v-else>
                 <div class="analysis-label">
                   <span class="icon">💡</span> 答案解析：
                 </div>
-                <div class="analysis-text">
-                  {{ q.analysis && q.analysis[hoverOptIdx] ? q.analysis[hoverOptIdx] : '暂无该选项解析' }}
-                </div>
+                <div class="analysis-text" v-html="q.analysis && q.analysis[q.answer] ? q.analysis[q.answer] : (q.analysis && q.analysis[0] ? q.analysis[0] : '暂无该选项解析')"></div>
               </template>
             </div>
           </div>
         </div>
+
         <div class="quiz-footer">
-          <div v-if="isSubmitted && scoreInfo" class="score-box">
-            <div class="score-text">{{ scoreInfo }}</div>
-            <button class="btn-retry" @click="$emit('close')">查看其他文章</button>
+          <div v-if="isSubmitted" class="score-box">
+            <div v-if="scoreInfo" class="score-text">{{ scoreInfo }}</div>
+            <div class="btn-group">
+              <button class="btn-print" @click="handlePrintReport">🖨️ 打印阅读报告</button>
+              <button class="btn-retry" @click="$emit('close')">返回文章列表</button>
+            </div>
           </div>
 
           <button v-else class="btn-primary submit-btn" :disabled="userSelections.includes(null)"
@@ -167,7 +437,6 @@ const handleSubmit = () => {
   overflow: hidden;
 }
 
-/* 文章栏：根据要求取消留白 */
 .article-col {
   flex: 1;
   padding: 40px 30px;
@@ -196,24 +465,16 @@ const handleSubmit = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* 针对全屏模式微调图片 */
 .is-full-screen .article-text :deep(img) {
   max-width: 80%;
-  /* 全屏时图片不要太大，居中显示 */
   margin: 20px auto;
 }
 
-/* 答题栏 */
 .quiz-col {
   width: 380px;
   background: #fcfcfd;
   display: flex;
   flex-direction: column;
-}
-
-.quiz-header {
-  padding: 20px;
-  border-bottom: 1px solid #f1f5f9;
 }
 
 .questions-list {
@@ -222,7 +483,6 @@ const handleSubmit = () => {
   padding: 20px;
 }
 
-/* 修复错位：Q-Row 样式 */
 .question-card {
   background: white;
   border-radius: 12px;
@@ -260,7 +520,6 @@ const handleSubmit = () => {
   flex: 1;
 }
 
-/* 选项样式：取消自带字母前缀 */
 .options-group {
   display: flex;
   flex-direction: column;
@@ -300,9 +559,57 @@ const handleSubmit = () => {
 }
 
 .quiz-footer {
-  padding: 20px;
+  padding: 16px 20px;
   border-top: 1px solid #f1f5f9;
   background: #fff;
+  flex-shrink: 0;
+}
+
+.score-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.score-text {
+  font-size: 15px;
+  font-weight: bold;
+  color: #1e293b;
+  text-align: center;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-print {
+  flex: 1;
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-print:hover {
+  background: #1d4ed8;
+}
+
+.btn-retry {
+  flex: 1;
+  padding: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .submit-btn {
@@ -331,7 +638,6 @@ const handleSubmit = () => {
   font-weight: 600;
 }
 
-/* 全屏模式无留白 */
 .is-full-screen {
   position: fixed;
   top: 0;
@@ -346,29 +652,17 @@ const handleSubmit = () => {
   font-size: 20px;
 }
 
-/* 当处于全屏模式时，隐藏学生提示标签 */
-.is-full-screen .student-tag {
-  display: none;
-}
-
-/* --- 全屏模式下的界面纯净化 --- */
-
-/* 隐藏学生提示标签和爱徒专用勋章 */
 .is-full-screen .student-tag,
 .is-full-screen .exclusive-badge {
   display: none;
 }
 
-/* 全屏时让工具栏高度稍微收缩，保持简洁 */
 .is-full-screen .reading-toolbar {
   justify-content: flex-end;
-  /* 让按钮组靠右，左侧留白更清爽 */
   padding: 8px 25px;
   background: transparent;
-  /* 背景透明，减少分割感 */
 }
 
-/* 修改后的解析框样式 */
 .analysis-box {
   margin-top: 16px;
   padding: 14px;
@@ -376,15 +670,11 @@ const handleSubmit = () => {
   border-left: 4px solid #cbd5e1;
   border-radius: 8px;
   transition: all 0.2s ease;
-  /* 让背景色和边框色切换平滑 */
-  min-height: 90px;
-  /* 设置最小高度，防止切换选项时下方内容跳动 */
+  min-height: 80px;
 }
 
-/* 悬停选项时，解析框的反馈效果 */
 .analysis-box.is-hovering {
   background-color: #f1f5f9;
-  /* 稍微加深一点颜色 */
   border-left-color: #94a3b8;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
@@ -399,7 +689,6 @@ const handleSubmit = () => {
   gap: 6px;
 }
 
-/* 悬停时的标签高亮 */
 .analysis-label.hover-mode {
   color: #1e293b;
 }
@@ -409,70 +698,22 @@ const handleSubmit = () => {
   line-height: 1.6;
   color: #334155;
   animation: fadeInShort 0.2s ease-out;
-  /* 切换内容时的微小淡入 */
+  word-break: break-word;
 }
 
 @keyframes fadeInShort {
-  from {
-    opacity: 0.7;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0.7; }
+  to { opacity: 1; }
 }
 
-/* 提交后鼠标移入选项的反馈 */
 .option:hover {
   background: #f1f5f9;
   transform: translateX(4px);
   transition: transform 0.2s ease;
 }
 
-.is-submitted .option {
-  cursor: help;
-  /* 提交后鼠标变成问号，提示用户“这里有解析” */
-}
-
-.analysis-label {
-  font-size: 13px;
-  font-weight: 700;
-  /* 加粗标题 */
-  color: #475569;
-  /* 灰蓝色标题 */
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  /* 图标与文字的间距 */
-}
-
-.analysis-text {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #334155;
-  /* 深灰蓝正文，阅读体验极佳 */
-  word-break: break-word;
-  /* 防止长文本溢出 */
-}
-
-/* 进场动画 */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 新增：图片选项专用布局 */
 .is-image-opt {
   padding: 8px !important;
-  /* 图片选项缩小内边距 */
 }
 
 .opt-img-wrapper {
@@ -489,34 +730,14 @@ const handleSubmit = () => {
 
 .opt-img {
   max-width: 100%;
-  /* 自动适应容器宽度 */
   max-height: 80px;
-  /* 限制高度防止撑爆卡片 */
   object-fit: contain;
   border-radius: 4px;
   background: white;
-  /* 给透明图层垫底 */
 }
 
-/* 提交后的反馈效果增强 */
-.option.correct.is-image-opt {
-  border: 2px solid #22c55e !important;
-}
-
-.option.wrong.is-image-opt {
-  border: 2px solid #ef4444 !important;
-}
-
-/* 鼠标悬停时的放大微动效 */
-.is-image-opt:hover .opt-img {
-  transform: scale(1.05);
-  transition: transform 0.2s ease;
-}
-
-/* 组合题陈述区整体容器 */
 .statements-box {
   margin: 12px 0 16px 32px;
-  /* 与题目标题对齐 */
   padding: 12px 16px;
   background-color: #f8fafc;
   border-radius: 10px;
@@ -534,7 +755,6 @@ const handleSubmit = () => {
   color: #475569;
 }
 
-/* 序号样式（①②③④） */
 .statement-index {
   color: grey;
   font-weight: bold;
@@ -544,14 +764,12 @@ const handleSubmit = () => {
   line-height: 1.6;
 }
 
-/* 新增：头部布局调整 */
 .header-top-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* 新增：中英文切换按钮样式 */
 .lang-toggle-btn {
   padding: 6px 16px;
   border-radius: 20px;
@@ -576,24 +794,15 @@ const handleSubmit = () => {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* 新增：中文模式下的文本微调 */
 .article-text.cn-mode {
   color: #1e293b;
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   line-height: 1.9;
-  /* 中文行高稍微大一点更好看 */
   animation: fadeIn 0.4s ease;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

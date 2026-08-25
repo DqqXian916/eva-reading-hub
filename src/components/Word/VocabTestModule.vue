@@ -9,7 +9,7 @@
           </div>
         </div>
         <div class="header-content">
-          <h3>⚡ 英语词汇深度评估</h3>
+          <h3>⚡ 词汇深度评估</h3>
           <p class="subtitle">勾选你【确定认识】的单词。</p>
         </div>
       </div>
@@ -30,7 +30,7 @@
 
       <div class="test-action-area">
         <button class="submit-full-btn" @click="calculateResult" :disabled="isLoading">
-          <span v-if="!isLoading">提交评估报告</span>
+          <span v-if="!isLoading">确认提交</span>
           <span v-else>正在分析词汇深度...</span>
         </button>
       </div>

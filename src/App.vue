@@ -910,7 +910,7 @@ const toggleFullScreen = () => {
 
       <div v-else class="full-welcome">
         <div class="welcome-card">
-          <h1>👋 Hello，World!</h1>
+          <h1>👋 Hello!</h1>
         </div>
       </div>
     </div>
