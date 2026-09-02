@@ -917,7 +917,7 @@ const toggleFullScreen = () => {
 
       <div v-else class="full-welcome">
         <div class="welcome-card">
-          <h1>👋 Hello!</h1>
+          <h1> Let's pick!</h1>
         </div>
       </div>
     </div>
@@ -1250,17 +1250,32 @@ body {
 }
 
 .welcome-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 25px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 28px;
+  box-shadow: 0 20px 40px -15px rgba(16, 20, 58, 0.08),
+              0 0 0 1px rgba(226, 232, 240, 0.8);
+  max-width: 300px;
+  width: 100%;
   text-align: center;
-  padding: 60px;
-  background: white;
-  border-radius: 30px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
 .welcome-card h1 {
-  font-size: 32px;
   margin-bottom: 10px;
-  color: #1e293b;
+  font-family: 'Bodoni Moda', 'Didot', 'Cinzel', serif;
+  font-size: 30px;
+  font-weight: 30;
+  color: #10143a;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: 0.3em;
+  transform: scaleY(1.1);
 }
 
 .welcome-card p {
