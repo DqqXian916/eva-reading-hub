@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .poster {
+    width: 450px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    color: #333;
+  }
+  .header {
+    text-align: center;
+  }
+  .title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #1a237e;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .date-badge {
+    display: inline-block;
+    background: #d8511d;
+    color: #fff;
+    font-weight: bold;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .info-bar {
+    font-size: 13px;
+    color: #2c3e50;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .sub-info {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  
+  .card {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+  }
+  .card-header-sat {
+    background: #d8511d;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 6px 12px;
+  }
+  .card-header-sun {
+    background: #489b9b;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 6px 12px;
+  }
+  .card-body {
+    background: #eef7f7;
+    padding: 12px;
+    text-align: center;
+  }
+  .card-body-sat {
+    background: #fff8f5;
+    padding: 12px;
+    text-align: center;
+  }
+  .books {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  .book-placeholder {
+    width: 90px;
+    height: 110px;
+    background: #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #555;
+    border: 1px solid #ccc;
+  }
+  .class-detail {
+    font-size: 12px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 4px;
+  }
+  .class-subdetail {
+    font-size: 10px;
+    color: #555;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 15px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="poster">
+  <div class="header">
+    <div class="title">小六秋季班开课啦</div>
+    <div class="date-badge">◆ 9月19日起开课 ◆</div>
+    <div class="info-bar">👥 小班课程 ｜ 6人起班 ｜ 10人满班</div>
+    <div class="sub-info">📅 每周一次课，周六班·周日班，国家法定节日顺延</div>
+  </div>
+
+  <!-- 周六班 -->
+  <div class="card">
+    <div class="card-header-sat">周六班</div>
+    <div class="card-body-sat">
+      <div class="books">
+        <div class="book-placeholder">人教版英语<br>六年级上册</div>
+        <div class="book-placeholder">新概念英语 1</div>
+      </div>
+      <div class="class-detail">每周六·9月19日开班·早10:00上课·¥2000·20次·120分钟</div>
+      <div class="class-subdetail">每课时长120分钟（50分钟授课+10分钟休息+60分钟讲练）</div>
+    </div>
+  </div>
+
+  <!-- 周日班 -->
+  <div class="card">
+    <div class="card-header-sun">周日班</div>
+    <div class="card-body">
+      <div class="books">
+        <div class="book-placeholder">新概念英语 2</div>
+        <div class="book-placeholder">POWER UP</div>
+      </div>
+      <div class="class-detail">每周日·9月20日开班·早10:00上课·¥2000·120分钟</div>
+      <div class="class-subdetail">每课时长120分钟（50分钟授课+10分钟休息+60分钟讲练）</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    📣 趣味导向、成绩导向、低焦虑学习、鼓励式学习
+  </div>
+</div>
+
+</body>
+</html>

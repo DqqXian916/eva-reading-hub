@@ -709,8 +709,16 @@ const toggleFullScreen = () => {
       <header v-if="isNavVisible" class="top-nav">
         <!-- 左侧：品牌 Logo -->
         <div class="nav-brand">
-          <div class="brand-logo">🏔️</div>
-          <span class="brand-name">EVA ENGLISH</span>
+          <!-- <div class="brand-logo">🏔️</div> -->
+          <div class="brand-logo">
+            <div class="brand-logo">
+            <img src="./assets/logo-new.png" alt="10 a.m. Logo" />
+            <img src="./assets/shidian.jpeg" alt="拾点" class="brand-calligraphy" />
+            <span class="brand-divider"></span>
+            <span class="brand-slogan">拾点单词，拼个世界</span>
+          </div>
+          </div>
+          <!-- <span class="brand-name">Eva ENGLISH</span> -->
         </div>
 
         <!-- 中间：精简后的分类导航菜单 -->
@@ -794,9 +802,8 @@ const toggleFullScreen = () => {
         <!-- 右侧：XP & 角色切换胶囊组件 -->
         <div class="nav-right">
           <div class="xp-badge" @click="showLeaderboard = true; fetchLeaderboard()">
-            <span class="xp-icon">📜</span>
             <span class="xp-num">{{ currentStudent?.total_xp || 0 }}</span>
-            <span class="xp-unit">XP</span>
+            <span class="xp-unit">Pts</span>
           </div>
 
           <div :class="['role-pill', isAdminMode ? 'is-admin' : 'is-student']" @dblclick="toggleRole" title="双击切换模式">
@@ -1031,19 +1038,63 @@ body {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
+  user-select: none;
 }
+
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  color: white;
-  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+  height: 30px; /* 根据顶栏高度自行调整 */
+  gap: 15px;    /* Logo 与书法字之间的间距 */
+}
+
+.brand-logo img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-fit: contain;
+}
+
+/* 书法字专属样式 */
+.brand-calligraphy {
+  height: 100%;      /* 高度与 Logo 保持一致 */
+  width: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  /* 如果需要在深色背景或不同主题下更清晰，可取消下面注释添加轻微滤镜 */
+  /* filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.15)); */
+}
+
+/* 优雅的竖线分隔符 */
+.brand-divider {
+  width: 1px;
+  height: 16px;
+  background-color: rgba(179, 153, 117, 0.4); /* 淡金色分隔线 */
+  border-radius: 1px;
+}
+
+/* 品牌标语 Slogan 样式 */
+.brand-slogan {
+  font-size: 12px;
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color:#10143a;
+  /* 核心：纵向拉长文字（1.25 表示纵向放大到 125%） */
+  display: inline-block; /* transform 对纯 inline 元素不起作用，需转为 inline-block */
+  transform: scaleY(1.25);
+  transform-origin: center; /* 以中心为原点拉伸 */
+
+  /* 动画过渡：平滑支持 opacity 和 transform */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-brand:hover .brand-slogan {
+  opacity: 0.8;
 }
 
 .brand-name {
@@ -1694,13 +1745,6 @@ body {
   text-align: right;
 }
 
-.xp-num {
-  font-weight: 900;
-  color: #27ae60;
-  font-size: 18px;
-  margin-right: 4px;
-}
-
 .xp-unit {
   font-size: 12px;
   font-weight: 700;
@@ -1937,7 +1981,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: #fdf6d0;
+  background: #4C976D;
   border: 1px solid #fffbeb;
   border-radius: 20px;
   cursor: pointer;
@@ -1950,8 +1994,8 @@ body {
 }
 
 .xp-icon { font-size: 14px; }
-.xp-num { font-weight: 800; font-size: 14px; color: #d97706; }
-.xp-unit { font-size: 10px; font-weight: 700; color: #b45309; }
+.xp-num { font-weight: 800; font-size: 14px; color: #10143A; }
+.xp-unit { font-size: 10px; font-weight: 700; color: #B39975; }
 
 /* 角色 Pill */
 .role-pill {
