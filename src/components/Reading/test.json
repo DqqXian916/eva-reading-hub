@@ -1,0 +1,194 @@
+[
+  {
+    "q": "In the case of the pie dish, the insurance company concerned ______.",
+    "answer": 1,
+    "options": [
+      "A. demanded a high premium in view of the unusual size of the dish",
+      "B. was asked to pay the costs of the salvaging operation",
+      "C. agreed to pay the cost of transporting the dish by canal",
+      "D. arranged for the dish to be recovered from the canal"
+    ],
+    "analysis": [
+      "❌ 逻辑混淆。文中虽然提到风险越大保费（premium）越高，但并未明确说明保险公司因为盘子大而索要高额保费。",
+      "✅ 正确。根据第一段最后一句 'the claim made by a local authority to recover the cost of salvaging a sunken pie dish must surely be unique'，地方当局向保险公司提出了索赔，要求支付打捞沉盘的费用。",
+      "❌ 曲解文意。保险公司承保的是运输过程中的风险/损失（insured it for the trip），而不是支付运输本身的费用。",
+      "❌ 事实错误。打捞工作是由地方委员会联系当地汽车修理厂老板进行的（telephoned a local garage owner），并非保险公司安排的。"
+    ]
+  },
+  {
+    "q": "When the pie dish had capsized, the men who came to recover it ______.",
+    "answer": 2,
+    "options": [
+      "A. had some difficulty finding it as they had been drinking locally",
+      "B. had little difficulty finding it as it had not sunk to the bottom",
+      "C. found it difficult to devise a way of getting it out of the water",
+      "D. damaged the dish when they attached hawsers and chains to the rim"
+    ],
+    "analysis": [
+      "❌ 无中生有。去小酒馆喝酒庆祝的是饼委员会（pie committee），并非打捞人员，且文中写明寻找盘子并不困难。",
+      "❌ 因果/细节不符。文中明确指出盘子沉到了 7 英尺深的水底（sank in seven feet of water），虽然寻找不难（had little difficulty in finding it），但选项后半句表述不准确。",
+      "✅ 正确。文中明确提到 'hauling it out of the water proved to be a serious problem'，即把盘子拖出水面并想办法固定它是主要难题。",
+      "❌ 曲解文意。文中提到盘子边缘太滑，为了避免损坏（without damaging it），他们并没有直接把缆绳和铁链绑在边缘，而是试了其他方法。"
+    ]
+  },
+  {
+    "q": "The huge wave in the canal was caused by ______.",
+    "answer": 2,
+    "options": [
+      "A. the sinking of the pie dish",
+      "B. the dish sliding back into the water",
+      "C. the great quantity of water which poured off the dish when they were getting it out",
+      "D. the party of teenagers"
+    ],
+    "analysis": [
+      "❌ 时态与细节不符。盘子下沉发生在最开始青少年跳舞时，并没有引发大浪。",
+      "❌ 干扰项。盘子第一次滑回水里引发了沮丧，但引发巨浪的具体原因是在最后打捞出水时。",
+      "✅ 正确。根据第三段 'Water streamed in torrents over its sides with such force that it set up a huge wave in the canal'，巨浪是由盘子被抬出水面时大量水流倾泻而出造成的。",
+      "❌ 逻辑错误。青少年开 party 是导致盘子翻船沉没的原因，而不是引发巨浪的原因。"
+    ]
+  },
+  {
+    "q": "Eventually the dish was successfully recovered by ______.",
+    "answer": 1,
+    "options": [
+      "A. resting one of its edges on the bank and attaching chains to the other",
+      "B. securing the winch chains with metal clamps and lifting it vertically",
+      "C. one of the men getting on to the truck so as to pull at the chains",
+      "D. some men who hauled it to the surface of the water at tremendous speed"
+    ],
+    "analysis": [
+      "❌ 细节错误。第一次尝试时盘子靠在岸边结果滑落了，并不是最终成功的方法。",
+      "✅ 正确。根据第三段 'they fixed heavy metal clamps to both sides... The dish now had to be lifted vertically'，最终是用金属夹固定铁链并垂直抬升成功打捞的。",
+      "❌ 表述不完整。虽然有人启动了卡车，但关键的打捞技术方案是用金属夹固定铁链并垂直拉起，而不是靠人在卡车上拉锁链。",
+      "❌ 混淆细节。'tremendous speed'（极快的速度）是指水浪反弹前工人将盘子搬到干地上的动作，而不是将盘子拉出水面的速度。"
+    ]
+  },
+  {
+    "q": "The bigger the risk an insurance company takes, ________ to pay as a premium.",
+    "answer": 1,
+    "options": [
+      "A. the higher you will have",
+      "B. the more you will have",
+      "C. more you will have",
+      "D. you will have higher"
+    ],
+    "analysis": [
+      "❌ 语法错误。higher 需接具体的最高金额或修饰抽象名词，此处表示“支付得越多”，修饰动词 pay 应用 more。",
+      "✅ 正确。考查“the + 比较级..., the + 比较级...”结构（越……就越……）。the more... you will have to pay 符合语法和表达要求。",
+      "❌ 语法错误。“the + 比较级”结构中，后半句也必须带定冠词 the。",
+      "❌ 结构错误。遗漏了“the + 比较级”的前置结构，且 higher 用词不当。"
+    ]
+  },
+  {
+    "q": "It is not uncommon to hear ________ a claim for ...",
+    "answer": 0,
+    "options": [
+      "A. of a shipping company making",
+      "B. a shipping company to have made",
+      "C. the shipping company which has made",
+      "D. a shipping company making"
+    ],
+    "analysis": [
+      "✅ 正确。hear of 意为“听说”，后接动名词复合结构 a shipping company making 作介词宾语，符合“听说某公司提出索赔”的语境。",
+      "❌ 语法错误。hear 后面不跟复合结构宾语 + 不定式（to have made）。",
+      "❌ 介词缺失。hear 表达“听说（某事/某人）”时需要接介词 of/about；且此处表示泛指“一家航运公司”，应用不定冠词 a。",
+      "❌ 结构缺失。直连动名词缺少介词 of，此处 hear 作“听说”讲时须跟 hear of。"
+    ]
+  },
+  {
+    "q": "The sides of the dish were so smooth that attaching hawsers and chains to the rim ________ almost certain to damage it.",
+    "answer": 3,
+    "options": [
+      "A. had",
+      "B. were",
+      "C. it was",
+      "D. was"
+    ],
+    "analysis": [
+      "❌ 语法错误。had 后接形容词 certain 逻辑不通，缺少系动词。",
+      "❌ 主谓一致错误。that 引导的结果状语从句的主语是动名词短语 attaching hawsers and chains...，谓语动词应用单数 was。",
+      "❌ 结构冗余。从句主语已经是动名词短语，无需再加代词 it 作形式或代指主语。",
+      "✅ 正确。that 从句的主语为动名词短语（attaching...），视为单数，谓语动词用 was，be certain to do 表示“必定会……”"
+    ]
+  },
+  {
+    "q": "There was a danger that when the wave ________ off the other side, it would send the dish plunging into the water again. ",
+    "answer": 2,
+    "options": [
+      "A. was rebounding",
+      "B. has rebounded",
+      "C. rebounded",
+      "D. would rebound"
+    ],
+    "analysis": [
+      "❌ 语态/时态不符。进行时表示“正在反弹”，此处强调动作的发生和完成，应用一般过去时。",
+      "❌ 时态不一致。主句谓语动词是过去时（was/would send），同句的时间状语从句不能用现在完成时。",
+      "✅ 正确。在过去时态的虚拟/推测主句（would send）中，when 引导的时间状语从句应用一般过去时表示过去发生的动作。",
+      "❌ 语法错误。when 引导的时间状语从句中，不能直接使用过去将来时 would do。"
+    ]
+  },
+  {
+    "q": "Three men dived ________ into the water. (ll.17-18)",
+    "answer": 2,
+    "options": [
+      "A. now and again",
+      "B. one after another",
+      "C. time and again",
+      "D. many a time"
+    ],
+    "analysis": [
+      "❌ 词义不符。now and again 意为“时而、偶尔”，无法对应原文潜水员多次下水作业的频率。",
+      "❌ 逻辑错误。one after another 意为“一个接一个地/陆续地”，强调不同的人接连做某事，而原文指这三个人屡次潜入水中。",
+      "✅ 正确。对应课文原文“Three men dived time and again into the water”。time and again 意为“屡次、反复”，表示这三名潜水员多次潜水去固定盘子。",
+      "❌ 表达不符。many a time 意为“多次”，后常修饰习惯性动作或句首倒装，与原文固定搭配不符。"
+    ]
+  },
+  {
+    "q": "A powerful winch was ________ . (ll.20-21)",
+    "answer": 0,
+    "options": [
+      "A. got going",
+      "B. made to work",
+      "C. taken to task",
+      "D. given a function"
+    ],
+    "analysis": [
+      "✅ 正确。对应课文原文“A powerful winch was put into operation”。get going 意为“运转起来、启动”，was got going 准确同义替换了被动语态的 put into operation（使投入运转）。",
+      "❌ 表达不当。made to work 侧重于“被逼迫工作”或“被强制运转”，不符合机器设备启动运转的惯用表达。",
+      "❌ 词义错误。take to task 是固定短语，意为“斥责、训斥”，不能用于机械设备。",
+      "❌ 表达生硬。given a function（被赋予某种功能）与原句表达“启动机器”的动态过程不符。"
+    ]
+  },
+  {
+    "q": "For one ________ moment, the dish ... (ll.21-23)",
+    "answer": 3,
+    "options": [
+      "A. dangerous",
+      "B. frightening",
+      "C. exciting",
+      "D. painful"
+    ],
+    "analysis": [
+      "❌ 替换不精准。dangerous 强调事物本身的客观危险性，而原文形容的是那一刻令人揪心不安的情状。",
+      "❌ 替换不精准。frightening 侧重于“吓人的、恐怖的”，偏向惊悚心理，不够符合现场悬而未决的紧张局势。",
+      "❌ 感情色彩不符。exciting 意为“令人兴奋的”，与当时扣人心弦、充满险情的救援气氛不符。",
+      "✅ 正确。对应课文原文“For one anxious moment, the dish...”。painful 在此处作引申解，意为“令人痛苦不安的/极其揪心的”，完美契合原句中描述救援过程极其令人提心吊胆的焦虑时刻（anxious moment）。"
+    ]
+  },
+  {
+    "q": "This time they put metal clamps ________ both sides of the dish. (ll.23-24)",
+    "answer": 1,
+    "options": [
+      "A. over",
+      "B. on to",
+      "C. astride",
+      "D. upon"
+    ],
+    "analysis": [
+      "❌ 介词不精准。over 表示“覆盖在……上方”，无法表现把夹子安装到盘子边缘上的动作。",
+      "✅ 正确。对应课文原文“This time they fixed metal clamps to both sides of the dish”。put ... on to ...（把……安/放上……）准确替换了原文中的 fix ... to ...。",
+      "❌ 词性/语法错误。astride 意为“跨在……两侧”，通常后接单一对象（如 astride the fence），此处已有 both sides，搭配 astride both sides 语义重复。",
+      "❌ 表达不精准。upon 侧重于“在……之上”，缺乏向物体表面固定施加动作（to）的动态感。"
+    ]
+  }
+]

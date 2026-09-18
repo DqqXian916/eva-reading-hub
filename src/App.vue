@@ -1914,6 +1914,15 @@ body {
     transform: rotate(15deg);
   }
 }
+
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -12px; /* 向上延伸覆盖所有 gap 间距 */
+  left: 0;
+  width: 100%;
+  height: 12px;
+}
 /* Dropdown 下拉悬浮菜单 */
 .dropdown-menu {
   position: absolute;

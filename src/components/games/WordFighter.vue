@@ -223,6 +223,24 @@ onMounted(initGame);
 <style scoped>
 /* 引入 Black Ops One 字体增加格斗感 (如果无法加载，会使用兜底 system-ui) */
 @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
+.kof-stage-improved { width: 100%; height: 100%; background: radial-gradient(circle at center, #1e2a6c 0%, #000 100%); color: #fff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%); background-size: 100% 3px; pointer-events: none; z-index: 100; opacity: 0.6; }
+.tactical-hud { display: flex; justify-content: space-between; padding: 25px 50px; align-items: flex-start; position: relative; z-index: 10; }
+.hp-track { width: 280px; height: 22px; background: #111; border: 2px solid #fff; clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%); position: relative; overflow: hidden; }
+.enemy-side { clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%); }
+.hp-fill { position: absolute; height: 100%; top: 0; transition: width 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+.hp-main { background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%); z-index: 3; }
+.hp-drain { background: #fff; z-index: 2; transition: width 1s cubic-bezier(0.55, 0.05, 0.675, 0.19); }
+.boss-fill.hp-main { background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%); right: 0; }
+.boss-fill.hp-drain { background: #fff; right: 0; }
+.ko-badge-improved { position: relative; width: 80px; height: 80px; background: #000; border: 4px solid #f1c40f; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
+.ko-text { font-size: 36px; color: #f1c40f; font-weight: 900; }
+.battle-arena { flex: 1; display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 20px; position: relative; }
+.character { font-size: 100px; transition: transform 0.15s ease-out; }
+.p1-char.attack { transform: translateX(120px) scale(1.1); }
+.p2-char.attack { transform: translateX(-120px) scale(1.1); }
+.hit { animation: flash 0.1s infinite; }
 
 .kof-stage-improved {
   width: 100%; height: 100%; 
@@ -390,25 +408,7 @@ onMounted(initGame);
 .wrong-warning { font-size: 12px; color: #ff3300; font-weight: bold; margin-top: 5px; }
 .game-over { color: #ff3300 !important; text-shadow: 0 0 10px #ff3300 !important; }
 
-/* 之前的 CSS 样式... (为节省篇幅未重复粘贴，请沿用上一版即可) */
-@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
-.kof-stage-improved { width: 100%; height: 100%; background: radial-gradient(circle at center, #1e2a6c 0%, #000 100%); color: #fff; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-.scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%); background-size: 100% 3px; pointer-events: none; z-index: 100; opacity: 0.6; }
-.tactical-hud { display: flex; justify-content: space-between; padding: 25px 50px; align-items: flex-start; position: relative; z-index: 10; }
-.hp-track { width: 280px; height: 22px; background: #111; border: 2px solid #fff; clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%); position: relative; overflow: hidden; }
-.enemy-side { clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%); }
-.hp-fill { position: absolute; height: 100%; top: 0; transition: width 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-.hp-main { background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%); z-index: 3; }
-.hp-drain { background: #fff; z-index: 2; transition: width 1s cubic-bezier(0.55, 0.05, 0.675, 0.19); }
-.boss-fill.hp-main { background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%); right: 0; }
-.boss-fill.hp-drain { background: #fff; right: 0; }
-.ko-badge-improved { position: relative; width: 80px; height: 80px; background: #000; border: 4px solid #f1c40f; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
-.ko-text { font-size: 36px; color: #f1c40f; font-weight: 900; }
-.battle-arena { flex: 1; display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 20px; position: relative; }
-.character { font-size: 100px; transition: transform 0.15s ease-out; }
-.p1-char.attack { transform: translateX(120px) scale(1.1); }
-.p2-char.attack { transform: translateX(-120px) scale(1.1); }
-.hit { animation: flash 0.1s infinite; }
+
 @keyframes flash { from { opacity: 1; filter: brightness(2); } to { opacity: 0.5; } }
 .interaction-hud { background: rgba(0,0,0,0.92); border-top: 3px solid #00ccff; padding: 15px 30px 25px; }
 .target-word-glow { font-size: 40px; text-shadow: 0 0 10px #00ccff; }
