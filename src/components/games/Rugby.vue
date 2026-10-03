@@ -28,7 +28,7 @@ const currentWord = ref(null)
 const options = ref([])
 const isTargeting = ref(false)
 const roundLock = ref(false)
-const currentMoveType = ref('smash')
+const currentMoveType = ref('pass') // pass (短传), rush (冲锋), touchdown (达阵轰炸)
 
 // 斩杀与 QTE 交互状态
 const isQTEActive = ref(false)
@@ -55,30 +55,36 @@ const initAudio = () => {
     }
 }
 
-const playHitSound = (type = 'smash') => {
+const playHitSound = (type = 'pass') => {
     if (!audioCtx) return
     const now = audioCtx.currentTime
     const osc = audioCtx.createOscillator()
     const gain = audioCtx.createGain()
 
-    if (type === 'smash') {
-        osc.type = 'triangle'
-        osc.frequency.setValueAtTime(340, now)
-        osc.frequency.exponentialRampToValueAtTime(40, now + 0.2)
+    if (type === 'touchdown') {
+        osc.type = 'sawtooth'
+        osc.frequency.setValueAtTime(450, now)
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.3)
         gain.gain.setValueAtTime(1.0, now)
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3)
+    } else if (type === 'rush') {
+        osc.type = 'square'
+        osc.frequency.setValueAtTime(280, now)
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.2)
+        gain.gain.setValueAtTime(0.8, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2)
     } else {
-        osc.type = 'square'
-        osc.frequency.setValueAtTime(240, now)
-        osc.frequency.exponentialRampToValueAtTime(80, now + 0.15)
-        gain.gain.setValueAtTime(0.5, now)
+        osc.type = 'triangle'
+        osc.frequency.setValueAtTime(320, now)
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.15)
+        gain.gain.setValueAtTime(0.6, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15)
     }
 
     osc.connect(gain)
     gain.connect(audioCtx.destination)
     osc.start(now)
-    osc.stop(now + 0.2)
+    osc.stop(now + 0.3)
 }
 
 const playQTESound = () => {
@@ -87,8 +93,8 @@ const playQTESound = () => {
     const osc = audioCtx.createOscillator()
     const gain = audioCtx.createGain()
     osc.type = 'sine'
-    osc.frequency.setValueAtTime(400 + qteCount.value * 50, now)
-    osc.frequency.exponentialRampToValueAtTime(800 + qteCount.value * 50, now + 0.08)
+    osc.frequency.setValueAtTime(350 + qteCount.value * 60, now)
+    osc.frequency.exponentialRampToValueAtTime(750 + qteCount.value * 60, now + 0.08)
     gain.gain.setValueAtTime(0.8, now)
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08)
     osc.connect(gain)
@@ -103,23 +109,23 @@ const playKOBoomSound = () => {
     const osc = audioCtx.createOscillator()
     const gain = audioCtx.createGain()
     osc.type = 'sawtooth'
-    osc.frequency.setValueAtTime(600, now)
-    osc.frequency.exponentialRampToValueAtTime(20, now + 1.2)
+    osc.frequency.setValueAtTime(500, now)
+    osc.frequency.exponentialRampToValueAtTime(15, now + 1.4)
     gain.gain.setValueAtTime(1.0, now)
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2)
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.4)
     osc.connect(gain)
     gain.connect(audioCtx.destination)
     osc.start(now)
-    osc.stop(now + 1.2)
+    osc.stop(now + 1.4)
 }
 
 // ----------------------------------------------------
-// 角色与发球机状态
+// 角色与发球机（发球塔/发球机）状态
 // ----------------------------------------------------
 const keys = { left: false, right: false }
 
 const player = {
-    x: 180,
+    x: 160,
     y: 310,
     baseY: 310,
     speed: 4.8,
@@ -134,26 +140,26 @@ const player = {
     maxX: 360
 }
 
-// 羽毛球发球机
+// 橄榄球发球塔
 const machine = { 
-    x: 680, 
+    x: 690, 
     y: 300, 
     recoil: 0, 
-    isBroken: false,
-    glowAngle: 0
+    isBroken: false
 }
 
-const shuttlecock = {
-    x: 680,
+const football = {
+    x: 690,
     y: 280,
-    startX: 680,
+    startX: 690,
     startY: 280,
     targetX: 200,
     targetY: 310,
     progress: 0,
-    arcHeight: 140,
+    arcHeight: 120,
     active: false,
-    quizTriggered: false
+    quizTriggered: false,
+    rotation: 0
 }
 
 // 发球
@@ -188,9 +194,9 @@ const launchShuttle = () => {
     ].sort(() => 0.5 - Math.random())
 
     const zonePositions = [
-        { x: 490, y: 330, areaName: '前场短球 [1]' },
-        { x: 610, y: 260, areaName: '中场平抽 [2]' },
-        { x: 710, y: 340, areaName: '后场底线 [3]' }
+        { x: 480, y: 330, areaName: '左路区域 [1]' },
+        { x: 600, y: 260, areaName: '中路突破 [2]' },
+        { x: 710, y: 340, areaName: '右路达阵 [3]' }
     ]
 
     options.value = rawOptions.map((opt, idx) => ({
@@ -201,19 +207,19 @@ const launchShuttle = () => {
     }))
 
     machine.recoil = 18
-    shuttlecock.startX = machine.x - 40
-    shuttlecock.startY = machine.y - 20
-    shuttlecock.targetX = 120 + Math.random() * 180
-    shuttlecock.targetY = player.baseY
-    shuttlecock.progress = 0
-    shuttlecock.arcHeight = 120 + Math.random() * 40
-    shuttlecock.quizTriggered = false
-    shuttlecock.active = true
+    football.startX = machine.x - 30
+    football.startY = machine.y - 20
+    football.targetX = 120 + Math.random() * 180
+    football.targetY = player.baseY
+    football.progress = 0
+    football.arcHeight = 110 + Math.random() * 40
+    football.quizTriggered = false
+    football.active = true
 }
 
 const triggerMidAirQuiz = () => {
-    if (shuttlecock.quizTriggered) return
-    shuttlecock.quizTriggered = true
+    if (football.quizTriggered) return
+    football.quizTriggered = true
     isTargeting.value = true
 }
 
@@ -236,7 +242,7 @@ const selectMoveAndAnswer = (moveType, opt) => {
     player.swinging = true
     player.effectFrame = 15
 
-    if (moveType === 'smash') {
+    if (moveType === 'touchdown') {
         player.vy = -12
         player.isJumping = true
     }
@@ -246,30 +252,30 @@ const selectMoveAndAnswer = (moveType, opt) => {
         wordHistory.value.push('correct')
         playHitSound(moveType)
 
-        shuttlecock.startX = shuttlecock.x
-        shuttlecock.startY = shuttlecock.y
-        shuttlecock.targetX = opt.targetX
-        shuttlecock.targetY = opt.targetY
-        shuttlecock.progress = 0
-        shuttlecock.arcHeight = moveType === 'smash' ? 15 : 40
+        football.startX = football.x
+        football.startY = football.y
+        football.targetX = opt.targetX
+        football.targetY = opt.targetY
+        football.progress = 0
+        football.arcHeight = moveType === 'touchdown' ? 140 : (moveType === 'rush' ? 20 : 60)
 
         setTimeout(() => {
-            shuttlecock.active = false
+            football.active = false
             setTimeout(launchShuttle, 400)
         }, 450)
     } else {
         aiScore.value++
         wordHistory.value.push('wrong')
 
-        shuttlecock.startX = shuttlecock.x
-        shuttlecock.startY = shuttlecock.y
-        shuttlecock.targetX = player.x - 30
-        shuttlecock.targetY = player.baseY + 10
-        shuttlecock.progress = 0
-        shuttlecock.arcHeight = 10
+        football.startX = football.x
+        football.startY = football.y
+        football.targetX = player.x - 30
+        football.targetY = player.baseY + 10
+        football.progress = 0
+        football.arcHeight = 15
 
         setTimeout(() => {
-            shuttlecock.active = false
+            football.active = false
             setTimeout(launchShuttle, 600)
         }, 450)
     }
@@ -319,11 +325,11 @@ const triggerUltimateKO = () => {
     playerScore.value++
     wordHistory.value.push('correct')
 
-    shuttlecock.startX = shuttlecock.x
-    shuttlecock.startY = shuttlecock.y
-    shuttlecock.targetX = machine.x
-    shuttlecock.targetY = machine.y
-    shuttlecock.progress = 0
+    football.startX = football.x
+    football.startY = football.y
+    football.targetX = machine.x
+    football.targetY = machine.y
+    football.progress = 0
 
     machine.isBroken = true
 
@@ -333,13 +339,13 @@ const triggerUltimateKO = () => {
         y: machine.y,
         vx: (Math.random() - 0.5) * 22,
         vy: (Math.random() - 0.5) * 22,
-        color: ['#ef4444', '#facc15', '#38bdf8', '#ffffff', '#a855f7'][Math.floor(Math.random() * 5)],
+        color: ['#16a34a', '#facc15', '#ea580c', '#ffffff', '#dc2626'][Math.floor(Math.random() * 5)],
         size: Math.random() * 10 + 4,
         life: 1.0
     }))
 
     setTimeout(() => {
-        shuttlecock.active = false
+        football.active = false
         gameWinner.value = 'player'
     }, 1500)
 }
@@ -351,9 +357,9 @@ const handleKeyDown = (e) => {
         return
     }
 
-    if (e.key === 'j' || e.key === 'J') currentMoveType.value = 'smash'
-    if (e.key === 'k' || e.key === 'K') currentMoveType.value = 'drop'
-    if (e.key === 'l' || e.key === 'L') currentMoveType.value = 'drive'
+    if (e.key === 'j' || e.key === 'J') currentMoveType.value = 'pass'
+    if (e.key === 'k' || e.key === 'K') currentMoveType.value = 'rush'
+    if (e.key === 'l' || e.key === 'L') currentMoveType.value = 'touchdown'
 
     if (isTargeting.value) {
         if (e.key === '1' && options.value[0]) selectMoveAndAnswer(currentMoveType.value, options.value[0])
@@ -371,45 +377,68 @@ const handleKeyUp = (e) => {
     if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') keys.right = false
 }
 
-// 渲染场地
+// 渲染橄榄球场
 const drawCourtBackground = () => {
-    ctx.fillStyle = isUltimateKO.value ? '#090d16' : '#1e293b'
-    ctx.fillRect(0, 0, CANVAS_WIDTH, 180)
+    // 1. 夜空/看台
+    ctx.fillStyle = isUltimateKO.value ? '#051207' : '#0f172a'
+    ctx.fillRect(0, 0, CANVAS_WIDTH, 170)
 
-    ctx.fillStyle = '#0f172a'
+    // 看台灯光/观众颗粒
+    ctx.fillStyle = '#1e293b'
     for (let x = 10; x < CANVAS_WIDTH; x += 25) {
-        for (let y = 50; y < 160; y += 22) {
+        for (let y = 40; y < 150; y += 20) {
             ctx.beginPath()
-            ctx.arc(x, y, 8, 0, Math.PI * 2)
+            ctx.arc(x, y, 6, 0, Math.PI * 2)
             ctx.fill()
         }
     }
 
-    ctx.fillStyle = '#94a3b8'
-    ctx.fillRect(0, 160, CANVAS_WIDTH, 30)
+    // 2. 橄榄球草坪
+    const grassGradient = ctx.createLinearGradient(0, 170, 0, CANVAS_HEIGHT)
+    grassGradient.addColorStop(0, isUltimateKO.value ? '#064e3b' : '#15803d')
+    grassGradient.addColorStop(1, isUltimateKO.value ? '#022c22' : '#166534')
+    ctx.fillStyle = grassGradient
+    ctx.fillRect(0, 170, CANVAS_WIDTH, CANVAS_HEIGHT - 170)
 
-    ctx.fillStyle = isUltimateKO.value ? '#450a0a' : '#d97706'
-    ctx.fillRect(0, 190, CANVAS_WIDTH, 260)
+    // 条纹草坪
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
+    for (let x = 0; x < CANVAS_WIDTH; x += 80) {
+        ctx.fillRect(x, 170, 40, CANVAS_HEIGHT - 170)
+    }
 
-    ctx.fillStyle = isUltimateKO.value ? '#14532d' : '#15803d'
-    ctx.beginPath()
-    ctx.moveTo(40, 230)
-    ctx.lineTo(CANVAS_WIDTH - 40, 230)
-    ctx.lineTo(CANVAS_WIDTH - 10, 420)
-    ctx.lineTo(10, 420)
-    ctx.closePath()
-    ctx.fill()
-
+    // 3. 码线与端区标志 (Yard lines)
     ctx.strokeStyle = '#ffffff'
     ctx.lineWidth = 3
-    ctx.strokeRect(50, 240, CANVAS_WIDTH - 100, 170)
     ctx.beginPath()
-    ctx.moveTo(CANVAS_WIDTH / 2, 240)
-    ctx.lineTo(CANVAS_WIDTH / 2, 410)
+    for (let x = 80; x < CANVAS_WIDTH; x += 80) {
+        ctx.moveTo(x, 200)
+        ctx.lineTo(x, 420)
+    }
     ctx.stroke()
 
-    ctx.fillStyle = '#334155'
-    ctx.fillRect(CANVAS_WIDTH / 2 - 4, 180, 8, 140)
+    // 码线数字
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+    ctx.font = 'bold 16px sans-serif'
+    ctx.textAlign = 'center'
+    const yards = [10, 20, 30, 40, 50, 40, 30, 20, 10]
+    yards.forEach((y, i) => {
+        ctx.fillText(y.toString(), 80 + i * 80, 220)
+        ctx.fillText(y.toString(), 80 + i * 80, 410)
+    })
+
+    // 4. 黄色橄榄球门柱 (Goal Post)
+    ctx.strokeStyle = '#facc15'
+    ctx.lineWidth = 5
+    ctx.beginPath()
+    ctx.moveTo(740, 330)
+    ctx.lineTo(740, 200)
+    ctx.moveTo(710, 200)
+    ctx.lineTo(770, 200)
+    ctx.moveTo(710, 200)
+    ctx.lineTo(710, 120)
+    ctx.moveTo(770, 200)
+    ctx.lineTo(770, 120)
+    ctx.stroke()
 
     // 落点显示
     if (isTargeting.value) {
@@ -417,10 +446,10 @@ const drawCourtBackground = () => {
             ctx.save()
             ctx.beginPath()
             ctx.ellipse(opt.targetX, opt.targetY + 15, 45, 18, 0, 0, Math.PI * 2)
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)'
+            ctx.fillStyle = 'rgba(250, 204, 21, 0.25)'
             ctx.fill()
             ctx.lineWidth = 2
-            ctx.strokeStyle = '#facc15'
+            ctx.strokeStyle = '#ea580c'
             ctx.setLineDash([4, 4])
             ctx.stroke()
 
@@ -431,103 +460,107 @@ const drawCourtBackground = () => {
 
             ctx.setLineDash([])
             ctx.fillStyle = '#0f172a'
-            ctx.strokeStyle = '#38bdf8'
+            ctx.strokeStyle = '#facc15'
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 8)
             ctx.fill()
             ctx.stroke()
 
-            ctx.fillStyle = '#facc15'
+            ctx.fillStyle = '#ea580c'
             ctx.font = 'bold 12px sans-serif'
-            ctx.fillText(`[${idx + 1}]`, cardX + 8, cardY + 22)
+            ctx.fillText(`[${idx + 1}]`, cardX + 16, cardY + 22)
 
             ctx.fillStyle = '#ffffff'
             ctx.font = 'bold 14px sans-serif'
-            ctx.fillText(opt.text, cardX + 30, cardY + 22)
+            ctx.fillText(opt.text, cardX + 38, cardY + 22)
 
             ctx.restore()
         })
     }
 }
 
-// 绘制角色
+// 绘制橄榄球选手 (带有头盔与护肩)
 const drawPlayerCharacter = (p) => {
     ctx.save()
     ctx.translate(p.x, p.y)
 
-    ctx.fillStyle = 'rgba(0,0,0,0.3)'
+    // 阴影
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'
     ctx.beginPath()
-    ctx.ellipse(0, 5, 18, 5, 0, 0, Math.PI * 2)
+    ctx.ellipse(0, 5, 22, 6, 0, 0, Math.PI * 2)
     ctx.fill()
 
     if (keys.left || keys.right) p.walkFrame += 0.2
     else p.walkFrame = 0
     const legOffset = Math.sin(p.walkFrame) * 10
 
-    ctx.strokeStyle = '#334155'
-    ctx.lineWidth = 4
+    // 双腿
+    ctx.strokeStyle = '#1e293b'
+    ctx.lineWidth = 6
     ctx.beginPath()
-    ctx.moveTo(-6, -20)
-    ctx.lineTo(-6 - legOffset, 0)
-    ctx.moveTo(6, -20)
-    ctx.lineTo(6 + legOffset, 0)
+    ctx.moveTo(-8, -20)
+    ctx.lineTo(-8 - legOffset, 0)
+    ctx.moveTo(8, -20)
+    ctx.lineTo(8 + legOffset, 0)
     ctx.stroke()
 
-    ctx.fillStyle = '#dc2626'
-    ctx.fillRect(-10 - legOffset, -2, 10, 5)
-    ctx.fillRect(4 + legOffset, -2, 10, 5)
+    // 战术球鞋
+    ctx.fillStyle = '#ea580c'
+    ctx.fillRect(-12 - legOffset, -2, 12, 6)
+    ctx.fillRect(4 + legOffset, -2, 12, 6)
 
-    ctx.fillStyle = '#1e293b'
-    ctx.fillRect(-10, -32, 20, 14)
+    // 橄榄球短裤
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(-12, -34, 24, 16)
 
-    ctx.fillStyle = '#f8fafc'
-    ctx.fillRect(-9, -58, 18, 28)
-
-    ctx.fillStyle = '#78350f'
+    // 护肩与队服球衣 (带有 88 号)
+    ctx.fillStyle = '#0284c7'
     ctx.beginPath()
-    ctx.arc(0, -70, 11, 0, Math.PI * 2)
-    ctx.fill()
-
-    ctx.fillStyle = '#0f172a'
-    ctx.beginPath()
-    ctx.arc(0, -74, 11, Math.PI, Math.PI * 2)
+    ctx.roundRect(-16, -60, 32, 28, 4)
     ctx.fill()
 
     ctx.fillStyle = '#ffffff'
-    ctx.fillRect(3, -72, 3, 3)
+    ctx.font = '900 12px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('88', 0, -42)
 
+    // 橄榄球头盔
+    ctx.fillStyle = '#ea580c'
+    ctx.beginPath()
+    ctx.arc(0, -72, 14, 0, Math.PI * 2)
+    ctx.fill()
+
+    // 头盔护面面罩 (Grid)
+    ctx.strokeStyle = '#334155'
+    ctx.lineWidth = 2.5
+    ctx.beginPath()
+    ctx.moveTo(2, -72)
+    ctx.lineTo(14, -72)
+    ctx.lineTo(12, -62)
+    ctx.lineTo(2, -62)
+    ctx.stroke()
+
+    // 手臂与挥球动作
     ctx.save()
-    ctx.translate(4, -50)
+    ctx.translate(6, -52)
     let targetAngle = p.swinging ? -Math.PI / 1.1 : Math.PI / 6
     p.armAngle += (targetAngle - p.armAngle) * 0.35
     ctx.rotate(p.armAngle)
 
-    ctx.strokeStyle = '#78350f'
-    ctx.lineWidth = 3.5
+    ctx.strokeStyle = '#f8fafc'
+    ctx.lineWidth = 5
     ctx.beginPath()
     ctx.moveTo(0, 0)
-    ctx.lineTo(16, -5)
-    ctx.stroke()
-
-    ctx.strokeStyle = '#e11d48'
-    ctx.lineWidth = 2.5
-    ctx.beginPath()
-    ctx.moveTo(16, -5)
-    ctx.lineTo(30, -10)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.ellipse(38, -12, 12, 7, 0.3, 0, Math.PI * 2)
-    ctx.strokeStyle = '#f8fafc'
+    ctx.lineTo(18, -6)
     ctx.stroke()
 
     if (p.effectFrame > 0) {
         p.effectFrame--
-        ctx.strokeStyle = isUltimateKO.value ? '#a855f7' : '#ef4444'
+        ctx.strokeStyle = isUltimateKO.value ? '#facc15' : '#ea580c'
         ctx.lineWidth = isUltimateKO.value ? 10 : 4
         ctx.beginPath()
-        ctx.arc(38, -12, 20 + (15 - p.effectFrame) * 3, 0, Math.PI * 2)
+        ctx.arc(18, -6, 18 + (15 - p.effectFrame) * 3, 0, Math.PI * 2)
         ctx.stroke()
     }
 
@@ -536,7 +569,7 @@ const drawPlayerCharacter = (p) => {
 }
 
 // ----------------------------------------------------
-// 🤖 经典羽毛球发球机绘制（匹配原版游戏视觉风格）
+// 🤖 橄榄球发球机/防守塔绘制
 // ----------------------------------------------------
 const drawCyberTurret = (m) => {
     ctx.save()
@@ -544,83 +577,46 @@ const drawCyberTurret = (m) => {
 
     if (m.recoil > 0) m.recoil *= 0.82
 
-    // 1. 阴影
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
+    // 阴影
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)'
     ctx.beginPath()
-    ctx.ellipse(0, 20, 36, 8, 0, 0, Math.PI * 2)
+    ctx.ellipse(0, 20, 38, 10, 0, 0, Math.PI * 2)
     ctx.fill()
 
-    // 2. 灰色后车轮
-    ctx.fillStyle = '#475569'
-    ctx.strokeStyle = '#1e293b'
-    ctx.lineWidth = 2
+    // 底座履带
+    ctx.fillStyle = '#334155'
     ctx.beginPath()
-    ctx.arc(22, 14, 10, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.stroke()
-
-    ctx.fillStyle = '#94a3b8'
-    ctx.beginPath()
-    ctx.arc(22, 14, 4, 0, Math.PI * 2)
+    ctx.roundRect(-35, 10, 60, 14, 4)
     ctx.fill()
 
-    // 3. 白色核心主体框架
-    ctx.fillStyle = m.isBroken ? '#64748b' : '#f8fafc'
-    ctx.strokeStyle = '#334155'
+    // 主体结构 (深绿/黑金样式)
+    ctx.fillStyle = m.isBroken ? '#475569' : '#1e293b'
+    ctx.strokeStyle = '#ea580c'
     ctx.lineWidth = 2.5
     ctx.beginPath()
-    ctx.moveTo(-35, 18)
-    ctx.lineTo(28, 18)
-    ctx.lineTo(28, -15)
-    ctx.lineTo(-10, -25)
-    ctx.lineTo(-35, -5)
+    ctx.moveTo(-30, 10)
+    ctx.lineTo(20, 10)
+    ctx.lineTo(15, -20)
+    ctx.lineTo(-20, -25)
     ctx.closePath()
     ctx.fill()
     ctx.stroke()
 
-    // 4. 鲜艳橙色侧面装甲盖板
-    ctx.fillStyle = m.isBroken ? '#7f1d1d' : '#ea580c'
+    // 侧面装甲
+    ctx.fillStyle = m.isBroken ? '#7f1d1d' : '#15803d'
+    ctx.fillRect(-15, -15, 25, 18)
+
+    // 发射管口
+    ctx.fillStyle = '#0f172a'
     ctx.beginPath()
-    ctx.moveTo(-32, 14)
-    ctx.lineTo(20, 14)
-    ctx.lineTo(20, -8)
-    ctx.lineTo(-8, -16)
-    ctx.lineTo(-32, -2)
-    ctx.closePath()
+    ctx.arc(-20, -12, 10, 0, Math.PI * 2)
     ctx.fill()
+    ctx.strokeStyle = '#facc15'
     ctx.stroke()
 
-    // 5. 侧面白色方向指示箭头 (指向左上方发射方向)
-    if (!m.isBroken) {
-        ctx.fillStyle = '#f8fafc'
-        ctx.beginPath()
-        ctx.moveTo(-18, 4)
-        ctx.lineTo(-4, 4)
-        ctx.lineTo(-4, -2)
-        ctx.lineTo(6, -2)
-        ctx.lineTo(-11, -12)
-        ctx.lineTo(-11, -2)
-        ctx.lineTo(-18, -2)
-        ctx.closePath()
-        ctx.fill()
-    }
-
-    // 6. 黑色发球斜面板与管口
-    ctx.fillStyle = '#1e293b'
-    ctx.beginPath()
-    ctx.roundRect(-24, -26, 20, 12, 3)
-    ctx.fill()
-    ctx.stroke()
-
-    // 7. 发射管指示灯/发光的发射口
-    ctx.fillStyle = m.isBroken ? '#ef4444' : '#facc15'
-    ctx.beginPath()
-    ctx.arc(-20, -20, 4, 0, Math.PI * 2)
-    ctx.fill()
-
-    // 8. 报废烟雾效果
+    // 报废烟雾效果
     if (m.isBroken) {
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.6)'
+        ctx.fillStyle = 'rgba(234, 88, 12, 0.6)'
         ctx.beginPath()
         ctx.arc(0, -15, Math.random() * 15 + 10, 0, Math.PI * 2)
         ctx.fill()
@@ -654,7 +650,7 @@ const render = () => {
     drawCyberTurret(machine)
     drawPlayerCharacter(player)
 
-    // 斩杀粒子
+    // 斩杀爆破粒子
     if (koParticleList.value.length > 0) {
         koParticleList.value.forEach(pt => {
             pt.x += pt.vx
@@ -667,48 +663,72 @@ const render = () => {
         })
     }
 
-    if (shuttlecock.active) {
+    // 橄榄球绘制与旋转飞行
+    if (football.active) {
         const step = isUltimateKO.value ? 0.08 : (isTargeting.value || isQTEActive.value ? 0.001 : 0.015)
-        shuttlecock.progress += step
-        if (shuttlecock.progress > 1) shuttlecock.progress = 1
+        football.progress += step
+        if (football.progress > 1) football.progress = 1
 
-        if (shuttlecock.progress >= 0.4 && !shuttlecock.quizTriggered) {
+        if (football.progress >= 0.4 && !football.quizTriggered) {
             triggerMidAirQuiz()
         }
 
-        const p = shuttlecock.progress
-        shuttlecock.x = shuttlecock.startX + (shuttlecock.targetX - shuttlecock.startX) * p
-        shuttlecock.y = shuttlecock.startY + (shuttlecock.targetY - shuttlecock.startY) * p - Math.sin(p * Math.PI) * shuttlecock.arcHeight
+        const p = football.progress
+        football.x = football.startX + (football.targetX - football.startX) * p
+        football.y = football.startY + (football.targetY - football.startY) * p - Math.sin(p * Math.PI) * football.arcHeight
+        football.rotation += 0.15
 
-        // 斩杀激光束
+        // 斩杀激光/火球尾迹
         if (isUltimateKO.value) {
-            ctx.strokeStyle = '#facc15'
-            ctx.shadowColor = '#ef4444'
+            ctx.strokeStyle = '#ea580c'
+            ctx.shadowColor = '#facc15'
             ctx.shadowBlur = 15
-            ctx.lineWidth = 12
+            ctx.lineWidth = 14
             ctx.beginPath()
-            ctx.moveTo(shuttlecock.startX, shuttlecock.startY)
-            ctx.lineTo(shuttlecock.x, shuttlecock.y)
+            ctx.moveTo(football.startX, football.startY)
+            ctx.lineTo(football.x, football.y)
             ctx.stroke()
             ctx.shadowBlur = 0
         }
 
         ctx.save()
-        ctx.translate(shuttlecock.x, shuttlecock.y)
-        ctx.fillStyle = isUltimateKO.value ? '#ef4444' : '#ffffff'
-        ctx.beginPath()
-        ctx.arc(0, 0, isUltimateKO.value ? 12 : 6, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.translate(football.x, football.y)
+        ctx.rotate(football.rotation)
 
+        // 橄榄球椭圆身体 (Brown Football Body)
+        ctx.fillStyle = '#78350f'
+        ctx.beginPath()
+        ctx.ellipse(0, 0, isUltimateKO.value ? 16 : 10, isUltimateKO.value ? 10 : 6, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 1.5
+        ctx.stroke()
+
+        // 橄榄球缝线 (White Laces)
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 1.5
+        ctx.beginPath()
+        ctx.moveTo(-4, 0)
+        ctx.lineTo(4, 0)
+        ctx.moveTo(-2, -2)
+        ctx.lineTo(-2, 2)
+        ctx.moveTo(2, -2)
+        ctx.lineTo(2, 2)
+        ctx.stroke()
+
+        ctx.restore()
+
+        // 单词渲染
         if (currentWord.value && !isUltimateKO.value) {
+            ctx.save()
             ctx.fillStyle = '#facc15'
             ctx.font = '900 20px monospace'
             ctx.textAlign = 'center'
             ctx.shadowColor = 'black'
-            ctx.shadowBlur = 5
-            ctx.fillText(currentWord.value.word || currentWord.value.en, 0, -18)
+            ctx.shadowBlur = 6
+            ctx.fillText(currentWord.value.word || currentWord.value.en, football.x, football.y - 18)
+            ctx.restore()
         }
-        ctx.restore()
     }
 
     animationFrameId = requestAnimationFrame(render)
@@ -773,27 +793,27 @@ watch(() => props.wordList, restartGame, { deep: true })
                 <div class="score-box blue">{{ playerScore }}</div>
                 
                 <div class="inline-move-tabs">
-                    <span class="move-label">当前击球招式:</span>
+                    <span class="move-label">战术选择:</span>
                     <button 
-                        class="move-tab smash" 
-                        :class="{ active: currentMoveType === 'smash' }"
-                        @click="currentMoveType = 'smash'"
+                        class="move-tab pass" 
+                        :class="{ active: currentMoveType === 'pass' }"
+                        @click="currentMoveType = 'pass'"
                     >
-                        💥 重扣 <span class="key-hint">(J)</span>
+                        🏈 短传 <span class="key-hint">(J)</span>
                     </button>
                     <button 
-                        class="move-tab drop" 
-                        :class="{ active: currentMoveType === 'drop' }"
-                        @click="currentMoveType = 'drop'"
+                        class="move-tab rush" 
+                        :class="{ active: currentMoveType === 'rush' }"
+                        @click="currentMoveType = 'rush'"
                     >
-                        🎾 吊球 <span class="key-hint">(K)</span>
+                        ⚡ 强攻冲锋 <span class="key-hint">(K)</span>
                     </button>
                     <button 
-                        class="move-tab drive" 
-                        :class="{ active: currentMoveType === 'drive' }"
-                        @click="currentMoveType = 'drive'"
+                        class="move-tab touchdown" 
+                        :class="{ active: currentMoveType === 'touchdown' }"
+                        @click="currentMoveType = 'touchdown'"
                     >
-                        ⚡ 平抽 <span class="key-hint">(L)</span>
+                        💥 达阵轰炸 <span class="key-hint">(L)</span>
                     </button>
                 </div>
 
@@ -828,19 +848,19 @@ watch(() => props.wordList, restartGame, { deep: true })
 
             <!-- 慢动作提示条 -->
             <div v-if="isTargeting" class="aim-action-banner">
-                <span class="aim-text">🎯 打向对应落点！</span>
+                <span class="aim-text">🎯 传球向正确路线！</span>
             </div>
 
-            <!-- 🔥 QTE 斩杀互动浮层 -->
+            <!-- 🔥 QTE 达阵斩杀互动浮层 -->
             <div v-if="isQTEActive" class="qte-interactive-overlay" @click="handleQTEClick">
-                <div class="qte-title">🔥 触发 10连胜 满血灭世斩杀！</div>
-                <div class="qte-prompt">连续狂按【空格键】或【点击屏幕】！</div>
+                <div class="qte-title">🏈 触发 10连胜 TOUCHDOWN 触地达阵！</div>
+                <div class="qte-prompt">连续狂按【空格键】或【点击屏幕】撕裂防线！</div>
                 
                 <!-- 充能进度条 -->
                 <div class="qte-energy-bar">
                     <div class="qte-energy-fill" :style="{ width: (qteCount / QTE_GOAL * 100) + '%' }"></div>
                 </div>
-                <div class="qte-counter">{{ qteCount }} / {{ QTE_GOAL }} POWER</div>
+                <div class="qte-counter">{{ qteCount }} / {{ QTE_GOAL }} TOUCHDOWN</div>
 
                 <!-- 倒计时条 -->
                 <div class="qte-timer-bar">
@@ -850,14 +870,14 @@ watch(() => props.wordList, restartGame, { deep: true })
 
             <!-- 斩杀成功大字幕 -->
             <div v-if="isUltimateKO" class="ko-overlay-banner">
-                <div class="ko-title">🔥 PERFECT K.O. FINISH! 🔥</div>
-                <div class="ko-sub">裂空斩杀！全对大满贯爆破！</div>
+                <div class="ko-title">🏆 TOUCHDOWN! WINNER! 🏆</div>
+                <div class="ko-sub">达阵爆破！全对大满贯强攻通关！</div>
             </div>
 
             <!-- 通关结算弹窗 -->
             <div v-if="gameWinner" class="quiz-overlay">
                 <div class="result-card" :class="{ 'perfect-card': playerScore === GROUP_SIZE }">
-                    <h2>{{ playerScore === GROUP_SIZE ? '👑 完美大满贯胜利！' : (gameWinner === 'player' ? '🏆 本组通关成功！' : '💪 继续加油！') }}</h2>
+                    <h2>{{ playerScore === GROUP_SIZE ? '👑 完美达阵胜利！' : (gameWinner === 'player' ? '🏆 成功撕裂防线！' : '💪 继续加油！') }}</h2>
                     <p>正确率: {{ playerScore }} / {{ GROUP_SIZE }}</p>
                     <button class="btn-restart" @click="restartGame">下一组测试</button>
                 </div>
@@ -886,7 +906,7 @@ watch(() => props.wordList, restartGame, { deep: true })
                     <span class="key-badge">D / ➡️</span> 向右移动
                 </button>
             </div>
-            <div class="move-tip">💡  1/2/3 选落点击球，J/K/L 切招式</div>
+            <div class="move-tip">💡 1/2/3 选接球路线，J/K/L 切换战术</div>
         </div>
     </div>
 </template>
@@ -898,7 +918,7 @@ watch(() => props.wordList, restartGame, { deep: true })
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: #0f172a;
+    background: #091a10;
     padding: 12px;
     box-sizing: border-box;
     user-select: none;
@@ -914,8 +934,8 @@ watch(() => props.wordList, restartGame, { deep: true })
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1e293b;
-    border: 2px solid #334155;
+    background: #143823;
+    border: 2px solid #22543d;
     border-radius: 10px;
     padding: 6px 16px;
 }
@@ -939,21 +959,21 @@ watch(() => props.wordList, restartGame, { deep: true })
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #0f172a;
+    background: #091a10;
     padding: 4px 12px;
     border-radius: 20px;
-    border: 1px solid #334155;
+    border: 1px solid #22543d;
 }
 
 .move-label {
-    color: #94a3b8;
+    color: #a7f3d0;
     font-size: 12px;
 }
 
 .move-tab {
     background: transparent;
     border: none;
-    color: #94a3b8;
+    color: #a7f3d0;
     padding: 4px 10px;
     border-radius: 14px;
     font-size: 13px;
@@ -970,9 +990,9 @@ watch(() => props.wordList, restartGame, { deep: true })
     opacity: 0.6;
 }
 
-.move-tab.smash.active { background: #dc2626; color: white; }
-.move-tab.drop.active { background: #0284c7; color: white; }
-.move-tab.drive.active { background: #d97706; color: white; }
+.move-tab.pass.active { background: #0284c7; color: white; }
+.move-tab.rush.active { background: #d97706; color: white; }
+.move-tab.touchdown.active { background: #dc2626; color: white; }
 
 /* 10 词进度条 */
 .progress-bar-10 {
@@ -984,15 +1004,15 @@ watch(() => props.wordList, restartGame, { deep: true })
 .progress-dot {
     flex: 1;
     height: 18px;
-    background: #334155;
-    border: 1px solid #475569;
+    background: #143823;
+    border: 1px solid #22543d;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
     font-weight: bold;
-    color: #94a3b8;
+    color: #a7f3d0;
     transition: all 0.2s;
 }
 
@@ -1003,13 +1023,13 @@ watch(() => props.wordList, restartGame, { deep: true })
 }
 
 .progress-dot.correct {
-    background: #10b981;
-    border-color: #34d399;
+    background: #16a34a;
+    border-color: #4ade80;
     color: white;
 }
 
 .progress-dot.wrong {
-    background: #ef4444;
+    background: #dc2626;
     border-color: #f87171;
     color: white;
 }
@@ -1038,16 +1058,16 @@ canvas {
     width: 100%;
     max-width: 800px;
     border-radius: 12px;
-    border: 3px solid #334155;
+    border: 3px solid #22543d;
     box-shadow: 0 12px 24px rgba(0,0,0,0.6);
     cursor: pointer;
 }
 
-/* 🔥 QTE 斩杀互动浮层样式 */
+/* 🔥 QTE 达阵斩杀互动浮层样式 */
 .qte-interactive-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.75);
+    background: rgba(9, 26, 16, 0.82);
     backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
@@ -1058,15 +1078,15 @@ canvas {
 }
 
 .qte-title {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 900;
     color: #facc15;
-    text-shadow: 0 0 12px #ef4444;
+    text-shadow: 0 0 12px #ea580c;
     animation: pulse 0.8s infinite;
 }
 
 .qte-prompt {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     color: #ffffff;
     margin-top: 6px;
@@ -1075,8 +1095,8 @@ canvas {
 .qte-energy-bar {
     width: 60%;
     height: 22px;
-    background: #1e293b;
-    border: 2px solid #38bdf8;
+    background: #143823;
+    border: 2px solid #facc15;
     border-radius: 12px;
     overflow: hidden;
     margin-top: 16px;
@@ -1084,7 +1104,7 @@ canvas {
 
 .qte-energy-fill {
     height: 100%;
-    background: linear-gradient(90deg, #facc15, #ef4444);
+    background: linear-gradient(90deg, #16a34a, #ea580c);
     transition: width 0.1s ease-out;
 }
 
@@ -1098,7 +1118,7 @@ canvas {
 .qte-timer-bar {
     width: 40%;
     height: 6px;
-    background: #334155;
+    background: #22543d;
     border-radius: 3px;
     overflow: hidden;
     margin-top: 12px;
@@ -1106,7 +1126,7 @@ canvas {
 
 .qte-timer-fill {
     height: 100%;
-    background: #ef4444;
+    background: #dc2626;
     transition: width 0.05s linear;
 }
 
@@ -1121,11 +1141,11 @@ canvas {
 }
 
 .ko-title {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 900;
     color: #facc15;
     font-style: italic;
-    text-shadow: 0 0 20px #ef4444, 0 4px 0 #7f1d1d;
+    text-shadow: 0 0 20px #ea580c, 0 4px 0 #7c2d12;
     letter-spacing: 2px;
 }
 
@@ -1133,7 +1153,7 @@ canvas {
     font-size: 16px;
     font-weight: bold;
     color: #ffffff;
-    background: #ef4444;
+    background: #ea580c;
     padding: 2px 14px;
     border-radius: 12px;
     margin-top: 4px;
@@ -1147,8 +1167,8 @@ canvas {
 .aim-action-banner {
     position: absolute;
     top: 16px;
-    background: rgba(2, 132, 199, 0.9);
-    border: 2px solid #38bdf8;
+    background: rgba(234, 88, 12, 0.9);
+    border: 2px solid #facc15;
     padding: 6px 20px;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -1170,7 +1190,7 @@ canvas {
 .quiz-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.88);
+    background: rgba(9, 26, 16, 0.88);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1193,7 +1213,7 @@ canvas {
 
 .btn-restart {
     margin-top: 12px;
-    background: #10b981;
+    background: #16a34a;
     color: white;
     border: none;
     padding: 8px 20px;
@@ -1206,10 +1226,10 @@ canvas {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1e293b;
+    background: #143823;
     padding: 8px 16px;
     border-radius: 10px;
-    border: 1px solid #334155;
+    border: 1px solid #22543d;
 }
 
 .key-group {
@@ -1218,9 +1238,9 @@ canvas {
 }
 
 .ctrl-btn {
-    background: #334155;
+    background: #22543d;
     color: white;
-    border: 1px solid #475569;
+    border: 1px solid #2f7152;
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 13px;
@@ -1232,17 +1252,15 @@ canvas {
 }
 
 .key-badge {
-    background: #0f172a;
+    background: #091a10;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 11px;
-    color: #38bdf8;
+    color: #facc15;
 }
 
 .move-tip {
-    color: #94a3b8;
+    color: #a7f3d0;
     font-size: 12px;
 }
 </style>
-
-

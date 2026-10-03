@@ -16,6 +16,7 @@ import WordMatchGame from './WordMatch.vue'
 import WordSnakeGame from './WordSnake.vue'
 import PrincessWardrobeGame from './PrincessWardrobe.vue'
 import BadmintonGame from './Badminton.vue'
+import RugbyGame from './Rugby.vue'
 import WordLinkGame from './WordLink.vue'
 import { useGameStore } from '../../stores/gameStore';
 
@@ -188,6 +189,17 @@ const games = ref([
         name: '扣杀！',
         isVue: true,
         icon: '🏸',
+        color: '#0b6b4f', // 赛场绿/活力黄风格色
+        config: {
+            wordList: [], // 由后端统一注入
+            goal: 20
+        }
+    },
+      {
+        id: 'rugby',
+        name: '单词达阵',
+        isVue: true,
+        icon: '🏈',
         color: '#0b6b4f', // 赛场绿/活力黄风格色
         config: {
             wordList: [], // 由后端统一注入
@@ -401,6 +413,12 @@ const saveGameConfig = () => {
                                     goal: activeGame.config.goal
                                 })" />
                             <BadmintonGame v-if="activeGame.id === 'badminton'" :wordList="activeGame.config.wordList"
+                                :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
+                                    studentId: props.student.id,
+                                    wordList: newWords,
+                                    goal: activeGame.config.goal
+                                })" />
+                                <RugbyGame v-if="activeGame.id === 'rugby'" :wordList="activeGame.config.wordList"
                                 :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
