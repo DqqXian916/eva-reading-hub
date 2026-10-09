@@ -732,16 +732,13 @@ const toggleFullScreen = () => {
             <div class="dropdown-menu">
               <div class="dropdown-item" :class="{ active: activeModule === 'vocab-test' }"
                 @click="activeModule = 'vocab-test'">
-                <span class="item-icon">📊</span>
                 <div class="item-text"><span class="title">词汇评估</span><span class="desc">实时测试掌握词汇量</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'word-study' }"
                 @click="activeModule = 'word-study'">
-                <span class="item-icon">🧠</span>
-                <div class="item-text"><span class="title">单词记忆</span><span class="desc">单元记忆与智能复习</span></div>
+                <div class="item-text"><span class="title">单词学习</span><span class="desc">单元记忆与智能复习</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'words' }" @click="activeModule = 'words'">
-                <span class="item-icon">🧩</span>
                 <div class="item-text"><span class="title">单词复习</span><span class="desc">强化复习与消灭难词</span></div>
               </div>
             </div>
@@ -750,25 +747,21 @@ const toggleFullScreen = () => {
           <!-- 分组 2：综合训练 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['quiz', 'reading', 'cloze', 'blank'].includes(activeModule) }]">
-              <span>🗺️ Word to World</span>
+              <span>🗺️ Word Map</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
               <div class="dropdown-item" :class="{ active: activeModule === 'reading' }"
                 @click="activeModule = 'reading'">
-                <span class="item-icon">📖</span>
                 <div class="item-text"><span class="title">阅读理解</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'quiz' }" @click="activeModule = 'quiz'">
-                <span class="item-icon">📝</span>
                 <div class="item-text"><span class="title">单选训练</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'cloze' }" @click="activeModule = 'cloze'">
-                <span class="item-icon">✍️</span>
                 <div class="item-text"><span class="title">短文填空</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'blank' }" @click="activeModule = 'blank'">
-                <span class="item-icon">🖋️</span>
                 <div class="item-text"><span class="title">完形填空</span></div>
               </div>
             </div>
@@ -777,22 +770,19 @@ const toggleFullScreen = () => {
           <!-- 分组 3：趣味拓展 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['sentence', 'film', 'brain-break'].includes(activeModule) }]">
-              <span>🍶 Chill & Refill </span>
+              <span>🪴 Chill & Refill </span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
               <div class="dropdown-item" :class="{ active: activeModule === 'sentence' }"
                 @click="activeModule = 'sentence'">
-                <span class="item-icon">🏞️</span>
                 <div class="item-text"><span class="title">一言</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'film' }" @click="activeModule = 'film'">
-                <span class="item-icon">🎬</span>
                 <div class="item-text"><span class="title">一观</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'brain-break' }"
                 @click="activeModule = 'brain-break'">
-                <span class="item-icon">🎮</span>
                 <div class="item-text"><span class="title">换个脑子</span></div>
               </div>
             </div>
