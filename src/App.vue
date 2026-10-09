@@ -726,7 +726,7 @@ const toggleFullScreen = () => {
           <!-- 分组 1：词汇专区 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['vocab-test', 'word-study', 'words'].includes(activeModule) }]">
-              <span>🪵 Word Pump</span>
+              <span>🤏 Word Pick</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
@@ -741,7 +741,7 @@ const toggleFullScreen = () => {
                 <div class="item-text"><span class="title">单词记忆</span><span class="desc">单元记忆与智能复习</span></div>
               </div>
               <div class="dropdown-item" :class="{ active: activeModule === 'words' }" @click="activeModule = 'words'">
-                <span class="item-icon">🗂️</span>
+                <span class="item-icon">🧩</span>
                 <div class="item-text"><span class="title">单词复习</span><span class="desc">强化复习与消灭难词</span></div>
               </div>
             </div>
@@ -750,7 +750,7 @@ const toggleFullScreen = () => {
           <!-- 分组 2：综合训练 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['quiz', 'reading', 'cloze', 'blank'].includes(activeModule) }]">
-              <span>🌳 Brain Combo</span>
+              <span>🗺️ Word to World</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">
