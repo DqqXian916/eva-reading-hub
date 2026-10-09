@@ -94,7 +94,7 @@
             :disabled="unknownCount === 0"
             @click="startLearnUnknown"
           >
-            开始学习不会的单词 ({{ unknownCount }}个)
+            开始学习 ({{ unknownCount }}个)
           </button>
           <button class="outline-btn" @click="resetTest">重新测试</button>
         </div>
@@ -783,11 +783,11 @@ const startLearnUnknown = () => {
 
 .btn-unknown {
   background: #fff3e0;
-  color: #ff9800;
+  color: #b39975;
 }
 
 .btn-unknown:hover, .btn-unknown.active {
-  background: #ff9800;
+  background: #f9bd62;
   color: #ffffff;
   box-shadow: 0 3px 8px rgba(255, 152, 0, 0.3);
 }
@@ -854,7 +854,7 @@ const startLearnUnknown = () => {
 }
 
 .text-green { color: #27ae60; }
-.text-orange { color: #ff9800; }
+.text-orange { color: #b39975; }
 
 .test-actions {
   display: flex;
