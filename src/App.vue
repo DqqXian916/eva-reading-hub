@@ -747,7 +747,7 @@ const toggleFullScreen = () => {
           <!-- 分组 2：综合训练 -->
           <div class="nav-group">
             <button :class="['group-btn', { active: ['quiz', 'reading', 'cloze', 'blank'].includes(activeModule) }]">
-              <span>🗺️ Word Map</span>
+              <span>🗺️ Word Puzzle</span>
               <span class="chevron">▾</span>
             </button>
             <div class="dropdown-menu">

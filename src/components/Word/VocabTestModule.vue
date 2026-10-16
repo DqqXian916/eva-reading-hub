@@ -121,7 +121,7 @@
             <div class="pedagogy-glass-card fix-card">
               <div class="pedagogy-head">
                 <span class="head-icon">🛠️</span> 
-                <span>课内补弱 / 基础巩固</span>
+                <span>基础补弱</span>
               </div>
               <p class="pedagogy-body">{{ levelData.remedialAdvice }}</p>
             </div>
@@ -129,7 +129,7 @@
             <div class="pedagogy-glass-card advance-card">
               <div class="pedagogy-head">
                 <span class="head-icon">🚀</span> 
-                <span>体系化超前 / 培优规划</span>
+                <span>超前培优</span>
               </div>
               <p class="pedagogy-body">{{ levelData.advanceAdvice }}</p>
             </div>
