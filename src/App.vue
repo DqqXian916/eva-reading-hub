@@ -20,6 +20,7 @@ import VocabularyModule from './components/Word/VocabularyModule.vue'
 import WordModule from './components/Word/WordModule.vue' // 新增：单词学习与记忆模块
 import OneWordModule from './components/OneWord/OneWordModule.vue'
 import OneFilmModule from './components/OneFilm/OneFilmModule.vue'
+import WritingModule from './components/Writing/WritingModule.vue' // 新增：写作训练模块
 
 // --- 状态管理 ---
 const activeModule = ref('reading')
@@ -225,6 +226,9 @@ watch([currentStudent, activeModule], async ([newStudent, newModule]) => {
     await fetchOneWord(newStudent.id)
   } else if (newModule === 'film') {
     await fetchFilms(newStudent.id)
+  }
+  else if (newModule === 'writing') { // 新增分支
+    await fetchWritingTasks(newStudent.id) // 假设用于获取写作任务/记录的函数
   }
 })
 
@@ -764,6 +768,9 @@ const toggleFullScreen = () => {
               <div class="dropdown-item" :class="{ active: activeModule === 'blank' }" @click="activeModule = 'blank'">
                 <div class="item-text"><span class="title">完形填空</span></div>
               </div>
+              <div class="dropdown-item" :class="{ active: activeModule === 'writing' }" @click="activeModule = 'writing'">
+               <div class="item-text"><span class="title">写作训练</span></div>
+              </div>
             </div>
           </div>
 
@@ -891,6 +898,15 @@ const toggleFullScreen = () => {
             @toggleFull="toggleFullScreen" @save="handleSaveOneWord" @delete="handleDeleteOneWord" />
         </template>
 
+         <template v-else-if="activeModule === 'writing'">
+          <WritingModule 
+            :student="currentStudent" 
+            :canEdit="isAdminMode" 
+            :isFullScreen="isFullScreen"
+            @toggleFull="toggleFullScreen"
+          />
+        </template> 
+        
         <template v-else-if="activeModule === 'film'">
           <OneFilmModule :student="currentStudent" :movies="studentFilms" :canEdit="isAdminMode" @save="saveFilmPost"
             @import="handleBatchImportFilms" />

@@ -18,6 +18,7 @@ import PrincessWardrobeGame from './PrincessWardrobe.vue'
 import BadmintonGame from './Badminton.vue'
 import RugbyGame from './Rugby.vue'
 import WordLinkGame from './WordLink.vue'
+import PhoneticsReader from './PhoneticsReader.vue' // 1. 引入你的音标认读组件
 import { useGameStore } from '../../stores/gameStore';
 
 const gameStore = useGameStore();
@@ -41,6 +42,17 @@ const games = ref([
     },
     { id: 'vowels', name: '元音扫雷', path: '/games/vowels.html', icon: '🔍', color: '#95a5a6' },
     { id: 'sticker', name: '貼紙薄', path: '/games/sticker.html', icon: '🎀', color: '#95a5a6' },
+    {
+        id: 'phonetics-reader',
+        name: '48国际音标', // 新增的音标认读模块
+        isVue: true,
+        icon: '🗣️',
+        color: '#2bbd88', // 采用清新的薄荷绿主题色
+        config: {
+            wordList: [],
+            goal: 48
+        }
+    },
     {
         id: 'hacker',
         name: '单词黑客',
@@ -316,7 +328,7 @@ const saveGameConfig = () => {
                             <span class="game-name">{{ game.name }}</span>
                             <span class="game-status" v-if="activeGame?.id === game.id">Playing</span>
                         </div>
-                        <div v-if="canEdit && game.isVue" class="admin-edit-btn" @click.stop="openConfig(game)">
+                        <div v-if="canEdit && game.isVue && game.id !== 'phonetics-reader'" class="admin-edit-btn" @click.stop="openConfig(game)">
                             ⚙️
                         </div>
                     </div>
@@ -331,6 +343,9 @@ const saveGameConfig = () => {
                 <div class="game-card">
                     <template v-if="activeGame">
                         <template v-if="activeGame.isVue">
+                            <!-- 2. 挂载你的 48国际音标认读组件 -->
+                            <PhoneticsReader v-if="activeGame.id === 'phonetics-reader'" :key="props.student?.id" />
+
                             <CatFeedingGame v-if="activeGame.id === 'miaw'" :key="props.student.id" :canEdit="canEdit"
                                 @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
@@ -418,7 +433,7 @@ const saveGameConfig = () => {
                                     wordList: newWords,
                                     goal: activeGame.config.goal
                                 })" />
-                                <RugbyGame v-if="activeGame.id === 'rugby'" :wordList="activeGame.config.wordList"
+                            <RugbyGame v-if="activeGame.id === 'rugby'" :wordList="activeGame.config.wordList"
                                 :key="props.student.id" :goal="activeGame.config.goal" :canEdit="canEdit" @updateConfig="(newWords) => $emit('saveConfig', {
                                     studentId: props.student.id,
                                     wordList: newWords,
@@ -461,15 +476,13 @@ const saveGameConfig = () => {
 </template>
 
 <style scoped>
-/* 核心修复：这个容器决定了是否会挤掉一级菜单 */
+/* 样式保持原样 */
 .brain-break-viewport {
     width: 100%;
     height: 100%;
-    /* 绝对不要写 100vh */
     min-height: 0;
     display: flex;
     overflow: hidden;
-    /* 这一步锁死了布局，不让它乱动 */
 }
 
 .brain-break-layout {
@@ -480,11 +493,9 @@ const saveGameConfig = () => {
     background: #f8fafc;
 }
 
-/* 侧边栏：确保它永远存在 */
 .game-sidebar {
     width: 260px;
     flex-shrink: 0;
-    /* 关键：禁止被压扁 */
     background: white;
     border-right: 1px solid #eef2f6;
     display: flex;
@@ -503,18 +514,10 @@ const saveGameConfig = () => {
     margin-bottom: 4px;
 }
 
-.sidebar-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    color: #1e293b;
-}
-
-/* 列表滚动区 */
 .game-list-container {
     flex: 1;
     padding: 10px;
     overflow-y: auto;
-    /* 只有这里能滚动 */
 }
 
 .game-item {
@@ -575,7 +578,6 @@ const saveGameConfig = () => {
     cursor: pointer;
 }
 
-/* 右侧内容：确保圆角和阴影 */
 .game-main {
     flex: 1;
     padding: 20px;
@@ -614,7 +616,6 @@ const saveGameConfig = () => {
     overflow: hidden;
 }
 
-/* 装饰背景：一个小圆圈，增加层次感 */
 .sidebar-header::before {
     content: '';
     position: absolute;
@@ -641,7 +642,6 @@ const saveGameConfig = () => {
 .sidebar-header h3 {
     margin: 0;
     font-size: 1.4rem;
-    /* 稍微加大一点，更有品牌感 */
     color: #1e293b;
     font-weight: 800;
     letter-spacing: -0.5px;
@@ -654,7 +654,6 @@ const saveGameConfig = () => {
     font-style: italic;
 }
 
-/* 优化游戏项选中的视觉反馈 */
 .game-item.active .game-name {
     color: #3b82f6;
 }
@@ -664,16 +663,6 @@ const saveGameConfig = () => {
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.brain-break-viewport {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    display: flex;
-    overflow: hidden;
-    position: relative;
-}
-
-/* 新增：管理员编辑小按钮 */
 .admin-edit-btn {
     margin-left: auto;
     padding: 5px;
@@ -687,7 +676,6 @@ const saveGameConfig = () => {
     transform: rotate(45deg);
 }
 
-/* 新增：配置弹窗样式 */
 .admin-modal-overlay {
     position: absolute;
     top: 0;
@@ -728,6 +716,7 @@ const saveGameConfig = () => {
 }
 
 .modal-footer {
+    display: fixed;
     display: flex;
     gap: 10px;
     margin-top: 20px;
@@ -750,89 +739,5 @@ const saveGameConfig = () => {
 .btn-save {
     background: #3b82f6;
     color: white;
-}
-
-/* 基础布局样式重复项省略... */
-.brain-break-layout {
-    display: flex;
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    background: #f8fafc;
-}
-
-.game-sidebar {
-    width: 260px;
-    flex-shrink: 0;
-    background: white;
-    border-right: 1px solid #eef2f6;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.game-main {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.game-card {
-    flex: 1;
-    background: white;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.game-list-container {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.game-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border-radius: 16px;
-    cursor: pointer;
-    margin-bottom: 8px;
-    transition: 0.2s;
-}
-
-.game-item.active {
-    background: #f1f7ff;
-}
-
-.game-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.game-card.gallery-theme-bg {
-    background: #0a0a0a !important;
-    /* 强制覆盖原本的 white 背景 */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    transition: background 0.4s ease;
 }
 </style>
