@@ -1,6 +1,6 @@
 import json
 
-with open('jax.json', 'r', encoding='utf-8') as f:
+with open('src/mock/templates/1.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 seen = set()
@@ -25,4 +25,4 @@ with open('jax_deduped.json', 'w', encoding='utf-8') as f:
 print(f"\n原始条目数：{len(data)}")
 print(f"去重后条目数：{len(unique_data)}")
 print(f"删除重复条目数：{len(data) - len(unique_data)}")
-print("已输出去重后的文件：jax_deduped.json")
+print("已输出去重后的文件：deduped.json")

@@ -346,8 +346,8 @@ const handlePrintReport = () => {
                 { wrong: isSubmitted && userSelections[qIdx] === oIdx && oIdx !== q.answer },
                 { 'is-image-opt': q.option_type === 'image_base64' }
               ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })"
-                @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)"
-                @mouseleave="hoverIdx = null, hoverOptIdx = null">
+                @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)">
+                <!-- @mouseleave="hoverIdx = null, hoverOptIdx = null" -->
 
                 <template v-if="q.option_type === 'image_base64'">
                   <div class="opt-img-wrapper">
@@ -481,6 +481,7 @@ const handlePrintReport = () => {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  transform: translateZ(0); /* 开启硬件加速，减少滚动时的重绘频闪 */
 }
 
 .question-card {
@@ -533,10 +534,6 @@ const handlePrintReport = () => {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
-}
-
-.option:hover {
-  background: #f8fafc;
 }
 
 .option.selected {
@@ -669,8 +666,9 @@ const handlePrintReport = () => {
   background-color: #f8fafc;
   border-left: 4px solid #cbd5e1;
   border-radius: 8px;
-  transition: all 0.2s ease;
-  min-height: 80px;
+  transition: background-color 0.2s ease; /* 移除了对高度产生影响的抖动，只保留背景色过渡 */
+  min-height: 110px; /* 关键：固定最小高度，防止不同长度的解析导致容器高度剧烈变化引发滚动条抖动 */
+  box-sizing: border-box;
 }
 
 .analysis-box.is-hovering {
@@ -708,7 +706,6 @@ const handlePrintReport = () => {
 
 .option:hover {
   background: #f1f5f9;
-  transform: translateX(4px);
   transition: transform 0.2s ease;
 }
 

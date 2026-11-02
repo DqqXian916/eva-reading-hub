@@ -260,7 +260,7 @@ Wednesday, August 26, 2026
 # 3. 🎮 Eva's Daily Game
 Wednesday, August 26, 2026
 ————————
-Game Title：中文名称
+中文名称
 🌱 Useful phrases
 word / phrase 中文解释
 word / phrase 中文解释

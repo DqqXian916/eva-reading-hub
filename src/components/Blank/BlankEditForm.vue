@@ -139,10 +139,10 @@ const submitSave = () => {
         <div class="pane-header">
           <div class="mode-info">
             <span class="dot"></span>
-            {{ isShowingCn ? '译文模式 (对照显示)' : '正文模式 (录入原文)' }}
+            {{ isShowingCn ? '译文模式' : '正文模式' }}
           </div>
           <button :class="['btn-toggle', { 'is-cn': isShowingCn }]" @click="isShowingCn = !isShowingCn">
-            {{ isShowingCn ? '← 返回修改英文' : '录入中文翻译 →' }}
+            {{ isShowingCn ? '← 修改英文' : '录入中文 →' }}
           </button>
         </div>
 

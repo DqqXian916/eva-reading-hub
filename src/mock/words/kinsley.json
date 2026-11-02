@@ -260,13 +260,6 @@
   },
   {
     "m": true,
-    "s": "I have an appointment with the doctor at 3 PM.",
-    "cn": "预约",
-    "en": "appointment",
-    "ps": "əˈpɔɪntmənt"
-  },
-  {
-    "m": true,
     "s": "The frightened cat hid under the bed.",
     "cn": "受惊的",
     "en": "frightened",
@@ -862,13 +855,6 @@
   },
   {
     "m": true,
-    "s": "They helped organize the annual school event.",
-    "cn": "组织",
-    "en": "organize",
-    "ps": "ˈɔːɡənaɪz"
-  },
-  {
-    "m": true,
     "s": "The box was too heavy for him to lift alone.",
     "cn": "沉重的",
     "en": "heavy",
@@ -1177,13 +1163,6 @@
   },
   {
     "m": true,
-    "s": "He remained firm in his decision despite the opposition.",
-    "cn": "坚定的；公司",
-    "en": "firm",
-    "ps": "fɜːm"
-  },
-  {
-    "m": true,
     "s": "I didn't realize how late it was.",
     "cn": "意识到",
     "en": "realize",
@@ -1244,13 +1223,6 @@
     "cn": "呼吸",
     "en": "breath",
     "ps": "breθ"
-  },
-  {
-    "m": true,
-    "s": "She works for a charity organization.",
-    "cn": "组织",
-    "en": "organization",
-    "ps": "ˌɔːɡənaɪˈzeɪʃn"
   },
   {
     "m": true,
@@ -1342,13 +1314,6 @@
     "cn": "小袋",
     "en": "packet",
     "ps": "ˈpækɪt"
-  },
-  {
-    "m": true,
-    "s": "All visitors are required to show their ID.",
-    "cn": "要求",
-    "en": "require",
-    "ps": "rɪˈkwaɪə(r)"
   },
   {
     "m": true,
@@ -1611,13 +1576,6 @@
   },
   {
     "m": true,
-    "s": "It snows heavily in this mountainous region.",
-    "cn": "区域",
-    "en": "region",
-    "ps": "ˈriːdʒən"
-  },
-  {
-    "m": true,
     "s": "Birds were sitting on the roof of the house.",
     "cn": "屋顶",
     "en": "roof",
@@ -1849,13 +1807,6 @@
   },
   {
     "m": true,
-    "s": "You must complete the task by Friday.",
-    "cn": "完成",
-    "en": "complete",
-    "ps": "kəmˈpliːt"
-  },
-  {
-    "m": true,
     "s": "She won first place in the singing contest.",
     "cn": "竞赛",
     "en": "contest",
@@ -1919,13 +1870,6 @@
   },
   {
     "m": true,
-    "s": "Finding a solution to this problem is not easy.",
-    "cn": "解决办法",
-    "en": "solution",
-    "ps": "səˈluːʃn"
-  },
-  {
-    "m": true,
     "s": "She is wearing a special dress for the party.",
     "cn": "特殊的",
     "en": "special",
@@ -1968,13 +1912,6 @@
   },
   {
     "m": true,
-    "s": "These rules require everyone to follow them.",
-    "cn": "要求",
-    "en": "require",
-    "ps": "rɪˈkwaɪə(r)"
-  },
-  {
-    "m": true,
     "s": "Please wash your hands before eating.",
     "cn": "洗",
     "en": "wash",
@@ -2014,13 +1951,6 @@
     "cn": "专攻",
     "en": "major",
     "ps": "ˈmeɪdʒə(r)"
-  },
-  {
-    "m": true,
-    "s": "Solar power is a clean source of energy.",
-    "cn": "能量",
-    "en": "energy",
-    "ps": "ˈenədʒi"
   },
   {
     "m": true,
@@ -2070,13 +2000,6 @@
     "cn": "地标",
     "en": "landmark",
     "ps": "ˈlændmɑːk"
-  },
-  {
-    "m": true,
-    "s": "They stopped to admire the beautiful countryside landscape.",
-    "cn": "风景",
-    "en": "landscape",
-    "ps": "ˈlændskeɪp"
   },
   {
     "m": true,
@@ -2171,20 +2094,6 @@
   },
   {
     "m": true,
-    "s": "The business made a substantial profit this year.",
-    "cn": "利润",
-    "en": "profit",
-    "ps": "ˈprɒfɪt"
-  },
-  {
-    "m": true,
-    "s": "I would like to offer you a cup of tea.",
-    "cn": "给予，奉上",
-    "en": "offer",
-    "ps": "ˈɒfə(r)"
-  },
-  {
-    "m": true,
     "s": "Please do not disturb him while he is studying.",
     "cn": "打扰",
     "en": "disturb",
@@ -2252,13 +2161,6 @@
     "cn": "压力",
     "en": "stress",
     "ps": "stres"
-  },
-  {
-    "m": true,
-    "s": "We need to find a solution to this problem.",
-    "cn": "解决办法",
-    "en": "solution",
-    "ps": "səˈluːʃn"
   },
   {
     "m": true,
@@ -2402,24 +2304,10 @@
   },
   {
     "m": true,
-    "s": "His failure was caused by a lack of experience.",
-    "cn": "缺乏",
-    "en": "lack",
-    "ps": "læk"
-  },
-  {
-    "m": true,
     "s": "They planned a birthday party as a surprise for her.",
     "cn": "惊喜",
     "en": "surprise",
     "ps": "səˈpraɪz"
-  },
-  {
-    "m": true,
-    "s": "They are working hard to complete the research project on time.",
-    "cn": "项目",
-    "en": "project",
-    "ps": "ˈprɒdʒekt"
   },
   {
     "m": true,
@@ -2668,13 +2556,6 @@
   },
   {
     "m": true,
-    "s": "How do you pronounce this English word?",
-    "cn": "发音",
-    "en": "pronounce",
-    "ps": "prəˈnaʊns"
-  },
-  {
-    "m": true,
     "s": "We are hopeful about the future.",
     "cn": "有希望的",
     "en": "hopeful",
@@ -2815,13 +2696,6 @@
   },
   {
     "m": true,
-    "s": "Farmers harvest their crop in autumn.",
-    "cn": "作物",
-    "en": "crop",
-    "ps": "krɒp"
-  },
-  {
-    "m": true,
     "s": "I wonder why he didn't come to the party.",
     "cn": "想知道",
     "en": "wonder",
@@ -2906,13 +2780,6 @@
   },
   {
     "m": true,
-    "s": "Push the door open to enter.",
-    "cn": "推",
-    "en": "push",
-    "ps": "pʊʃ"
-  },
-  {
-    "m": true,
     "s": "She is studying Australian history.",
     "cn": "澳大利亚的",
     "en": "Australian",
@@ -2941,13 +2808,6 @@
   },
   {
     "m": true,
-    "s": "She waters the plants every morning.",
-    "cn": "植物",
-    "en": "plant",
-    "ps": "plɑːnt"
-  },
-  {
-    "m": true,
     "s": "What a lovely day to go for a walk!",
     "cn": "美丽的",
     "en": "lovely",
@@ -3046,153 +2906,6 @@
   },
   {
     "m": true,
-    "s": "A big storm is coming this evening.",
-    "cn": "暴风雨",
-    "en": "storm",
-    "ps": "stɔːm"
-  },
-  {
-    "m": true,
-    "s": "Your presence is requested at the meeting.",
-    "cn": "出席；存在",
-    "en": "presence",
-    "ps": "ˈprezns"
-  },
-  {
-    "m": true,
-    "s": "This is the first time I have visited this city.",
-    "cn": "第一个",
-    "en": "first",
-    "ps": "fɜːst"
-  },
-  {
-    "m": true,
-    "s": "She took a picture of the beautiful sunset.",
-    "cn": "照片",
-    "en": "picture",
-    "ps": "ˈpɪktʃə(r)"
-  },
-  {
-    "m": true,
-    "s": "Green shoots started to appear in the garden.",
-    "cn": "新芽；射击",
-    "en": "shoot",
-    "ps": "ʃuːt"
-  },
-  {
-    "m": true,
-    "s": "She waters the plants every morning.",
-    "cn": "植物",
-    "en": "plant",
-    "ps": "plɑːnt"
-  },
-  {
-    "m": true,
-    "s": "What a lovely day to go for a walk!",
-    "cn": "美丽的",
-    "en": "lovely",
-    "ps": "ˈlʌvli"
-  },
-  {
-    "m": true,
-    "s": "Do not expose your skin to direct sunlight for too long.",
-    "cn": "显露",
-    "en": "expose",
-    "ps": "ɪkˈspəʊz"
-  },
-  {
-    "m": true,
-    "s": "I got bored during the long lecture.",
-    "cn": "无聊的",
-    "en": "bored",
-    "ps": "bɔːd"
-  },
-  {
-    "m": true,
-    "s": "I am very thirsty, can I have some water?",
-    "cn": "口渴的",
-    "en": "thirsty",
-    "ps": "ˈθɜːsti"
-  },
-  {
-    "m": true,
-    "s": "It will probably rain later today.",
-    "cn": "或许",
-    "en": "probably",
-    "ps": "ˈprɒbəbli"
-  },
-  {
-    "m": true,
-    "s": "We are going to the cinema to watch a movie.",
-    "cn": "电影院",
-    "en": "cinema",
-    "ps": "ˈsɪnəmɑː"
-  },
-  {
-    "m": true,
-    "s": "The firefighter was hailed as a national hero.",
-    "cn": "英雄",
-    "en": "hero",
-    "ps": "ˈhɪərəʊ"
-  },
-  {
-    "m": true,
-    "s": "It is difficult to compare the two products directly.",
-    "cn": "比较",
-    "en": "compare",
-    "ps": "kəmˈpeə(r)"
-  },
-  {
-    "m": true,
-    "s": "The class will start at nine o'clock.",
-    "cn": "开始",
-    "en": "start",
-    "ps": "stɑːt"
-  },
-  {
-    "m": true,
-    "s": "There is a strong connection between health and exercise.",
-    "cn": "连接",
-    "en": "connection",
-    "ps": "kəˈnekʃn"
-  },
-  {
-    "m": true,
-    "s": "He left the office at his usual time.",
-    "cn": "通常的",
-    "en": "usual",
-    "ps": "ˈjuːʒuəl"
-  },
-  {
-    "m": true,
-    "s": "The foundation raised money for children's health.",
-    "cn": "基金会",
-    "en": "foundation",
-    "ps": "faʊnˈdeɪʃn"
-  },
-  {
-    "m": true,
-    "s": "A warm smile can make anyone feel welcome.",
-    "cn": "微笑",
-    "en": "smile",
-    "ps": "smaɪl"
-  },
-  {
-    "m": true,
-    "s": "The local community worked together to clean the park.",
-    "cn": "群体",
-    "en": "community",
-    "ps": "kəˈmjuːnəti"
-  },
-  {
-    "m": true,
-    "s": "A big storm is coming this evening.",
-    "cn": "暴风雨",
-    "en": "storm",
-    "ps": "stɔːm"
-  },
-  {
-    "m": false,
     "s": "Your presence is requested at the meeting.",
     "cn": "出席；存在",
     "en": "presence",
@@ -3333,34 +3046,6 @@
   },
   {
     "m": true,
-    "s": "What is your age?",
-    "cn": "年龄",
-    "en": "age",
-    "ps": "eɪdʒ"
-  },
-  {
-    "m": false,
-    "s": "Biology is my favorite subject at school.",
-    "cn": "生物学",
-    "en": "biology",
-    "ps": "baɪˈɒlədʒi"
-  },
-  {
-    "m": false,
-    "s": "Dolphins show a high level of intelligence.",
-    "cn": "智力",
-    "en": "intelligence",
-    "ps": "ɪnˈtelɪdʒəns"
-  },
-  {
-    "m": false,
-    "s": "I bought a dozen eggs from the supermarket.",
-    "cn": "一打，十二个",
-    "en": "dozen",
-    "ps": "ˈdʌzn"
-  },
-  {
-    "m": true,
     "s": "The old man walked slowly across the street.",
     "cn": "年纪大的",
     "en": "old",
@@ -3374,7 +3059,7 @@
     "ps": "ˈsɪlvə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I need to buy some fresh milk at the grocery store.",
     "cn": "杂货店",
     "en": "grocery store",
@@ -3393,13 +3078,6 @@
     "cn": "界面",
     "en": "interface",
     "ps": "ˈɪntəfeɪs"
-  },
-  {
-    "m": true,
-    "s": "The company holds an annual meeting every December.",
-    "cn": "每年的",
-    "en": "annual",
-    "ps": "ˈænjuəl"
   },
   {
     "m": true,
@@ -3442,13 +3120,6 @@
     "cn": "应用",
     "en": "application",
     "ps": "ˌæplɪˈkeɪʃn"
-  },
-  {
-    "m": false,
-    "s": "Do you know how to operate this machine?",
-    "cn": "操作",
-    "en": "operate",
-    "ps": "ˈɒpəreɪt"
   },
   {
     "m": true,
@@ -3556,339 +3227,1344 @@
     "ps": "ˌpaɪəˈnɪə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The company wants to increase its sales.",
     "cn": "增加",
     "en": "increase",
     "ps": "ɪnˈkriːs"
   },
   {
-    "m": false,
-    "s": "You deserve a reward for your hard work.",
-    "cn": "值得",
-    "en": "deserve",
-    "ps": "dɪˈzɜːv"
-  },
-  {
-    "m": false,
-    "s": "Paris is a popular tourist destination.",
-    "cn": "目的地",
-    "en": "destination",
-    "ps": "ˌdestɪˈneɪʃn"
-  },
-  {
-    "m": false,
-    "s": "Teaching is her true calling in life.",
-    "cn": "使命",
-    "en": "calling",
-    "ps": "ˈkɔːlɪŋ"
-  },
-  {
-    "m": false,
+    "m": true,
     "s": "Fresh food is good for your health.",
     "cn": "食物",
     "en": "food",
     "ps": "fuːd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "They hung a movie poster on the wall.",
     "cn": "海报",
     "en": "poster",
     "ps": "ˈpəʊstə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We welcomed the special guest into our home.",
     "cn": "客人",
     "en": "guest",
     "ps": "ɡest"
   },
   {
-    "m": false,
+    "m": true,
     "s": "It was a magical performance.",
     "cn": "魔术的",
     "en": "magical",
     "ps": "ˈmædʒɪkl"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He walked down the stairs slowly.",
     "cn": "向下",
     "en": "down",
     "ps": "daʊn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Follow this small path through the woods.",
     "cn": "小路",
     "en": "path",
     "ps": "pɑːθ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Rabbits like to eat carrots.",
     "cn": "胡萝卜",
     "en": "carrot",
     "ps": "ˈkærət"
   },
   {
-    "m": false,
+    "m": true,
     "s": "She is fluent in English.",
     "cn": "流利的",
     "en": "fluent",
     "ps": "ˈfluːənt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He took a short break after working.",
     "cn": "短的",
     "en": "short",
     "ps": "ʃɔːt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Give me a kiss before you leave.",
     "cn": "吻",
     "en": "kiss",
     "ps": "kɪs"
   },
   {
-    "m": false,
-    "s": "Physical exercise is important for body health.",
-    "cn": "物理的；身体的",
-    "en": "physical",
-    "ps": "ˈfɪzɪkl"
-  },
-  {
-    "m": false,
-    "s": "He knows how to operate the new machine.",
-    "cn": "操作",
-    "en": "operate",
-    "ps": "ˈɒpəreɪt"
-  },
-  {
-    "m": false,
-    "s": "The fence protects the garden from animals.",
-    "cn": "栅栏",
-    "en": "fence",
-    "ps": "fens"
-  },
-  {
-    "m": false,
-    "s": "They stayed there for a period of two weeks.",
-    "cn": "时期，月",
-    "en": "period",
-    "ps": "ˈpɪəriəd"
-  },
-  {
-    "m": false,
+    "m": true,
     "s": "I will certainly help you with this project.",
     "cn": "无疑",
     "en": "certainly",
     "ps": "ˈsɜːtnli"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We visited an art gallery yesterday afternoon.",
     "cn": "美术馆",
     "en": "gallery",
     "ps": "ˈɡæləri"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Italian food is very popular all around the world.",
     "cn": "意大利的",
     "en": "Italian",
     "ps": "ɪˈtælɪən"
   },
   {
-    "m": false,
+    "m": true,
     "s": "I completely agree with your proposal.",
     "cn": "同意",
     "en": "agree",
     "ps": "əˈɡriː"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He ordered a bowl of beef noodle soup.",
     "cn": "面条",
     "en": "noodle",
     "ps": "ˈnuːdl"
   },
   {
-    "m": false,
-    "s": "She takes an active part in school activities.",
-    "cn": "积极的",
-    "en": "active",
-    "ps": "ˈæktɪv"
-  },
-  {
-    "m": false,
+    "m": true,
     "s": "You should wear a warm coat today.",
     "cn": "穿",
     "en": "wear",
     "ps": "weə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Please take a seat and wait for a moment.",
     "cn": "座位",
     "en": "seat",
     "ps": "siːt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The weather is very pleasant today.",
     "cn": "天气",
     "en": "weather",
     "ps": "ˈweðə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The car has a satellite navigation system.",
     "cn": "导航",
     "en": "navigation",
     "ps": "ˌnævɪˈɡeɪʃn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He worked hard to pay off his debt.",
     "cn": "债",
     "en": "debt",
     "ps": "det"
   },
   {
-    "m": false,
+    "m": true,
     "s": "She has big round eyes.",
     "cn": "眼睛",
     "en": "eye",
     "ps": "aɪ"
   },
   {
-    "m": false,
-    "s": "Regular physical exercise is good for health.",
-    "cn": "身体的；物理的",
-    "en": "physical",
-    "ps": "ˈfɪzɪkl"
-  },
-  {
-    "m": false,
+    "m": true,
     "s": "You can buy electronic devices online.",
     "cn": "电子学的",
     "en": "electronic",
     "ps": "ɪˌlekˈtrɒnɪk"
   },
   {
-    "m": false,
+    "m": true,
     "s": "There is nothing to fear.",
     "cn": "害怕",
     "en": "fear",
     "ps": "fɪə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The ground was covered with heavy snow.",
     "cn": "雪",
     "en": "snow",
     "ps": "snəʊ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Farmers are busy with the autumn harvest.",
     "cn": "收获",
     "en": "harvest",
     "ps": "ˈhɑːvɪst"
   },
   {
-    "m": false,
+    "m": true,
     "s": "They love to sing songs together.",
     "cn": "唱",
     "en": "sing",
     "ps": "sɪŋ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Smoking can cause serious harm to your health.",
     "cn": "伤害",
     "en": "harm",
     "ps": "hɑːm"
   },
   {
-    "m": false,
+    "m": true,
     "s": "They live in a large house near the lake.",
     "cn": "大的",
     "en": "large",
     "ps": "lɑːdʒ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Children enjoy playing kickball during recess.",
     "cn": "儿童足球",
     "en": "kickball",
     "ps": "ˈkɪkbɔːl"
   },
   {
-    "m": false,
+    "m": true,
     "s": "We had grilled chicken for dinner.",
     "cn": "鸡；鸡肉",
     "en": "chicken",
     "ps": "ˈtʃɪkɪn"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He left the room without saying a word.",
     "cn": "没有；不",
     "en": "without",
     "ps": "wɪˈðaʊt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "The imperial palace attracts millions of tourists every year.",
     "cn": "皇帝的",
     "en": "imperial",
     "ps": "ɪmˈpɪəriəl"
   },
   {
-    "m": false,
+    "m": true,
     "s": "She rested her head on the soft pillow.",
     "cn": "枕头",
     "en": "pillow",
     "ps": "ˈpɪləʊ"
   },
   {
-    "m": false,
+    "m": true,
     "s": "He plays the acoustic guitar very well.",
     "cn": "吉他",
     "en": "guitar",
     "ps": "ɡɪˈtɑː(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Please wait for me at the bus stop.",
     "cn": "等待",
     "en": "wait",
     "ps": "weɪt"
   },
   {
-    "m": false,
+    "m": true,
     "s": "You can download the software from this website.",
     "cn": "下载",
     "en": "download",
     "ps": "ˌdaʊnˈləʊd"
   },
   {
-    "m": false,
+    "m": true,
     "s": "His speech was full of warmth and humor.",
     "cn": "幽默",
     "en": "humor",
     "ps": "ˈhjuːmə(r)"
   },
   {
-    "m": false,
+    "m": true,
     "s": "Plants trap energy from sunlight.",
     "cn": "吸收",
     "en": "trap",
     "ps": "træp"
+  },
+  {
+    "m": true,
+    "s": "We decided to celebrate our victory.",
+    "cn": "庆祝",
+    "en": "celebrate",
+    "ps": "ˈselɪbreɪt"
+  },
+  {
+    "m": true,
+    "s": "The book tells a fascinating story.",
+    "cn": "神奇的",
+    "en": "fascinating",
+    "ps": "ˈfæsɪneɪtɪŋ"
+  },
+  {
+    "m": true,
+    "s": "The magic tricks fascinate the audience.",
+    "cn": "神奇的",
+    "en": "fascinate",
+    "ps": "ˈfæsɪneɪt"
+  },
+  {
+    "m": true,
+    "s": "She wore a gold necklace.",
+    "cn": "项链",
+    "en": "necklace",
+    "ps": "ˈnekləs"
+  },
+  {
+    "m": true,
+    "s": "I value your friendship very much.",
+    "cn": "珍视，价值",
+    "en": "value",
+    "ps": "ˈvæljuː"
+  },
+  {
+    "m": true,
+    "s": "You need to update the computer software.",
+    "cn": "软件",
+    "en": "software",
+    "ps": "ˈsɒftweə(r)"
+  },
+  {
+    "m": true,
+    "s": "The company is undergoing a smooth transition.",
+    "cn": "转换，转变，过渡",
+    "en": "transition",
+    "ps": "trænˈzɪʃn"
+  },
+  {
+    "m": true,
+    "s": "The weather today is terrible and awful.",
+    "cn": "糟糕的",
+    "en": "awful",
+    "ps": "ˈɔːfl"
+  },
+  {
+    "m": true,
+    "s": "We need to change the bed sheet.",
+    "cn": "床单",
+    "en": "sheet",
+    "ps": "ʃiːt"
+  },
+  {
+    "m": true,
+    "s": "Please update your software to the latest version.",
+    "cn": "更新",
+    "en": "update",
+    "ps": "ʌpˈdeɪt"
+  },
+  {
+    "m": true,
+    "s": "The wolf ran across the snow.",
+    "cn": "狼",
+    "en": "wolf",
+    "ps": "wʊlf"
+  },
+  {
+    "m": true,
+    "s": "Students are studying in the classroom.",
+    "cn": "教室",
+    "en": "classroom",
+    "ps": "ˈklɑːsrʊm"
+  },
+  {
+    "m": true,
+    "s": "He is a very responsible employee.",
+    "cn": "负责的",
+    "en": "responsible",
+    "ps": "rɪˈspɒnsəbl"
+  },
+  {
+    "m": true,
+    "s": "My office is downstairs.",
+    "cn": "在楼下",
+    "en": "downstairs",
+    "ps": "ˌdaʊnˈsteəz"
+  },
+  {
+    "m": true,
+    "s": "Would you like a piece of apple pie?",
+    "cn": "馅饼",
+    "en": "pie",
+    "ps": "paɪ"
+  },
+  {
+    "m": true,
+    "s": "There is an old proverb that says 'Actions speak louder than words'.",
+    "cn": "谚语",
+    "en": "proverb",
+    "ps": "ˈprɒvɜːb"
+  },
+  {
+    "m": true,
+    "s": "The ice on the lake is thin.",
+    "cn": "薄的",
+    "en": "thin",
+    "ps": "θɪn"
+  },
+  {
+    "m": true,
+    "s": "I need a pencil to draw a sketch.",
+    "cn": "铅笔",
+    "en": "pencil",
+    "ps": "ˈpensl"
+  },
+  {
+    "m": true,
+    "s": "A large wave washed over the shore.",
+    "cn": "海浪",
+    "en": "wave",
+    "ps": "weɪv"
+  },
+  {
+    "m": true,
+    "s": "In my opinion, this plan will work.",
+    "cn": "意见",
+    "en": "opinion",
+    "ps": "əˈpɪnjən"
+  },
+  {
+    "m": false,
+    "s": "The patient will undergo surgery tomorrow.",
+    "cn": "经历",
+    "en": "undergo",
+    "ps": "ˌʌndəˈɡəʊ"
+  },
+  {
+    "m": true,
+    "s": "The flight was very smooth.",
+    "cn": "平稳的",
+    "en": "smooth",
+    "ps": "smuːð"
+  },
+  {
+    "m": true,
+    "s": "They lacked a lack of importance in the matter.",
+    "cn": "重要性",
+    "en": "importance",
+    "ps": "ɪmˈpɔːtns"
+  },
+  {
+    "m": true,
+    "s": "Use glue to stick the paper together.",
+    "cn": "胶水",
+    "en": "glue",
+    "ps": "ɡluː"
+  },
+  {
+    "m": true,
+    "s": "Fill the glass with water.",
+    "cn": "占满",
+    "en": "fill",
+    "ps": "fɪl"
+  },
+  {
+    "m": true,
+    "s": "An hour has sixty minutes.",
+    "cn": "小时",
+    "en": "hour",
+    "ps": "ˈaʊə(r)"
+  },
+  {
+    "m": true,
+    "s": "She bought a fashion magazine.",
+    "cn": "杂志",
+    "en": "magazine",
+    "ps": "ˌmæɡəˈziːn"
+  },
+  {
+    "m": true,
+    "s": "The room is bright and clean.",
+    "cn": "明亮的",
+    "en": "bright",
+    "ps": "braɪt"
+  },
+  {
+    "m": true,
+    "s": "Next month will be October.",
+    "cn": "月",
+    "en": "month",
+    "ps": "mʌnθ"
+  },
+  {
+    "m": true,
+    "s": "The prisoner tried to escape.",
+    "cn": "逃跑",
+    "en": "escape",
+    "ps": "ɪˈskeɪp"
+  },
+  {
+    "m": true,
+    "s": "He is studying engineering at university.",
+    "cn": "大学",
+    "en": "university",
+    "ps": "ˌjuːnɪˈvɜːsəti"
+  },
+  {
+    "m": true,
+    "s": "They are watching a TV programme.",
+    "cn": "节目，计划，方案",
+    "en": "programme",
+    "ps": "ˈprəʊɡræm"
+  },
+  {
+    "m": true,
+    "s": "Heat the soup before eating.",
+    "cn": "加热",
+    "en": "heat",
+    "ps": "hiːt"
+  },
+  {
+    "m": true,
+    "s": "Coal is used as a fuel.",
+    "cn": "煤",
+    "en": "coal",
+    "ps": "kəʊl"
+  },
+  {
+    "m": true,
+    "s": "Please check your answers before submitting.",
+    "cn": "查看",
+    "en": "check",
+    "ps": "tʃek"
+  },
+  {
+    "m": true,
+    "s": "The child felt helpless in the dark.",
+    "cn": "无助的",
+    "en": "helpless",
+    "ps": "ˈhelpləs"
+  },
+  {
+    "m": true,
+    "s": "Be careful not to drop the glass.",
+    "cn": "落下",
+    "en": "drop",
+    "ps": "drɒp"
+  },
+  {
+    "m": true,
+    "s": "Plants grow quickly in the spring.",
+    "cn": "生长",
+    "en": "grow",
+    "ps": "ɡrəʊ"
+  },
+  {
+    "m": true,
+    "s": "The patient is in stable condition.",
+    "cn": "状况",
+    "en": "condition",
+    "ps": "kənˈdɪʃn"
+  },
+  {
+    "m": true,
+    "s": "That was a silly mistake.",
+    "cn": "傻的",
+    "en": "silly",
+    "ps": "ˈsɪli"
+  },
+  {
+    "m": true,
+    "s": "They uploaded a new video online.",
+    "cn": "视频",
+    "en": "video",
+    "ps": "ˈvɪdiəʊ"
+  },
+  {
+    "m": true,
+    "s": "There is nothing in the box.",
+    "cn": "没有东西",
+    "en": "nothing",
+    "ps": "ˈnʌθɪŋ"
+  },
+  {
+    "m": true,
+    "s": "They live in a virtual world.",
+    "cn": "虚拟的",
+    "en": "virtual",
+    "ps": "ˈvɜːtʃuəl"
+  },
+  {
+    "m": true,
+    "s": "No pain, no gain.",
+    "cn": "获得",
+    "en": "gain",
+    "ps": "ɡeɪn"
+  },
+  {
+    "m": true,
+    "s": "The train began to move.",
+    "cn": "移动",
+    "en": "move",
+    "ps": "muːv"
+  },
+  {
+    "m": true,
+    "s": "The car engine started.",
+    "cn": "引擎",
+    "en": "engine",
+    "ps": "ˈendʒɪn"
+  },
+  {
+    "m": true,
+    "s": "Add a little salt to the dish.",
+    "cn": "小的",
+    "en": "little",
+    "ps": "ˈlɪtl"
+  },
+  {
+    "m": true,
+    "s": "It is wrong to steal.",
+    "cn": "偷盗",
+    "en": "steal",
+    "ps": "stiːl"
+  },
+  {
+    "m": true,
+    "s": "She wanted to express her gratitude.",
+    "cn": "表示，表达",
+    "en": "express",
+    "ps": "ɪkˈspres"
+  },
+  {
+    "m": true,
+    "s": "We need to evaluate the situation carefully.",
+    "cn": "评估",
+    "en": "evaluate",
+    "ps": "ɪˈvæljueɪt"
+  },
+  {
+    "m": true,
+    "s": "I need to charge my phone battery.",
+    "cn": "充电",
+    "en": "charge",
+    "ps": "tʃɑːdʒ"
+  },
+  {
+    "m": true,
+    "s": "Exercise is part of my daily routine.",
+    "cn": "每日的",
+    "en": "daily",
+    "ps": "ˈdeɪli"
+  },
+  {
+    "m": true,
+    "s": "Reach out your hand to help others.",
+    "cn": "伸手",
+    "en": "reach",
+    "ps": "riːtʃ"
+  },
+  {
+    "m": true,
+    "s": "Today is a national holiday.",
+    "cn": "国家的",
+    "en": "national",
+    "ps": "ˈnæʃnəl"
+  },
+  {
+    "m": true,
+    "s": "His prediction turned out to be correct.",
+    "cn": "预测",
+    "en": "prediction",
+    "ps": "prɪˈdɪkʃn"
+  },
+  {
+    "m": true,
+    "s": "The price is $5 per person.",
+    "cn": "每",
+    "en": "per",
+    "ps": "pɜː(r)"
+  },
+  {
+    "m": true,
+    "s": "He wears a medium size shirt.",
+    "cn": "中等包",
+    "en": "medium",
+    "ps": "ˈmiːdiəm"
+  },
+  {
+    "m": true,
+    "s": "I lost my wallet on the bus.",
+    "cn": "钱包",
+    "en": "wallet",
+    "ps": "ˈwɒlɪt"
+  },
+  {
+    "m": true,
+    "s": "Learning a new language can be fun.",
+    "cn": "有趣的",
+    "en": "fun",
+    "ps": "fʌn"
+  },
+  {
+    "m": true,
+    "s": "He felt ashamed of his behavior.",
+    "cn": "羞耻的",
+    "en": "ashamed",
+    "ps": "əˈʃeɪmd"
+  },
+  {
+    "m": true,
+    "s": "She wore a purple dress.",
+    "cn": "紫色",
+    "en": "purple",
+    "ps": "ˈpɜːpl"
+  },
+  {
+    "m": true,
+    "s": "He is learning French literature.",
+    "cn": "法国的(人)",
+    "en": "French",
+    "ps": "frentʃ"
+  },
+  {
+    "m": true,
+    "s": "This path will end at the edge of the forest.",
+    "cn": "n.末端，终点，终止；adj.最后的，最终；v.终止，结束",
+    "en": "end",
+    "ps": "end"
+  },
+  {
+    "m": true,
+    "s": "He likes to fry eggs for breakfast every morning.",
+    "cn": "v.油煎，油炸；n.鱼苗，鱼秧；adj.油炸的",
+    "en": "fry",
+    "ps": "fraɪ"
+  },
+  {
+    "m": true,
+    "s": "Wood is a common material used in building houses.",
+    "cn": "n.材料，人才；adj.物质的，有形的",
+    "en": "material",
+    "ps": "məˈtɪəriəl"
+  },
+  {
+    "m": true,
+    "s": "She writes down her daily thoughts in a diary.",
+    "cn": "n.日记",
+    "en": "diary",
+    "ps": "ˈdaɪəri"
+  },
+  {
+    "m": true,
+    "s": "Traveling alone in the jungle was an exciting adventure.",
+    "cn": "n.冒险",
+    "en": "adventure",
+    "ps": "ədˈventʃə(r)"
+  },
+  {
+    "m": true,
+    "s": "They built a high wall around the garden.",
+    "cn": "n.周墙，墙；v.堵塞",
+    "en": "wall",
+    "ps": "wɔːl"
+  },
+  {
+    "m": true,
+    "s": "Her musical performance on stage was outstanding.",
+    "cn": "n.表演，表现",
+    "en": "performance",
+    "ps": "pəˈfɔːməns"
+  },
+  {
+    "m": true,
+    "s": "Please hold the handrail while walking down the stairs.",
+    "cn": "v.拥有，举办；n.拥有，货舱",
+    "en": "hold",
+    "ps": "həʊld"
+  },
+  {
+    "m": true,
+    "s": "The airport serves many international flights every day.",
+    "cn": "adj.国际，世界；n.外国人",
+    "en": "international",
+    "ps": "ˌɪntəˈnæʃnəl"
+  },
+  {
+    "m": true,
+    "s": "I need to print a few copies of this document.",
+    "cn": "n.印刷，字体；v.印刷，发表",
+    "en": "print",
+    "ps": "prɪnt"
+  },
+  {
+    "m": false,
+    "s": "The seriousness of the situation requires immediate action.",
+    "cn": "n.严重性,adv.认真地",
+    "en": "seriousness",
+    "ps": "ˈsɪəriəsnəs"
+  },
+  {
+    "m": true,
+    "s": "She secondment to the temporary team was approved.",
+    "cn": "v.临时调派；n.第二名，秒；adj.第二的；adv.第二，其次；num.第二；det.第二的",
+    "en": "second",
+    "ps": "ˈsekənd"
+  },
+  {
+    "m": true,
+    "s": "The tired traveler checked into a hotel to rest.",
+    "cn": "n.旅客",
+    "en": "traveler",
+    "ps": "ˈtrævələ(r)"
+  },
+  {
+    "m": false,
+    "s": "All rights are protected by international copyright laws.",
+    "cn": "n.版权；adj.受版权保护；v.获得...的版权",
+    "en": "copyright",
+    "ps": "ˈkɒpiraɪt"
+  },
+  {
+    "m": true,
+    "s": "What do you mean by saying that?",
+    "cn": "v.表示，打算；n.平均值；adj.平均的，自私的",
+    "en": "mean",
+    "ps": "miːn"
+  },
+  {
+    "m": true,
+    "s": "She placed a glass of water on her bedside table.",
+    "cn": "adj.床边；n.床边",
+    "en": "bedside",
+    "ps": "ˈbedsaɪd"
+  },
+  {
+    "m": true,
+    "s": "The hotel room offers a beautiful view of the sea.",
+    "cn": "n.景色；v.看，看待；prep.鉴于...的打算",
+    "en": "view",
+    "ps": "vjuː"
+  },
+  {
+    "m": true,
+    "s": "He is training hard to run his first marathon.",
+    "cn": "n.马拉松赛跑",
+    "en": "marathon",
+    "ps": "ˈmærəθən"
+  },
+  {
+    "m": true,
+    "s": "She pointed at the sign to show us the direction.",
+    "cn": "v.指出；n.分数，得分",
+    "en": "point",
+    "ps": "pɔɪnt"
+  },
+  {
+    "m": true,
+    "s": "Be careful driving on the icy road this morning.",
+    "cn": "adj.结冰的",
+    "en": "icy",
+    "ps": "ˈaɪsi"
+  },
+  {
+    "m": true,
+    "s": "Please finish this work immediately.",
+    "cn": "马上",
+    "en": "immediately",
+    "ps": "ɪˈmiːdiətli"
+  },
+  {
+    "m": true,
+    "s": "What is your favorite color?",
+    "cn": "颜色",
+    "en": "color",
+    "ps": "ˈkʌlə(r)"
+  },
+  {
+    "m": true,
+    "s": "He was badly hurt in a car accident.",
+    "cn": "事故",
+    "en": "accident",
+    "ps": "ˈæksɪdənt"
+  },
+  {
+    "m": true,
+    "s": "She is wearing a warm woolen sweater.",
+    "cn": "毛衣",
+    "en": "sweater",
+    "ps": "ˈswetə(r)"
+  },
+  {
+    "m": true,
+    "s": "The children are playing with a jigsaw puzzle.",
+    "cn": "拼图",
+    "en": "puzzle",
+    "ps": "ˈpʌzl"
+  },
+  {
+    "m": true,
+    "s": "Take notes carefully during the class.",
+    "cn": "笔记",
+    "en": "note",
+    "ps": "nəʊt"
+  },
+  {
+    "m": true,
+    "s": "The newspaper published a report on the event.",
+    "cn": "报道",
+    "en": "report",
+    "ps": "rɪˈpɔːt"
+  },
+  {
+    "m": true,
+    "s": "Prices of vegetables continue to increase.",
+    "cn": "增加",
+    "en": "increase",
+    "ps": "ˈɪŋkriːs"
+  },
+  {
+    "m": true,
+    "s": "He wore a nice shirt and a blue tie.",
+    "cn": "领带",
+    "en": "tie",
+    "ps": "taɪ"
+  },
+  {
+    "m": true,
+    "s": "Eating too much junk food can make you fat.",
+    "cn": "肥胖",
+    "en": "fat",
+    "ps": "fæt"
+  },
+  {
+    "m": true,
+    "s": "Parents take good care of their children.",
+    "cn": "关心",
+    "en": "care",
+    "ps": "keə(r)"
+  },
+  {
+    "m": true,
+    "s": "He walked toward the door and opened it.",
+    "cn": "向，朝",
+    "en": "toward",
+    "ps": "təˈwɔːd"
+  },
+  {
+    "m": true,
+    "s": "She likes to bake cookies for her friends.",
+    "cn": "烤，烘焙",
+    "en": "bake",
+    "ps": "beɪk"
+  },
+  {
+    "m": true,
+    "s": "The football rolled on the ground.",
+    "cn": "地，地面",
+    "en": "ground",
+    "ps": "ɡraʊnd"
+  },
+  {
+    "m": true,
+    "s": "There are over a thousand people in the park.",
+    "cn": "一千，千",
+    "en": "thousand",
+    "ps": "ˈθaʊznd"
+  },
+  {
+    "m": true,
+    "s": "Every person has the right to express their opinion.",
+    "cn": "个人",
+    "en": "person",
+    "ps": "ˈpɜːsn"
+  },
+  {
+    "m": true,
+    "s": "What do you suppose we should do next?",
+    "cn": "认为",
+    "en": "suppose",
+    "ps": "səˈpəʊz"
+  },
+  {
+    "m": true,
+    "s": "Drivers must obey traffic rules.",
+    "cn": "服从",
+    "en": "obey",
+    "ps": "əˈbeɪ"
+  },
+  {
+    "m": true,
+    "s": "We expect to see you tomorrow.",
+    "cn": "期待",
+    "en": "expect",
+    "ps": "ɪkˈspekt"
+  },
+  {
+    "m": true,
+    "s": "The clouds took the shape of a giant bird.",
+    "cn": "形状",
+    "en": "shape",
+    "ps": "ʃeɪp"
+  },
+  {
+    "m": true,
+    "s": "Draw a straight line on the paper.",
+    "cn": "直线",
+    "en": "straight",
+    "ps": "streɪt"
+  },
+  {
+    "m": true,
+    "s": "We had an interesting conversation yesterday.",
+    "cn": "谈话",
+    "en": "conversation",
+    "ps": "ˌkɒnvəˈseɪʃn"
+  },
+  {
+    "m": true,
+    "s": "Please drive safely on the wet road.",
+    "cn": "安全地",
+    "en": "safely",
+    "ps": "ˈseɪfli"
+  },
+  {
+    "m": true,
+    "s": "He likes to eat ham sandwiches for lunch.",
+    "cn": "火腿",
+    "en": "ham",
+    "ps": "hæm"
+  },
+  {
+    "m": true,
+    "s": "It is important for young people to be independent.",
+    "cn": "独立的",
+    "en": "independent",
+    "ps": "ˌɪndɪˈpendənt"
+  },
+  {
+    "m": true,
+    "s": "The children felt cheerful when they heard the good news.",
+    "cn": "高兴的",
+    "en": "cheerful",
+    "ps": "ˈtʃɪəfl"
+  },
+  {
+    "m": true,
+    "s": "The lion is known as the king of the forest.",
+    "cn": "狮子",
+    "en": "lion",
+    "ps": "ˈlaɪən"
+  },
+  {
+    "m": true,
+    "s": "A triangle has three sides and three angles.",
+    "cn": "三角形",
+    "en": "triangle",
+    "ps": "ˈtraɪæŋɡl"
+  },
+  {
+    "m": true,
+    "s": "The rabbit hid behind a green bush.",
+    "cn": "灌木",
+    "en": "bush",
+    "ps": "bʊʃ"
+  },
+  {
+    "m": true,
+    "s": "Miners dig for coal deep underground.",
+    "cn": "煤",
+    "en": "coal",
+    "ps": "kəʊl"
+  },
+  {
+    "m": true,
+    "s": "There is a deep hole in the middle of the road.",
+    "cn": "洞",
+    "en": "hole",
+    "ps": "həʊl"
+  },
+  {
+    "m": true,
+    "s": "The government announced a new policy today.",
+    "cn": "政府",
+    "en": "government",
+    "ps": "ˈɡʌvənmənt"
+  },
+  {
+    "m": true,
+    "s": "I can smell delicious food coming from the kitchen.",
+    "cn": "嗅",
+    "en": "smell",
+    "ps": "smel"
+  },
+  {
+    "m": true,
+    "s": "We usually have lunch at noon.",
+    "cn": "正午",
+    "en": "noon",
+    "ps": "nuːn"
+  },
+  {
+    "m": true,
+    "s": "How much does this new computer cost?",
+    "cn": "花费",
+    "en": "cost",
+    "ps": "kɒst"
+  },
+  {
+    "m": true,
+    "s": "She is cleaning her bedroom.",
+    "cn": "房间",
+    "en": "room",
+    "ps": "ruːm"
+  },
+  {
+    "m": true,
+    "s": "His facial expression showed that he was surprised.",
+    "cn": "表达",
+    "en": "expression",
+    "ps": "ɪkˈspreʃn"
+  },
+  {
+    "m": true,
+    "s": "I prefer reading books to watching TV.",
+    "cn": "更喜欢",
+    "en": "prefer",
+    "ps": "prɪˈfɜː(r)"
+  },
+  {
+    "m": true,
+    "s": "He knows how to drive a car.",
+    "cn": "开车",
+    "en": "drive",
+    "ps": "draɪv"
+  },
+  {
+    "m": true,
+    "s": "Please stay away from the dangerous area.",
+    "cn": "离开",
+    "en": "away",
+    "ps": "əˈweɪ"
+  },
+  {
+    "m": true,
+    "s": "We should learn to make a clear moral choice.",
+    "cn": "道德的",
+    "en": "moral",
+    "ps": "ˈmɒrəl"
+  },
+  {
+    "m": true,
+    "s": "Honesty is an important part of human morality.",
+    "cn": "道德",
+    "en": "morality",
+    "ps": "məˈræləti"
+  },
+  {
+    "m": true,
+    "s": "The doctor said his health condition is getting better.",
+    "cn": "状态",
+    "en": "condition",
+    "ps": "kənˈdɪʃn"
+  },
+  {
+    "m": true,
+    "s": "Medicine can help reduce the pain in your stomach.",
+    "cn": "痛苦",
+    "en": "pain",
+    "ps": "peɪn"
+  },
+  {
+    "m": false,
+    "s": "He is in a difficult situation and needs our help.",
+    "cn": "情况",
+    "en": "situation",
+    "ps": "ˌsɪtʃuˈeɪʃn"
+  },
+  {
+    "m": true,
+    "s": "She wears a warm woolen sweater in winter.",
+    "cn": "羊毛的",
+    "en": "woolen",
+    "ps": "ˈwʊlən"
+  },
+  {
+    "m": true,
+    "s": "The ball began to roll down the hill.",
+    "cn": "滚动",
+    "en": "roll",
+    "ps": "rəʊl"
+  },
+  {
+    "m": true,
+    "s": "Everyone has the right to get an education.",
+    "cn": "权利",
+    "en": "right",
+    "ps": "raɪt"
+  },
+  {
+    "m": true,
+    "s": "Pandas eat a giant amount of bamboo every day.",
+    "cn": "巨大的",
+    "en": "giant",
+    "ps": "ˈdʒaɪənt"
+  },
+  {
+    "m": true,
+    "s": "Music is a universal language that everyone can understand.",
+    "cn": "普遍的",
+    "en": "universal",
+    "ps": "ˌjuːnɪˈvɜːsl"
+  },
+  {
+    "m": true,
+    "s": "The young girl has a great talent for drawing.",
+    "cn": "天赋",
+    "en": "talent",
+    "ps": "ˈtælənt"
+  },
+  {
+    "m": true,
+    "s": "The teacher was satisfied with our exam results.",
+    "cn": "满意的",
+    "en": "satisfied",
+    "ps": "ˈsætɪsfaɪd"
+  },
+  {
+    "m": true,
+    "s": "The dancer moved gracefully across the stage.",
+    "cn": "优雅地",
+    "en": "gracefully",
+    "ps": "ˈɡreɪsfəli"
+  },
+  {
+    "m": true,
+    "s": "They sang together in the school chorus.",
+    "cn": "合唱",
+    "en": "chorus",
+    "ps": "ˈkɔːrəs"
+  },
+  {
+    "en": "need",
+    "ps": "niːd"
+  },
+  {
+    "m": false,
+    "s": "I hope to visit Beijing with my family one day.",
+    "cn": "希望",
+    "en": "hope",
+    "ps": "həʊp"
+  },
+  {
+    "m": false,
+    "s": "My grandfather told me a funny tale about a clever fox.",
+    "cn": "故事；传说",
+    "en": "tale",
+    "ps": "teɪl"
+  },
+  {
+    "m": false,
+    "s": "The new student felt lonely on his first day at school.",
+    "cn": "孤独的；寂寞的",
+    "en": "lonely",
+    "ps": "ˈləʊnli"
+  },
+  {
+    "m": false,
+    "s": "I had rice and beans for lunch.",
+    "cn": "豆；豆子",
+    "en": "bean",
+    "ps": "biːn"
+  },
+  {
+    "m": false,
+    "s": "You can ask your teacher if you have any questions.",
+    "cn": "询问；请求",
+    "en": "ask",
+    "ps": "ɑːsk"
+  },
+  {
+    "m": false,
+    "s": "Many people enjoy walking along the coastal path.",
+    "cn": "海岸的；沿海的",
+    "en": "coastal",
+    "ps": "ˈkəʊstl"
+  },
+  {
+    "m": false,
+    "s": "I can feel the warm sun on my face.",
+    "cn": "感觉；摸起来",
+    "en": "feel",
+    "ps": "fiːl"
+  },
+  {
+    "m": false,
+    "s": "The yellow flowers look beautiful in the garden.",
+    "cn": "黄色的",
+    "en": "yellow",
+    "ps": "ˈjeləʊ"
+  },
+  {
+    "m": false,
+    "s": "We saw a small snake near the river.",
+    "cn": "蛇",
+    "en": "snake",
+    "ps": "sneɪk"
+  },
+  {
+    "m": false,
+    "s": "The development of the town has brought more jobs.",
+    "cn": "发展；开发",
+    "en": "development",
+    "ps": "dɪˈveləpmənt"
+  },
+  {
+    "m": false,
+    "s": "He is a great lover of music and plays the piano every day.",
+    "cn": "爱好者；爱人",
+    "en": "lover",
+    "ps": "ˈlʌvə(r)"
+  },
+  {
+    "m": false,
+    "s": "The factory must find a better way to treat its wastewater.",
+    "cn": "废水",
+    "en": "wastewater",
+    "ps": "ˈweɪstwɔːtə(r)"
+  },
+  {
+    "m": false,
+    "s": "The doctor asked me to stick out my tongue.",
+    "cn": "舌头",
+    "en": "tongue",
+    "ps": "tʌŋ"
+  },
+  {
+    "m": false,
+    "s": "Our teacher is strict, but she is fair to everyone.",
+    "cn": "严格的；严厉的",
+    "en": "strict",
+    "ps": "strɪkt"
+  },
+  {
+    "m": false,
+    "s": "We usually eat dinner at a small restaurant near our home.",
+    "cn": "餐馆；饭店",
+    "en": "restaurant",
+    "ps": "ˈrestrɒnt"
+  },
+  {
+    "m": false,
+    "s": "Every player on the team worked hard to win the game.",
+    "cn": "运动员；选手；玩家",
+    "en": "player",
+    "ps": "ˈpleɪə(r)"
   }
 ]

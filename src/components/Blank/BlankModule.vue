@@ -26,7 +26,6 @@ const showChinese = ref(false)
 const parsedSegments = computed(() => {
   if (!activeQuiz.value?.body) return []
   
-  // 1. 先匹配完形填空占位符 [1], [2] 等
   const slotRegex = /\[(\d+)\]/g
   const initialParts = []
   let lastIndex = 0
@@ -43,19 +42,16 @@ const parsedSegments = computed(() => {
     initialParts.push({ type: 'text', content: activeQuiz.value.body.slice(lastIndex) })
   }
 
-  // 2. 进一步切分普通文本里的换行符 \n，生成 newline 节点
   const finalParts = []
   initialParts.forEach(part => {
     if (part.type === 'slot') {
       finalParts.push(part)
     } else {
-      // 按照换行符切分
       const subLines = part.content.split('\n')
       subLines.forEach((line, index) => {
         if (line) {
           finalParts.push({ type: 'text', content: line })
         }
-        // 如果不是最后一行，说明后面紧跟一个换行符
         if (index < subLines.length - 1) {
           finalParts.push({ type: 'newline' })
         }
@@ -63,6 +59,14 @@ const parsedSegments = computed(() => {
     }
   })
   return finalParts
+})
+
+// --- 计算正确题数总结 ---
+const correctCount = computed(() => {
+  if (!activeQuiz.value?.quiz) return 0
+  return activeQuiz.value.quiz.reduce((acc, q, idx) => {
+    return acc + (userSelections.value[idx] === q.answer ? 1 : 0)
+  }, 0)
 })
 
 // --- 交互逻辑 ---
@@ -90,12 +94,315 @@ const handleSelect = (qIdx, oIdx) => {
 const scrollToQuestion = (idx) => {
   activeQIdx.value = idx
   nextTick(() => {
-    // 改变：如果已提交，延迟 50ms 等待解析展开动画，定位更精准
     setTimeout(() => {
       const el = document.getElementById(`q-card-${idx}`)
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, isSubmitted.value ? 50 : 0)
   })
+}
+
+/**
+ * 核心：完美无损打印完形填空做题报告
+ */
+const handlePrintReport = () => {
+  const quizData = activeQuiz.value
+  if (!quizData) return
+
+  // 1. 获取文章正文 HTML (支持中英文切换)
+  let rawBody = (showChinese.value && quizData.body_cn) ? quizData.body_cn : quizData.body
+
+  // 2. 将正文中的 [1], [2] 完形空位替换为带有学生作答记录的优美徽章标签
+  const processedArticleHtml = rawBody.replace(/\[(\d+)\]/g, (match, p1) => {
+    const qIdx = parseInt(p1) - 1
+    const userSel = userSelections.value[qIdx]
+    const targetQ = quizData.quiz ? quizData.quiz[qIdx] : null
+    const userLetter = userSel !== null ? String.fromCharCode(65 + userSel) : '_'
+    
+    let slotClass = 'print-slot'
+    if (targetQ) {
+      if (userSel === targetQ.answer) {
+        slotClass += ' print-slot-correct'
+      } else {
+        slotClass += ' print-slot-wrong'
+      }
+    }
+    return `<span class="${slotClass}"><b>(${p1})</b> ${userLetter}</span>`
+  }).replace(/\n/g, '<br />')
+
+  // 3. 拼接题目、各选项与解析
+  let quizDetailsHtml = ''
+  if (quizData.quiz && quizData.quiz.length) {
+    quizDetailsHtml = quizData.quiz.map((q, qIdx) => {
+      const userSel = userSelections.value[qIdx]
+      const isCorrect = userSel === q.answer
+      const statusText = isCorrect ? '✓ 回答正确' : '✕ 回答错误'
+      const statusClass = isCorrect ? 'correct' : 'wrong'
+
+      // 渲染选项列表
+      let optionsHtml = ''
+      if (q.options && q.options.length) {
+        optionsHtml = q.options.map((opt, oIdx) => {
+          const optLetter = String.fromCharCode(65 + oIdx)
+          let itemClass = 'print-opt-item'
+          let markBadge = ''
+
+          if (oIdx === q.answer) {
+            itemClass += ' opt-is-correct-ans'
+            markBadge += '<span class="badge-ans">【正确答案】</span>'
+          }
+          if (userSel === oIdx) {
+            if (oIdx === q.answer) {
+              itemClass += ' opt-user-selected'
+              markBadge += '<span class="badge-user-ok">（你的选择 ✓）</span>'
+            } else {
+              itemClass += ' opt-user-wrong'
+              markBadge += '<span class="badge-user-no">（你的选择 ✕）</span>'
+            }
+          }
+
+          return `
+            <div class="${itemClass}">
+              <span class="opt-letter">${optLetter}.</span> 
+              <span class="opt-text">${opt}</span>
+              ${markBadge}
+            </div>
+          `
+        }).join('')
+      }
+
+      // 兼容字符串或数组格式的解析
+      let analysisContent = '暂无该题解析'
+      if (q.analysis) {
+        if (Array.isArray(q.analysis)) {
+          analysisContent = q.analysis[q.answer] || q.analysis[0] || '暂无解析'
+        } else {
+          analysisContent = q.analysis
+        }
+      }
+
+      return `
+        <div class="question-card">
+          <div class="q-header">
+            <div class="q-title"><strong>${qIdx + 1}.</strong> 完形填空第 ${qIdx + 1} 题</div>
+            <span class="status-tag ${statusClass}">${statusText}</span>
+          </div>
+          <div class="options-list">
+            ${optionsHtml}
+          </div>
+          <div class="analysis-box">
+            <div class="analysis-title">💡 答案解析：</div>
+            <div class="analysis-body">${analysisContent}</div>
+          </div>
+        </div>
+      `
+    }).join('')
+  }
+
+  // 4. 打开独立窗口并写入精心设计的打印模板
+  const printWindow = window.open('', '_blank')
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${quizData.title || '完形填空做题报告'}</title>
+      <style>
+        @page {
+          size: A4;
+          margin: 10mm 12mm;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+          color: #1e293b;
+          line-height: 1.6;
+          padding: 0;
+          margin: 0;
+        }
+        .header-box {
+          border-bottom: 2px solid #0f172a;
+          padding-bottom: 10px;
+          margin-bottom: 16px;
+        }
+        .report-title {
+          font-size: 20px;
+          font-weight: bold;
+          margin: 0 0 6px 0;
+          color: #0f172a;
+        }
+        .meta-info {
+          font-size: 12px;
+          color: #64748b;
+          display: flex;
+          justify-content: space-between;
+        }
+        .section-box {
+          margin-bottom: 20px;
+        }
+        .section-title {
+          font-size: 14px;
+          font-weight: bold;
+          border-left: 4px solid #3b82f6;
+          padding-left: 8px;
+          margin-bottom: 10px;
+          color: #0f172a;
+        }
+        .article-content {
+          background: #f8fafc;
+          padding: 16px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          line-height: 2.2;
+          border: 1px solid #e2e8f0;
+          text-align: justify;
+        }
+        /* 完形填空内嵌答题槽打印样式 */
+        .print-slot {
+          display: inline-flex;
+          align-items: center;
+          padding: 2px 6px;
+          margin: 0 3px;
+          background: #f1f5f9;
+          border-bottom: 2px solid #94a3b8;
+          border-radius: 4px;
+          font-weight: bold;
+          font-size: 13px;
+        }
+        .print-slot-correct {
+          background: #dcfce7 !important;
+          border-color: #22c55e !important;
+          color: #15803d;
+        }
+        .print-slot-wrong {
+          background: #fee2e2 !important;
+          border-color: #ef4444 !important;
+          color: #b91c1c;
+        }
+
+        .question-card {
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 12px 14px;
+          margin-bottom: 12px;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          background: #ffffff;
+        }
+        .q-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          font-size: 13.5px;
+          margin-bottom: 8px;
+        }
+        .q-title {
+          font-weight: 600;
+          color: #0f172a;
+        }
+        .status-tag {
+          font-size: 11px;
+          font-weight: bold;
+          padding: 2px 8px;
+          border-radius: 4px;
+          white-space: nowrap;
+        }
+        .status-tag.correct { background: #dcfce7; color: #15803d; }
+        .status-tag.wrong { background: #fee2e2; color: #b91c1c; }
+
+        .options-list {
+          margin: 8px 0;
+          font-size: 13px;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        .print-opt-item {
+          padding: 6px 10px;
+          border-radius: 6px;
+          border: 1px solid #f1f5f9;
+          background: #fafafa;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .opt-letter {
+          font-weight: bold;
+          color: #64748b;
+        }
+        .opt-text {
+          flex: 1;
+        }
+        .opt-is-correct-ans {
+          background-color: #f0fdf4 !important;
+          border-color: #bbf7d0 !important;
+        }
+        .opt-user-wrong {
+          background-color: #fef2f2 !important;
+          border-color: #fecaca !important;
+        }
+        .badge-ans {
+          color: #16a34a;
+          font-weight: bold;
+          font-size: 11px;
+          margin-left: auto;
+        }
+        .badge-user-ok {
+          color: #16a34a;
+          font-weight: bold;
+          font-size: 11px;
+        }
+        .badge-user-no {
+          color: #dc2626;
+          font-weight: bold;
+          font-size: 11px;
+          margin-left: auto;
+        }
+
+        .analysis-box {
+          margin-top: 10px;
+          background: #f8fafc;
+          padding: 10px 12px;
+          border-radius: 6px;
+          font-size: 12.5px;
+          color: #334155;
+          border-left: 3px solid #94a3b8;
+          line-height: 1.6;
+        }
+        .analysis-title {
+          font-weight: bold;
+          margin-bottom: 4px;
+          color: #1e293b;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header-box">
+        <h1 class="report-title">${quizData.title || '完形填空练习报告'}</h1>
+        <div class="meta-info">
+          <span><strong>学生姓名：</strong>${'suzy 苏阳涵钰' || '学员'} &nbsp;|&nbsp; <strong>得分：</strong>${props.scoreInfo || `${correctCount.value} / ${quizData.quiz?.length}`}</span>
+          <span>打印时间：${new Date().toLocaleString()}</span>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">一、完形填空文章与填空记录</div>
+        <div class="article-content">${processedArticleHtml}</div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">二、逐题解析与作答核对</div>
+        ${quizDetailsHtml}
+      </div>
+    </body>
+    </html>
+  `)
+
+  printWindow.document.close()
+  printWindow.focus()
+
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 350)
 }
 </script>
 
@@ -163,11 +470,16 @@ const scrollToQuestion = (idx) => {
             </div>
           </div>
         </aside>
+        
         <main class="main-content-panel">
           <div v-if="activeQuiz" class="exercise-stage fade-in">
             <div class="stage-header">
               <div class="title-badge">📖 {{ activeQuiz.title }}</div>
               <div class="action-group">
+                <!-- 新增：优化后的打印报告按钮（提交后可见） -->
+                <button v-if="isSubmitted" class="btn-glass btn-print" @click="handlePrintReport">
+                  🖨️ 打印完形报告
+                </button>
                 <button v-if="isSubmitted && activeQuiz.body_cn" class="btn-glass" @click="showChinese = !showChinese">
                   {{ showChinese ? '显示原文' : '译文对照' }}
                 </button>
@@ -183,21 +495,16 @@ const scrollToQuestion = (idx) => {
                   {{ activeQuiz.body_cn }}
                 </div>
                 <div v-else class="text-content">
-           <template v-for="(seg, i) in parsedSegments" :key="i">
-      <!-- 处理普通文本 -->
-      <span v-if="seg.type === 'text'">{{ seg.content }}</span>
-      
-      <!-- 新增：处理换行 -->
-      <br v-else-if="seg.type === 'newline'" />
-      
-      <!-- 处理填空槽 -->
-      <span v-else
-        :class="['cloze-slot', { 'active': activeQIdx === seg.qIdx, 'filled': userSelections[seg.qIdx] !== null, 'correct': isSubmitted && userSelections[seg.qIdx] === activeQuiz.quiz[seg.qIdx]?.answer, 'wrong': isSubmitted && userSelections[seg.qIdx] !== null && userSelections[seg.qIdx] !== activeQuiz.quiz[seg.qIdx]?.answer }]"
-        @click="scrollToQuestion(seg.qIdx)">
-        <span class="slot-idx">{{ seg.qIdx + 1 }}</span>
-        <span class="slot-answer">{{ userSelections[seg.qIdx] !== null ? String.fromCharCode(65 + userSelections[seg.qIdx]) : '' }}</span>
-      </span>
-    </template>
+                  <template v-for="(seg, i) in parsedSegments" :key="i">
+                    <span v-if="seg.type === 'text'">{{ seg.content }}</span>
+                    <br v-else-if="seg.type === 'newline'" />
+                    <span v-else
+                      :class="['cloze-slot', { 'active': activeQIdx === seg.qIdx, 'filled': userSelections[seg.qIdx] !== null, 'correct': isSubmitted && userSelections[seg.qIdx] === activeQuiz.quiz[seg.qIdx]?.answer, 'wrong': isSubmitted && userSelections[seg.qIdx] !== null && userSelections[seg.qIdx] !== activeQuiz.quiz[seg.qIdx]?.answer }]"
+                      @click="scrollToQuestion(seg.qIdx)">
+                      <span class="slot-idx">{{ seg.qIdx + 1 }}</span>
+                      <span class="slot-answer">{{ userSelections[seg.qIdx] !== null ? String.fromCharCode(65 + userSelections[seg.qIdx]) : '' }}</span>
+                    </span>
+                  </template>
                 </div>
               </article>
 
@@ -257,6 +564,7 @@ const scrollToQuestion = (idx) => {
 </template>
 
 <style scoped>
+/* 样式保持原样 */
 .cloze-workspace {
   height: 100vh;
   width: 100%;
@@ -265,743 +573,86 @@ const scrollToQuestion = (idx) => {
   overflow: hidden;
   background: #ffffff;
 }
-
-.full-view-editor {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
-  background: #fff;
-  /* 确保背景纯白，盖住后面的列表 */
-}
-
-.is-full-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
-
-.workspace-layout {
-  display: flex;
-  flex: 1;
-  height: 0;
-  min-height: 0;
-  /* 关键：防止被内容撑破 */
-  /* 关键：强制子元素高度计算，使其内部滚动生效 */
-  width: 100%;
-  overflow: hidden;
-}
-
-.sidebar-panel {
-  width: 280px;
-  background: #ffffff;
-  border-right: 1px solid #edf2f7;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-panel.collapsed {
-  width: 40px;
-}
-
-.panel-content {
-  width: 280px;
-  padding: 20px 16px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-.student-profile-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: #f1f5f9;
-  border-radius: 16px;
-  margin-bottom: 20px;
-}
-
-.avatar-box {
-  width: 42px;
-  height: 42px;
-  background: #1e293b;
-  color: white;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.badge-text {
-  font-size: 10px;
-  font-weight: 800;
-  color: #64748b;
-  letter-spacing: 0.5px;
-}
-
-.student-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 2px 0 0 0;
-}
-
-.btn-primary-add {
-  width: 100%;
-  padding: 14px;
-  background: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 24px;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn-primary-add:hover {
-  background: #27ae60;
-  transform: translateY(-1px);
-}
-
-.list-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.list-header-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  margin-bottom: 12px;
-  padding-left: 4px;
-}
-
-.cloze-list-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.cloze-item-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
-  background: #fff;
-  border-radius: 14px;
-  border: 1px solid #f1f5f9;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-  overflow: hidden;
-}
-
-.exercise-stage {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  /* 必须：继承父级高度 */
-  overflow: hidden;
-  /* 必须：防止内容溢出舞台 */
-}
-
-.cloze-item-card:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-}
-
-.cloze-item-card.active {
-  background: #f0f9ff;
-  border-color: #3b82f6;
-}
-
-.active-bar {
-  position: absolute;
-  left: 0;
-  top: 25%;
-  height: 50%;
-  width: 4px;
-  background: transparent;
-  border-radius: 0 4px 4px 0;
-}
-
-.cloze-item-card.active .active-bar {
-  background: #3b82f6;
-}
-
-.item-icon {
-  font-size: 18px;
-}
-
-.item-main {
-  flex: 1;
-  min-width: 0;
-  /* 关键：允许 flex 项目在必要时收缩，从而触发省略号 */
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* 标题文本截断逻辑 */
-.item-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  /* 确保占据容器宽度 */
-}
-
-.item-sub {
-  font-size: 10px;
-  color: #94a3b8;
-  display: flex;
-  gap: 4px;
-}
-
-.item-ctrls {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  flex-shrink: 0;
-  /* 关键：防止按钮被过长的标题挤扁 */
-  transition: opacity 0.2s;
-}
-
-.cloze-item-card:hover .item-ctrls {
-  opacity: 1;
-}
-
-.mini-icon-btn {
-  border: none;
-  background: #fff;
-  padding: 5px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.main-content-panel {
-  flex: 1;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-.stage-header {
-  height: 64px;
-  padding: 0 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.title-badge {
-  background: #f1f5f9;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.btn-glass {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: 8px;
-  transition: 0.2s;
-}
-
-.btn-glass:hover {
-  background: #f8fafc;
-}
-
-.btn-glass.exit {
-  color: #ef4444;
-}
-
-.exercise-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  min-height: 0;
-  /* 改这里：从 height: 0 改为 min-height: 0 */
-  height: 100%;
-  /* 强制占满父级剩余空间 */
-}
-
-.reading-area {
-  flex: 1.2;
-  overflow-y: auto;
-  padding: 30px 40px;
-  line-height: 2.2;
-  font-size: 19px;
-  color: #334155;
-  background: #fff;
-}
-
-.cloze-slot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  height: 30px;
-  background: #f1f5f9;
-  border-bottom: 2px solid #cbd5e1;
-  border-radius: 4px;
-  margin: 0 6px;
-  cursor: pointer;
-  vertical-align: middle;
-  transition: 0.2s;
-}
-
-.cloze-slot.active {
-  background: #e0f2fe;
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-}
-
-.cloze-slot.filled {
-  background: #f0f9ff;
-  border-color: #0ea5e9;
-}
-
-.cloze-slot.correct {
-  background: #dcfce7 !important;
-  border-color: #22c55e !important;
-}
-
-.cloze-slot.wrong {
-  background: #fee2e2 !important;
-  border-color: #ef4444 !important;
-}
-
-.slot-idx {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-right: 4px;
-}
-
-.slot-answer {
-  font-weight: 800;
-  color: #2563eb;
-}
-
-/* 确保右侧选项面板高度锁死，不随内容无限拉长 */
-.options-panel {
-  width: 400px;
-  background: #f8fafc;
-  border-left: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  /* 关键：防止面板被子元素内容撑长 */
-}
-
-/* 核心滚动区 */
-.options-scroll {
-  flex: 1;
-  /* 占据 panel 除去 footer 后的所有空间 */
-  overflow-y: auto !important;
-  /* 强制开启滚动 */
-  min-height: 0;
-  /* 关键：允许它塌陷高度以触发滚动条 */
-  padding: 16px;
-  background: #f8fafc;
-  padding-right: 12px;
-}
-
-.question-card {
-  background: white;
-  border-radius: 8px;
-  padding: 6px 10px;
-  /* 压缩上下内边距 */
-  margin-bottom: 8px;
-  /* 题目之间的间距 */
-  border: 1px solid #e2e8f0;
-  transition: 0.2s;
-  position: relative;
-}
-
-.question-card.active {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1);
-}
-
-.opts-list {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  /* 严格平分四份 */
-  gap: 4px;
-  /* 减小间距以适应较窄的面板 */
-  align-items: center;
-}
-
-/* 1. 新增：行布局，让题号和选项并排 */
-.q-row-layout {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 2. 序号样式：固定宽度防止对齐错乱 */
-.q-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: #1e293b;
-  min-width: 10px;
-  /* 保证 1. 和 10. 占位一致 */
-  flex-shrink: 0;
-}
-
-.opt-choice {
-  display: flex;
-  flex-direction: row;
-  /* 强制字母和单词在一行 */
-  align-items: center;
-  justify-content: flex-start;
-  /* 靠左对齐，这是对齐的关键 */
-  padding: 4px 6px;
-  background: #fff;
-  border: 1px solid #f1f5f9;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.15s;
-}
-
-.opt-choice:hover {
-  background: #f8fafc;
-}
-
-.opt-choice.selected {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.opt-choice.is-ans {
-  border: 2px solid #22c55e;
-}
-
-/* 字母标签：设置固定宽度实现垂直对齐 */
-.letter {
-  display: inline-block;
-  width: 14px;
-  /* 关键：设置固定宽度，确保后面的单词起始点一致 */
-  font-size: 10px;
-  font-weight: 800;
-  color: #94a3b8;
-  flex-shrink: 0;
-  /* 禁止字母被挤压 */
-  text-align: left;
-  /* 字母在自己的 14px 空间内左对齐 */
-}
-
-/* 选项文字：如果文字较长，强制截断并缩小字体 */
-.opt-choice .text {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-left: 2px;
-  /* 字母和单词之间微小的固定间距 */
-}
-
-.opt-choice.selected .letter {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* 底部操作 */
-.panel-footer {
-  padding: 20px;
-  background: white;
-  border-top: 1px solid #e2e8f0;
-}
-
-.btn-submit-main {
-  width: 100%;
-  padding: 16px;
-  background: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-submit-main:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
-}
-
-.empty-guide-stage {
-  flex: 1;
-  /* 占据 main 的所有垂直空间 */
-  width: 100%;
-  /* 占据 main 的所有水平空间 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  /* 确保背景色和 main 一致 */
-}
-
-.guide-content {
-  text-align: center;
-  color: #94a3b8;
-}
-
-.guide-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  50% {
-    transform: translateX(-10px);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 侧边栏收缩逻辑 */
-.toggle-btn {
-  position: absolute;
-  right: -12px;
-  top: 30px;
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  z-index: 10;
-}
-
-.ans-status {
-  position: absolute;
-  right: 5px;
-  top: 2px;
-  font-size: 10px;
-}
-
-.is-ok {
-  color: #22c55e;
-}
-
-.is-no {
-  color: #ef4444;
-}
-
-/* 空状态 */
-.empty-list-tip {
-  text-align: center;
-  margin-top: 60px;
-}
-
-.empty-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-}
-
-.sub-tip {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-
-/* 针对选项区和左侧列表的滚动条优化 */
-.options-scroll::-webkit-scrollbar,
-.cloze-list-scroll::-webkit-scrollbar {
-  width: 6px;
-  /* 纵向滚动条宽度 */
-  height: 6px;
-  /* 横向滚动条高度 */
-}
-
-/* 滚动条轨道 */
-.options-scroll::-webkit-scrollbar-track,
-.cloze-list-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* 滚动条滑块 */
-.options-scroll::-webkit-scrollbar-thumb,
-.cloze-list-scroll::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  /* 浅灰色滑块 */
-  border-radius: 20px;
-  /* 胶囊形状 */
-  border: 2px solid transparent;
-  /* 通过透明边框实现滑块与边缘的间距感 */
-}
-
-/* 鼠标悬停时滑块颜色加深 */
-.options-scroll::-webkit-scrollbar-thumb:hover,
-.cloze-list-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
-}
-
-/* Firefox 浏览器的简易支持 */
-.options-scroll,
-.cloze-list-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.options-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  background: #f8fafc;
-  /* 加上这行，可以让右侧留出一点缝隙给滚动条，视觉上更呼吸 */
-  padding-right: 12px;
-}
-
-/* 让激活状态的题目卡片在视觉上更突出 */
-.question-card.active {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
-  /* 稍微向左偏移一点，增加动态感 */
-  transform: translateX(-2px);
-}
-
-/* 新增：解析盒子样式 */
-.analysis-box {
-  margin-top: 10px;
-  padding: 10px 12px;
-  background: #f8fafc;
-  /* 浅灰蓝色背景，与纯白卡片区分 */
-  border-radius: 6px;
-  border-left: 3px solid #64748b;
-  /* 灰色左边条，如果是错题你也可以改成 #ef4444 */
-  font-size: 12px;
-}
-
-/* 如果是错题，把解析边框变成红色（可选拓展） */
-.question-card:has(.is-no) .analysis-box {
-  border-left-color: #fca5a5;
-}
-
-.question-card:has(.is-ok) .analysis-box {
-  border-left-color: #86efac;
-}
-
-.analysis-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.analysis-tag {
-  background: #e2e8f0;
-  color: #475569;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 700;
-  font-size: 10px;
-}
-
-.correct-ans-tip {
-  color: #64748b;
-}
-
-.text-success {
-  color: #22c55e;
-  font-weight: 800;
-}
-
-.analysis-text {
-  margin: 0;
-  color: #475569;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  /* 允许解析内容换行 */
-}
-
-/* 解析展开折叠的动画过渡 */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.25s ease-out;
-  max-height: 200px;
-  /* 预设一个最大高度用于动画过渡 */
-  overflow: hidden;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  max-height: 0;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.text-content {
-  /* 新增：保留连续空格与换行样式 */
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* 同样建议给译文框加上换行保留 */
-.translation-box {
-  white-space: pre-wrap;
-  line-height: 1.8;
-  color: #475569;
-}
+.full-view-editor { position: absolute; inset: 0; z-index: 100; background: #fff; }
+.is-full-screen { position: fixed; inset: 0; z-index: 9999; }
+.workspace-layout { display: flex; flex: 1; height: 0; min-height: 0; width: 100%; overflow: hidden; }
+.sidebar-panel { width: 280px; background: #ffffff; border-right: 1px solid #edf2f7; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; display: flex; flex-direction: column; }
+.sidebar-panel.collapsed { width: 40px; }
+.panel-content { width: 280px; padding: 20px 16px; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
+.student-profile-card { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f1f5f9; border-radius: 16px; margin-bottom: 20px; }
+.avatar-box { width: 42px; height: 42px; background: #1e293b; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
+.badge-text { font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.5px; }
+.student-name { font-size: 14px; font-weight: 700; color: #1e293b; margin: 2px 0 0 0; }
+.btn-primary-add { width: 100%; padding: 14px; background: #0f172a; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary-add:hover { background: #27ae60; }
+.list-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.list-header-label { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 12px; padding-left: 4px; }
+.cloze-list-scroll { flex: 1; overflow-y: auto; padding-right: 4px; }
+.cloze-item-card { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px; background: #fff; border-radius: 14px; border: 1px solid #f1f5f9; margin-bottom: 10px; cursor: pointer; overflow: hidden; }
+.cloze-item-card:hover { border-color: #cbd5e1; background: #f8fafc; }
+.cloze-item-card.active { background: #f0f9ff; border-color: #3b82f6; }
+.active-bar { position: absolute; left: 0; top: 25%; height: 50%; width: 4px; background: transparent; border-radius: 0 4px 4px 0; }
+.cloze-item-card.active .active-bar { background: #3b82f6; }
+.item-icon { font-size: 18px; }
+.item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.item-title { font-size: 13px; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.item-sub { font-size: 10px; color: #94a3b8; display: flex; gap: 4px; }
+.item-ctrls { display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; }
+.cloze-item-card:hover .item-ctrls { opacity: 1; }
+.mini-icon-btn { border: none; background: #fff; padding: 5px; border-radius: 6px; cursor: pointer; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.exercise-stage { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.main-content-panel { flex: 1; background: #ffffff; display: flex; flex-direction: column; height: 100%; position: relative; }
+.stage-header { height: 64px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+.title-badge { background: #f1f5f9; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #1e293b; }
+.btn-glass { border: 1px solid #e2e8f0; background: #fff; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: 8px; }
+.btn-glass:hover { background: #f8fafc; }
+.btn-print { color: #2563eb; border-color: #bfdbfe; background-color: #eff6ff; }
+.btn-print:hover { background-color: #dbeafe; }
+.exercise-body { flex: 1; display: flex; overflow: hidden; min-height: 0; height: 100%; }
+.reading-area { flex: 1.2; overflow-y: auto; padding: 30px 40px; line-height: 2.2; font-size: 19px; color: #334155; background: #fff; }
+.cloze-slot { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 30px; background: #f1f5f9; border-bottom: 2px solid #cbd5e1; border-radius: 4px; margin: 0 6px; cursor: pointer; vertical-align: middle; }
+.cloze-slot.active { background: #e0f2fe; border-color: #3b82f6; transform: translateY(-2px); }
+.cloze-slot.filled { background: #f0f9ff; border-color: #0ea5e9; }
+.cloze-slot.correct { background: #dcfce7 !important; border-color: #22c55e !important; }
+.cloze-slot.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; }
+.slot-idx { font-size: 11px; color: #94a3b8; margin-right: 4px; }
+.slot-answer { font-weight: 800; color: #2563eb; }
+.options-panel { width: 400px; background: #f8fafc; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.options-scroll { flex: 1; overflow-y: auto !important; min-height: 0; padding: 16px; padding-right: 12px; }
+.question-card { background: white; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; border: 1px solid #e2e8f0; position: relative; }
+.question-card.active { border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59,130,246,0.08); }
+.opts-list { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; align-items: center; }
+.q-row-layout { display: flex; align-items: center; gap: 8px; }
+.q-label { font-size: 10px; font-weight: 800; color: #1e293b; min-width: 10px; }
+.opt-choice { display: flex; align-items: center; justify-content: flex-start; padding: 4px 6px; background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; cursor: pointer; }
+.opt-choice:hover { background: #f8fafc; }
+.opt-choice.selected { background: #3b82f6; color: white; border-color: #3b82f6; }
+.opt-choice.is-ans { border: 2px solid #22c55e; }
+.letter { display: inline-block; width: 14px; font-size: 10px; font-weight: 800; color: #94a3b8; text-align: left; }
+.opt-choice .text { font-size: 13px; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 2px; }
+.panel-footer { padding: 20px; background: white; border-top: 1px solid #e2e8f0; }
+.btn-submit-main { width: 100%; padding: 16px; background: #0f172a; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.btn-submit-main:disabled { background: #cbd5e1; cursor: not-allowed; }
+.empty-guide-stage { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; background: #ffffff; }
+.guide-content { text-align: center; color: #94a3b8; }
+.guide-icon { font-size: 60px; margin-bottom: 20px; }
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.toggle-btn { position: absolute; right: -12px; top: 30px; width: 24px; height: 24px; background: #fff; border: 1px solid #e2e8f0; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; z-index: 10; }
+.ans-status { position: absolute; right: 5px; top: 2px; font-size: 10px; }
+.is-ok { color: #22c55e; }
+.is-no { color: #ef4444; }
+.empty-list-tip { text-align: center; margin-top: 60px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.sub-tip { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.analysis-box { margin-top: 10px; padding: 10px 12px; background: #f8fafc; border-radius: 6px; border-left: 3px solid #64748b; font-size: 12px; }
+.question-card:has(.is-no) .analysis-box { border-left-color: #fca5a5; }
+.question-card:has(.is-ok) .analysis-box { border-left-color: #86efac; }
+.analysis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.analysis-tag { background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; }
+.correct-ans-tip { color: #64748b; }
+.text-success { color: #22c55e; font-weight: 800; }
+.analysis-text { margin: 0; color: #475569; line-height: 1.6; white-space: pre-wrap; }
+.text-content { white-space: pre-wrap; word-break: break-word; }
+.translation-box { white-space: pre-wrap; line-height: 1.8; color: #475569; }
 </style>
