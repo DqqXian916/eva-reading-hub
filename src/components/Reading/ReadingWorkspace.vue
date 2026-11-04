@@ -1,13 +1,13 @@
 <script setup>
 /**
- * Props 说明：
- * activeReading: 当前正在阅读的文章对象
- * isFullScreen: 是否处于全屏沉浸模式
- * userSelections: 学生的选项记录数组
- * isSubmitted: 是否已提交核对
- * scoreInfo: 得分汇总文字
+- Props 说明：
+- activeReading: 当前正在阅读的文章对象
+- isFullScreen: 是否处于全屏沉浸模式
+- userSelections: 学生的选项记录数组
+- isSubmitted: 是否已提交核对
+- scoreInfo: 得分汇总文字
  */
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   activeReading: Object,
@@ -21,6 +21,166 @@ const hoverIdx = ref(null)
 const hoverOptIdx = ref(null)
 const showChinese = ref(false)
 
+// ==================== 仿雅思精准局部高亮状态 ====================
+const articleContainerRef = ref(null)
+const highlights = ref([]) // 存储当前文章的高亮范围记录数组：[{ start: number, end: number, text: string }]
+const popoverStyle = ref({ display: 'none', top: '0px', left: '0px' })
+
+const currentSelectionData = ref({ text: '', start: 0, end: 0 })
+
+// 辅助函数：计算当前选区相对于整个纯文本正文的全局字符索引范围
+const getSelectionRangeIndices = (container, selection) => {
+  if (!selection.rangeCount) return null
+  const range = selection.getRangeAt(0)
+  
+  const preRange = range.cloneRange()
+  preRange.selectNodeContents(container)
+  preRange.setEnd(range.startContainer, range.startOffset)
+  const start = preRange.toString().length
+  const text = range.toString().trim()
+  const end = start + text.length
+
+  return { start, end, text }
+}
+
+// 监听鼠标抬起事件（精准修复定位：完美紧跟选中文本下方）
+const handleMouseUp = (e) => {
+  const selection = window.getSelection()
+  const text = selection ? selection.toString().trim() : ''
+
+  if (text.length > 0 && articleContainerRef.value && articleContainerRef.value.contains(selection.anchorNode)) {
+    const indices = getSelectionRangeIndices(articleContainerRef.value, selection)
+    if (!indices || !indices.text) return
+
+    currentSelectionData.value = indices
+    const range = selection.getRangeAt(0)
+    const rect = range.getBoundingClientRect()
+    
+    // 获取外层可滚动文章容器的 DOM 节点
+    const articleColEl = articleContainerRef.value.closest('.article-col')
+    const containerRect = articleColEl.getBoundingClientRect()
+
+    // 核心修复：引入 articleColEl.scrollTop，确保滚动页面时菜单依然精准贴合选中文本下方
+    const topPos = rect.bottom - containerRect.top + articleColEl.scrollTop + 8
+    const leftPos = rect.left - containerRect.left + articleColEl.scrollLeft + (rect.width / 2)
+
+    popoverStyle.value = {
+      display: 'flex',
+      top: `${topPos}px`,
+      left: `${leftPos}px`
+    }
+  } else {
+    // 点击其他空白区域时隐藏高亮菜单
+    setTimeout(() => {
+      const activeEl = document.activeElement
+      if (!activeEl || !activeEl.closest('.IELTS-popover-menu')) {
+        popoverStyle.value.display = 'none'
+      }
+    }, 200)
+  }
+}
+
+// 点击“Highlight”按钮：根据精确的字符索引区间添加高亮
+const handleHighlightClick = () => {
+  const { start, end, text } = currentSelectionData.value
+  if (text && start < end) {
+    const exists = highlights.value.some(h => h.start === start && h.end === end)
+    if (!exists) {
+      highlights.value.push({ start, end, text })
+    }
+    window.getSelection()?.removeAllRanges()
+    popoverStyle.value.display = 'none'
+    currentSelectionData.value = { text: '', start: 0, end: 0 }
+  }
+}
+
+// 移除某一条高亮
+const removeHighlight = (start, end) => {
+  highlights.value = highlights.value.filter(h => !(h.start === start && h.end === end))
+}
+
+// 清除所有高亮
+const clearAllHighlights = () => {
+  highlights.value = []
+}
+
+// 核心计算属性：根据字符索引安全地将高亮标签插入对应位置
+const processedArticleHtml = computed(() => {
+  const reading = props.activeReading
+  if (!reading) return ''
+  let rawHtml = (showChinese.value && reading.body_cn) ? reading.body_cn : reading.body
+  if (!rawHtml) return ''
+
+  if (!highlights.value.length) return rawHtml
+
+  const sortedHighlights = [...highlights.value].sort((a, b) => b.start - a.start)
+
+  let div = document.createElement('div')
+  div.innerHTML = rawHtml
+
+  sortedHighlights.forEach(h => {
+    applyHighlightToNode(div, h.start, h.end, h.text)
+  })
+
+  return div.innerHTML
+})
+
+// 递归在 DOM 树中精准找到对应文本节点并包裹 mark 标签
+const applyHighlightToNode = (node, targetStart, targetEnd, targetText) => {
+  let currentIndex = 0
+
+  const walk = (n) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      const nodeLength = n.textContent.length
+      const nodeStart = currentIndex
+      const nodeEnd = currentIndex + nodeLength
+
+      if (targetStart < nodeEnd && targetEnd > nodeStart) {
+        const matchStartInNode = Math.max(0, targetStart - nodeStart)
+        const matchEndInNode = Math.min(nodeLength, targetEnd - nodeStart)
+        
+        const val = n.textContent
+        const before = val.substring(0, matchStartInNode)
+        const matched = val.substring(matchStartInNode, matchEndInNode)
+        const after = val.substring(matchEndInNode)
+
+        const mark = document.createElement('mark')
+        mark.className = 'IELTS-highlight'
+        mark.title = '点击取消高亮'
+        mark.dataset.start = targetStart
+        mark.dataset.end = targetEnd
+        mark.textContent = matched
+
+        const parent = n.parentNode
+        if (before) parent.insertBefore(document.createTextNode(before), n)
+        parent.insertBefore(mark, n)
+        if (after) parent.insertBefore(document.createTextNode(after), n)
+        parent.removeChild(n)
+      }
+      currentIndex += nodeLength
+    } else if (n.nodeType === Node.ELEMENT_NODE && !n.classList.contains('IELTS-highlight')) {
+      for (let i = 0; i < n.childNodes.length; i++) {
+        walk(n.childNodes[i])
+      }
+    }
+  }
+
+  walk(node)
+}
+
+// 点击已高亮文字时精确取消该处高亮
+const handleArticleClick = (e) => {
+  const target = e.target
+  if (target.classList.contains('IELTS-highlight')) {
+    const start = parseInt(target.dataset.start, 10)
+    const end = parseInt(target.dataset.end, 10)
+    if (!isNaN(start) && !isNaN(end)) {
+      removeHighlight(start, end)
+    }
+  }
+}
+// ===================================================================
+
 const emit = defineEmits(['toggleFull', 'close', 'submit', 'updateSelection'])
 
 const handleSubmit = () => {
@@ -28,16 +188,14 @@ const handleSubmit = () => {
 }
 
 /**
- * 核心：完美无损打印 PDF 报告
+ * 打印 PDF 报告
  */
 const handlePrintReport = () => {
   const reading = props.activeReading
   if (!reading) return
 
-  // 1. 获取文章正文 HTML
   const articleHtml = (showChinese.value && reading.body_cn) ? reading.body_cn : reading.body
 
-  // 2. 拼接题目与解析
   let quizHtml = ''
   if (reading.quiz && reading.quiz.length) {
     quizHtml = reading.quiz.map((q, qIdx) => {
@@ -46,7 +204,6 @@ const handlePrintReport = () => {
       const statusText = isCorrect ? '✓ 正确' : '✕ 错误'
       const statusClass = isCorrect ? 'correct' : 'wrong'
 
-      // A. 渲染组合题声明语句框 sub_q (例如 ①②③④ 列表)
       let subQHtml = ''
       if (q.sub_q && q.sub_q.length) {
         const subItems = q.sub_q.map(item => `
@@ -58,7 +215,6 @@ const handlePrintReport = () => {
         subQHtml = `<div class="statements-box">${subItems}</div>`
       }
 
-      // B. 渲染选项 (自动清洗重复字母)
       let optionsHtml = ''
       if (q.options && q.options.length) {
         optionsHtml = q.options.map((opt, oIdx) => {
@@ -66,7 +222,6 @@ const handlePrintReport = () => {
           if (q.option_type === 'image_base64') {
             optText = `<img src="${opt.data}" style="max-height:60px; vertical-align:middle;" />`
           } else if (typeof opt === 'string') {
-            // 如果选项自带 "A. " 或 "A. A." 则自动去重
             optText = opt.replace(/^[A-Z]\.\s*/i, '')
           }
 
@@ -85,7 +240,6 @@ const handlePrintReport = () => {
         }).join('')
       }
 
-      // C. 渲染解析内容 (兼容数组解析与字符串解析)
       let analysisContent = '暂无该题解析'
       if (q.analysis) {
         if (Array.isArray(q.analysis)) {
@@ -101,13 +255,8 @@ const handlePrintReport = () => {
             <div class="q-title"><strong>${qIdx + 1}.</strong> ${q.q}</div>
             ${props.isSubmitted ? `<span class="status-tag ${statusClass}">${statusText}</span>` : ''}
           </div>
-
           ${subQHtml}
-
-          <div class="options-list">
-            ${optionsHtml}
-          </div>
-
+          <div class="options-list">${optionsHtml}</div>
           ${props.isSubmitted ? `
             <div class="analysis-box">
               <div class="analysis-title">💡 答案解析：</div>
@@ -119,7 +268,6 @@ const handlePrintReport = () => {
     }).join('')
   }
 
-  // 3. 打开独立窗口构建打印文档
   const printWindow = window.open('', '_blank')
   printWindow.document.write(`
     <!DOCTYPE html>
@@ -127,138 +275,31 @@ const handlePrintReport = () => {
     <head>
       <title>${reading.title || '阅读分析报告'}</title>
       <style>
-        @page {
-          size: A4;
-          margin: 0;
-        }
+        @page { size: A4; margin: 0; }
         *, *::before, *::after { box-sizing: border-box; }
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-          color: #1e293b;
-          line-height: 1.6;
-          padding: 15mm 12mm;
-          margin: 0;
-        }
-        .header-box {
-          border-bottom: 2px solid #0f172a;
-          padding-bottom: 10px;
-          margin-bottom: 16px;
-        }
-        .report-title {
-          font-size: 20px;
-          font-weight: bold;
-          margin: 0 0 6px 0;
-          color: #0f172a;
-        }
-        .meta-info {
-          font-size: 12px;
-          color: #64748b;
-          display: flex;
-          justify-content: space-between;
-        }
-        .section-box {
-          margin-bottom: 20px;
-        }
-        .section-title {
-          font-size: 14px;
-          font-weight: bold;
-          border-left: 4px solid #3b82f6;
-          padding-left: 8px;
-          margin-bottom: 10px;
-          color: #0f172a;
-        }
-        .article-content {
-          background: #f8fafc;
-          padding: 14px 16px;
-          border-radius: 6px;
-          font-size: 13.5px;
-          line-height: 1.75;
-          border: 1px solid #e2e8f0;
-          text-align: justify;
-        }
-        .article-content img {
-          max-width: 100%;
-          border-radius: 6px;
-          margin: 10px 0;
-        }
-        .question-card {
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px 14px;
-          margin-bottom: 12px;
-          page-break-inside: avoid;
-          break-inside: avoid;
-          background: #ffffff;
-        }
-        .q-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          font-size: 13.5px;
-          margin-bottom: 8px;
-        }
-        .q-title {
-          font-weight: 600;
-          color: #0f172a;
-          flex: 1;
-        }
-        .status-tag {
-          font-size: 11px;
-          font-weight: bold;
-          padding: 2px 8px;
-          border-radius: 4px;
-          white-space: nowrap;
-          margin-left: 10px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: #1e293b; line-height: 1.6; padding: 15mm 12mm; margin: 0; }
+        .header-box { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 16px; }
+        .report-title { font-size: 20px; font-weight: bold; margin: 0 0 6px 0; color: #0f172a; }
+        .meta-info { font-size: 12px; color: #64748b; display: flex; justify-content: space-between; }
+        .section-box { margin-bottom: 20px; }
+        .section-title { font-size: 14px; font-weight: bold; border-left: 4px solid #3b82f6; padding-left: 8px; margin-bottom: 10px; color: #0f172a; }
+        .article-content { background: #f8fafc; padding: 14px 16px; border-radius: 6px; font-size: 13.5px; line-height: 1.75; border: 1px solid #e2e8f0; text-align: justify; }
+        .article-content img { max-width: 100%; border-radius: 6px; margin: 10px 0; }
+        .question-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; page-break-inside: avoid; break-inside: avoid; background: #ffffff; }
+        .q-header { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13.5px; margin-bottom: 8px; }
+        .q-title { font-weight: 600; color: #0f172a; flex: 1; }
+        .status-tag { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; white-space: nowrap; margin-left: 10px; }
         .status-tag.correct { background: #dcfce7; color: #15803d; }
         .status-tag.wrong { background: #fee2e2; color: #b91c1c; }
-        
-        .statements-box {
-          margin: 6px 0 10px 16px;
-          padding: 8px 12px;
-          background-color: #f1f5f9;
-          border-radius: 6px;
-          font-size: 12.5px;
-        }
-        .stmt-item {
-          display: flex;
-          gap: 6px;
-          margin-bottom: 4px;
-          color: #334155;
-        }
+        .statements-box { margin: 6px 0 10px 16px; padding: 8px 12px; background-color: #f1f5f9; border-radius: 6px; font-size: 12.5px; }
+        .stmt-item { display: flex; gap: 6px; margin-bottom: 4px; color: #334155; }
         .stmt-idx { font-weight: bold; color: #64748b; }
-
-        .options-list {
-          margin: 6px 0;
-          font-size: 13px;
-        }
-        .opt-item {
-          margin-bottom: 5px;
-          color: #334155;
-          line-height: 1.5;
-        }
-        .opt-letter {
-          font-weight: bold;
-          margin-right: 4px;
-        }
-        .analysis-box {
-          margin-top: 8px;
-          background: #f8fafc;
-          padding: 8px 10px;
-          border-radius: 4px;
-          font-size: 12.5px;
-          color: #334155;
-          border-left: 3px solid #94a3b8;
-          line-height: 1.6;
-        }
-        .analysis-title {
-          font-weight: bold;
-          margin-bottom: 3px;
-          color: #1e293b;
-        }
-        .analysis-body img {
-          max-width: 100%;
-        }
+        .options-list { margin: 6px 0; font-size: 13px; }
+        .opt-item { margin-bottom: 5px; color: #334155; line-height: 1.5; }
+        .opt-letter { font-weight: bold; margin-right: 4px; }
+        .analysis-box { margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 4px; font-size: 12.5px; color: #334155; border-left: 3px solid #94a3b8; line-height: 1.6; }
+        .analysis-title { font-weight: bold; margin-bottom: 3px; color: #1e293b; }
+        .analysis-body img { max-width: 100%; }
       </style>
     </head>
     <body>
@@ -269,12 +310,10 @@ const handlePrintReport = () => {
           <span>打印时间：${new Date().toLocaleString()}</span>
         </div>
       </div>
-
       <div class="section-box">
         <div class="section-title">一、阅读文章（Reading Material）</div>
         <div class="article-content">${articleHtml}</div>
       </div>
-
       <div class="section-box">
         <div class="section-title">二、题目与解析（Quiz & Analysis）</div>
         ${quizHtml}
@@ -298,7 +337,10 @@ const handlePrintReport = () => {
     <!-- 顶部工具栏 -->
     <div class="reading-toolbar">
       <div class="exclusive-badge">✨ Eva老师 爱徒专用 ❤️</div>
-      <div class="tool-group">
+      <div class="tool-group" style="display: flex; align-items: center; gap: 10px;">
+        <button v-if="highlights.length > 0" class="btn-tool clear-all" @click="clearAllHighlights">
+          清除所有高亮 ({{ highlights.length }})
+        </button>
         <button class="btn-tool" @click="$emit('toggleFull')">
           {{ isFullScreen ? '退出 ↙' : '全屏 ↗' }}
         </button>
@@ -321,8 +363,23 @@ const handlePrintReport = () => {
           <h1 class="article-title">{{ activeReading.title }}</h1>
         </div>
 
-        <div v-html="(showChinese && activeReading.body_cn) ? activeReading.body_cn : activeReading.body"
-          class="article-text rich-content" :class="{ 'cn-mode': showChinese && activeReading.body_cn }"></div>
+        <!-- 文章主体区域：绑定划词和点击取消高亮 -->
+        <div 
+          ref="articleContainerRef"
+          class="article-text rich-content" 
+          :class="{ 'cn-mode': showChinese && activeReading.body_cn }"
+          @mouseup="handleMouseUp"
+          @click="handleArticleClick"
+          v-html="processedArticleHtml"
+        ></div>
+
+        <!-- 雅思单高亮按钮悬浮菜单框（修复定位，紧跟文字下方） -->
+        <div class="IELTS-popover-menu" :style="popoverStyle">
+          <button class="menu-item single-highlight" @click="handleHighlightClick">
+            <span class="menu-icon">🖍️</span>
+            <span class="menu-text">Highlight</span>
+          </button>
+        </div>
       </article>
 
       <!-- 答题栏 -->
@@ -347,7 +404,6 @@ const handlePrintReport = () => {
                 { 'is-image-opt': q.option_type === 'image_base64' }
               ]" @click="!isSubmitted && $emit('updateSelection', { qIdx, oIdx })"
                 @mouseenter="isSubmitted && (hoverIdx = qIdx, hoverOptIdx = oIdx)">
-                <!-- @mouseleave="hoverIdx = null, hoverOptIdx = null" -->
 
                 <template v-if="q.option_type === 'image_base64'">
                   <div class="opt-img-wrapper">
@@ -400,6 +456,81 @@ const handlePrintReport = () => {
 </template>
 
 <style scoped>
+/* ==================== 仿雅思单高亮菜单样式 ==================== */
+.article-col {
+  position: relative; /* 确保气泡相对文章列精确定位 */
+}
+
+.IELTS-popover-menu {
+  position: absolute;
+  z-index: 1000;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  animation: fadeInShort 0.15s ease-out;
+}
+
+.menu-item.single-highlight {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+  gap: 2px;
+}
+
+.menu-item.single-highlight:hover {
+  background: #f1f5f9;
+}
+
+.menu-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.menu-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* 经典雅思黄色高亮样式 */
+:deep(.IELTS-highlight) {
+  background-color: #fef08a !important;
+  color: inherit !important;
+  padding: 2px 0;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: inset 0 -2px 0 rgba(234, 179, 8, 0.4);
+  transition: background-color 0.2s;
+}
+
+:deep(.IELTS-highlight):hover {
+  background-color: #fde047 !important;
+  text-decoration: line-through; /* 悬停时带有删除线效果，提示点击即可取消 */
+}
+
+.btn-tool.clear-all {
+  color: #e11d48;
+  border-color: #fecdd3;
+  background: #fff1f2;
+}
+
+.btn-tool.clear-all:hover {
+  background: #ffe4e6;
+}
+/* ========================================================== */
+
 .reading-view {
   display: flex;
   flex-direction: column;
@@ -481,7 +612,7 @@ const handlePrintReport = () => {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  transform: translateZ(0); /* 开启硬件加速，减少滚动时的重绘频闪 */
+  transform: translateZ(0);
 }
 
 .question-card {
@@ -666,8 +797,8 @@ const handlePrintReport = () => {
   background-color: #f8fafc;
   border-left: 4px solid #cbd5e1;
   border-radius: 8px;
-  transition: background-color 0.2s ease; /* 移除了对高度产生影响的抖动，只保留背景色过渡 */
-  min-height: 110px; /* 关键：固定最小高度，防止不同长度的解析导致容器高度剧烈变化引发滚动条抖动 */
+  transition: background-color 0.2s ease;
+  min-height: 110px;
   box-sizing: border-box;
 }
 
