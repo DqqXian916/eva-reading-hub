@@ -41,7 +41,7 @@ watch(isShowingCn, () => {
   updateEditorDOM()
 })
 
-// JSON 导入逻辑
+// JSON 导入逻辑（支持解析读取）
 const importFromJson = () => {
   try {
     const data = JSON.parse(jsonInput.value)
@@ -55,7 +55,7 @@ const importFromJson = () => {
     form.quiz = data.quiz.map(q => ({
       options: q.options || ['', '', '', ''],
       answer: q.answer || 0,
-      analysis: q.analysis || ''
+      analysis: q.analysis || '' // 读取 JSON 中的解析字段
     }))
 
     if (!form.body.includes('[1]') && form.quiz.length > 0) {
@@ -77,8 +77,6 @@ const importFromJson = () => {
 const handleInput = () => {
   if (!editorRef.value) return
   
-  // 关键改进：使用 innerText 获取保留了换行(\n)与连续空格的纯文本内容
-  // 替换 \r 为 \n 统一换行符
   const content = editorRef.value.innerText.replace(/\r\n/g, '\n')
 
   if (isShowingCn.value) {
@@ -90,13 +88,13 @@ const handleInput = () => {
     const matches = content.match(/\[(\d+)\]/g) || []
     const count = matches.length
 
-    // 自动调整题目数组长度
+    // 自动调整题目数组长度（保留已填写的解析）
     if (form.quiz.length < count) {
       for (let i = form.quiz.length; i < count; i++) {
         form.quiz.push({
           options: ['', '', '', ''],
           answer: 0,
-          analysis: ''
+          analysis: '' // 新增题目默认解析为空
         })
       }
     } else if (form.quiz.length > count) {
@@ -114,6 +112,7 @@ const submitSave = () => {
     if (!confirm("部分题目的选项尚未填写完整，确认要保存吗？")) return
   }
 
+  // 提交时将带有 analysis 的完整表单数据 emit 出去
   emit('save', { ...form })
 }
 </script>
@@ -194,6 +193,16 @@ const submitSave = () => {
                 </button>
               </div>
             </div>
+            <!-- 新增：题目解析输入区域 -->
+            <div class="analysis-row">
+              <label>题目解析</label>
+              <textarea 
+                v-model="q.analysis" 
+                class="analysis-textarea" 
+                placeholder="在此输入该题的详细解析（选填）"
+                rows="2"
+              ></textarea>
+            </div>
           </div>
         </div>
       </aside>
@@ -202,8 +211,8 @@ const submitSave = () => {
       <div v-if="isJsonModalOpen" class="modal-overlay">
         <div class="json-modal">
           <h3>快速录入 (JSON)</h3>
-          <p class="modal-tip">请粘贴符合规范的练习 JSON 数据：</p>
-          <textarea v-model="jsonInput" placeholder='{ "title": "...", "body": "...", "quiz": [...] }'></textarea>
+          <p class="modal-tip">请粘贴符合规范的练习 JSON 数据（包含 quiz 中的 analysis 字段）：</p>
+          <textarea v-model="jsonInput" placeholder='{ "title": "...", "body": "...", "quiz": [{"options": [...], "answer": 0, "analysis": "..."}] }'></textarea>
           <div class="modal-actions">
             <button class="btn-cancel" @click="isJsonModalOpen = false">取消</button>
             <button class="btn-confirm" @click="importFromJson">确认导入</button>
@@ -364,7 +373,6 @@ const submitSave = () => {
   overflow: hidden;
 }
 
-/* 核心优化：cloze-editor 的换行与缩进处理 */
 .cloze-editor {
   flex: 1;
   outline: none;
@@ -373,8 +381,6 @@ const submitSave = () => {
   color: #1e293b;
   overflow-y: auto;
   text-align: justify;
-
-  /* 关键添加：保留换行符 \n 与连续空格/缩进 */
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -454,7 +460,6 @@ const submitSave = () => {
 }
 
 .opt-label {
-  width: auto;
   font-size: 11px;
   color: #64748b;
   font-weight: 800;
@@ -512,6 +517,40 @@ const submitSave = () => {
   background: #3b82f6;
   border-color: #3b82f6;
   color: #fff;
+}
+
+/* 新增：解析输入框样式 */
+.analysis-row {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analysis-row label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.analysis-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+
+.analysis-textarea:focus {
+  border-color: #3b82f6;
+  background: #fff;
 }
 
 .empty-quiz-tip {
@@ -576,8 +615,6 @@ const submitSave = () => {
   resize: none;
   outline: none;
   box-sizing: border-box;
-
-  /* 使得 JSON 编辑框也保留格式 */
   white-space: pre;
 }
 .json-modal textarea:focus { border-color: #3b82f6; }

@@ -462,7 +462,7 @@ const handleBatchSaveQuizzes = async (quizzesArray) => {
       .from('quizzes')
       .insert(finalData)
     if (error) throw error
-    alert(`🚀 成功批量发布 ${finalData.length} 道题目！`)
+    alert(`🚀  ${finalData.length} 道题目发布成功！`)
     await fetchQuizzes(currentStudent.value.id)
   } catch (e) {
     console.error(e)
@@ -521,7 +521,7 @@ const handleBatchSaveClozes = async (clozeQuizzesArray) => {
       .insert(finalData)
 
     if (error) throw error
-    alert(`🚀 成功批量发布 ${finalData.length} 篇短文填空练习！`)
+    alert(`🚀  ${finalData.length} 篇短文填空发布成功！`)
     await fetchClozeQuizzes(currentStudent.value.id)
 
   } catch (e) {

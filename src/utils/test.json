@@ -1,0 +1,548 @@
+[
+  {
+    "m": true,
+    "s": "Touch your ear.",
+    "cn": "耳朵",
+    "en": "ear",
+    "ps": "ɪə(r)"
+  },
+  {
+    "m": true,
+    "s": "I have ten fingers.",
+    "cn": "手指",
+    "en": "finger",
+    "ps": "ˈfɪŋɡə(r)"
+  },
+  {
+    "m": true,
+    "s": "Raise your arm.",
+    "cn": "手臂，胳膊",
+    "en": "arm",
+    "ps": "ɑːm"
+  },
+  {
+    "m": true,
+    "s": "He is looking for a job.",
+    "cn": "工作",
+    "en": "job",
+    "ps": "dʒɒb"
+  },
+  {
+    "m": true,
+    "s": "She is a student.",
+    "cn": "学生",
+    "en": "student",
+    "ps": "ˈstjuːdnt"
+  },
+  {
+    "m": true,
+    "s": "Nice to meet you, too.",
+    "cn": "也，太",
+    "en": "too",
+    "ps": "tuː"
+  },
+  {
+    "m": true,
+    "s": "This is a book.",
+    "cn": "这个",
+    "en": "this",
+    "ps": "ðɪs"
+  },
+  {
+    "m": true,
+    "s": "My bag is black.",
+    "cn": "黑色",
+    "en": "black",
+    "ps": "blæk"
+  },
+  {
+    "m": true,
+    "s": "Is this your coat?",
+    "cn": "你的",
+    "en": "your",
+    "ps": "jɔː(r)"
+  },
+  {
+    "m": true,
+    "s": "This is my dog.",
+    "cn": "是",
+    "en": "is",
+    "ps": "ɪz"
+  },
+  {
+    "m": true,
+    "s": "Wash your face.",
+    "cn": "脸",
+    "en": "face",
+    "ps": "feɪs"
+  },
+  {
+    "m": true,
+    "s": "This is my school bag.",
+    "cn": "书包",
+    "en": "bag",
+    "ps": "bæɡ"
+  },
+  {
+    "m": true,
+    "s": "It is time for dinner.",
+    "cn": "晚饭",
+    "en": "dinner",
+    "ps": "ˈdɪnə(r)"
+  },
+  {
+    "m": true,
+    "s": "What do you usually do on weekends?",
+    "cn": "做，干",
+    "en": "do",
+    "ps": "duː"
+  },
+  {
+    "m": true,
+    "s": "I did my homework yesterday evening.",
+    "cn": "做，干（do 的过去式）",
+    "en": "did",
+    "ps": "dɪd"
+  },
+  {
+    "m": true,
+    "s": "I am a student at this school.",
+    "cn": "是（用于第一人称单数 I）",
+    "en": "am",
+    "ps": "æm"
+  },
+  {
+    "m": true,
+    "s": "We are good friends.",
+    "cn": "是（用于复数及第二人称）",
+    "en": "are",
+    "ps": "ɑːr"
+  },
+  {
+    "m": true,
+    "s": "He was late for class yesterday.",
+    "cn": "是（am/is 的过去式）",
+    "en": "was",
+    "ps": "wɒz"
+  },
+  {
+    "m": false,
+    "s": "They were at home all night.",
+    "cn": "是（are 的过去式）",
+    "en": "were",
+    "ps": "wɜːr"
+  },
+  {
+    "m": true,
+    "s": "They hope to win the game today.",
+    "cn": "赢，获胜",
+    "en": "win",
+    "ps": "wɪn"
+  },
+  {
+    "m": false,
+    "s": "Our team won the championship last week.",
+    "cn": "赢，获胜（win 的过去式/过去分词）",
+    "en": "won",
+    "ps": "wʌn"
+  },
+  {
+    "m": false,
+    "s": "She is a kind and helpful teacher.",
+    "cn": "善良的",
+    "en": "kind",
+    "ps": "kaɪnd"
+  },
+  {
+    "m": true,
+    "s": "He stayed home because he was sick.",
+    "cn": "因为",
+    "en": "because",
+    "ps": "bɪˈkɒz"
+  },
+  {
+    "m": true,
+    "s": "Would you like to join us for dinner?",
+    "cn": "参加，加入",
+    "en": "join",
+    "ps": "dʒɔɪn"
+  },
+  {
+    "m": true,
+    "s": "She bought a new pair of shoes.",
+    "cn": "新的",
+    "en": "new",
+    "ps": "njuː"
+  },
+  {
+    "m": true,
+    "s": "They make delicious cakes in this bakery.",
+    "cn": "做",
+    "en": "make",
+    "ps": "meɪk"
+  },
+  {
+    "m": true,
+    "s": "He gave her a birthday gift.",
+    "cn": "礼物",
+    "en": "gift",
+    "ps": "ɡɪft"
+  },
+  {
+    "m": true,
+    "s": "She joined the English club to practice speaking.",
+    "cn": "俱乐部",
+    "en": "club",
+    "ps": "klʌb"
+  },
+  {
+    "m": false,
+    "s": "Wash your hands before eating.",
+    "cn": "在...之前",
+    "en": "before",
+    "ps": "bɪˈfɔː(r)"
+  },
+  {
+    "m": false,
+    "s": "Doing sports keeps you healthy.",
+    "cn": "运动",
+    "en": "sports",
+    "ps": "spɔːts"
+  },
+  {
+    "m": true,
+    "s": "Have a wonderful day!",
+    "cn": "日子，白天",
+    "en": "day",
+    "ps": "deɪ"
+  },
+  {
+    "m": false,
+    "s": "You should try your best.",
+    "cn": "尝试",
+    "en": "try",
+    "ps": "traɪ"
+  },
+  {
+    "m": false,
+    "s": "They won the football match yesterday.",
+    "cn": "赢了",
+    "en": "won",
+    "ps": "wʌn"
+  },
+  {
+    "m": false,
+    "s": "I stayed home because it was raining.",
+    "cn": "因为",
+    "en": "because",
+    "ps": "bɪˈkɒz"
+  },
+  {
+    "m": false,
+    "s": "Did you really see him there?",
+    "cn": "真的吗",
+    "en": "really",
+    "ps": "ˈriːəli"
+  },
+  {
+    "m": true,
+    "s": "This is the best movie I have ever seen.",
+    "cn": "最好",
+    "en": "best",
+    "ps": "best"
+  },
+  {
+    "m": false,
+    "s": "I will never give up.",
+    "cn": "从不",
+    "en": "never",
+    "ps": "ˈnevə(r)"
+  },
+  {
+    "m": false,
+    "s": "Don't worry, everything will be fine.",
+    "cn": "担心",
+    "en": "worry",
+    "ps": "ˈwʌri"
+  },
+  {
+    "m": true,
+    "s": "She bought a new dress yesterday.",
+    "cn": "买-买了",
+    "en": "buy-bought",
+    "ps": "baɪ - bɔːt"
+  },
+  {
+    "m": true,
+    "s": "I wash my face every morning.",
+    "cn": "脸",
+    "en": "face",
+    "ps": "feɪs"
+  },
+  {
+    "m": true,
+    "s": "An elephant has a long nose.",
+    "cn": "鼻子",
+    "en": "nose",
+    "ps": "nəʊz"
+  },
+  {
+    "m": false,
+    "s": "I can make a paper plane.",
+    "cn": "做",
+    "en": "make",
+    "ps": "meɪk"
+  },
+  {
+    "m": false,
+    "s": "She got a nice gift for her birthday.",
+    "cn": "礼物",
+    "en": "gift",
+    "ps": "ɡɪft"
+  },
+  {
+    "m": false,
+    "s": "Monkeys like to climb trees.",
+    "cn": "爬",
+    "en": "climb",
+    "ps": "klaɪm"
+  },
+  {
+    "m": false,
+    "s": "The cat is very cute.",
+    "cn": "可爱的",
+    "en": "cute",
+    "ps": "kjuːt"
+  },
+  {
+    "m": false,
+    "s": "What a lovely day it is today!",
+    "cn": "可爱的",
+    "en": "lovely",
+    "ps": "ˈlʌvli"
+  },
+  {
+    "m": false,
+    "s": "I feel fine today, thank you.",
+    "cn": "好的",
+    "en": "fine",
+    "ps": "faɪn"
+  },
+  {
+    "m": false,
+    "s": "Let's make a paper plane.",
+    "cn": "做",
+    "en": "make",
+    "ps": "meɪk"
+  },
+  {
+    "m": false,
+    "s": "I am eight years old this year.",
+    "cn": "年",
+    "en": "year",
+    "ps": "jɪə(r)"
+  },
+  {
+    "m": true,
+    "s": "Rabbits have long ears.",
+    "cn": "耳朵",
+    "en": "ear",
+    "ps": "ɪə(r)"
+  },
+  {
+    "m": false,
+    "s": "Please do not touch the wet paint.",
+    "cn": "触摸",
+    "en": "touch",
+    "ps": "tʌtʃ"
+  },
+  {
+    "m": false,
+    "s": "It was my birthday yesterday.",
+    "cn": "昨天",
+    "en": "yesterday",
+    "ps": "ˈjestədeɪ"
+  },
+  {
+    "m": false,
+    "s": "The dog is sleeping under the table.",
+    "cn": "在下面",
+    "en": "under",
+    "ps": "ˈʌndə(r)"
+  },
+  {
+    "m": false,
+    "s": "The book is on the desk.",
+    "cn": "在上面",
+    "en": "on",
+    "ps": "ɒn"
+  },
+  {
+    "m": false,
+    "s": "The boy is hiding behind the door.",
+    "cn": "在后面",
+    "en": "behind",
+    "ps": "bɪˈhaɪnd"
+  },
+  {
+    "m": false,
+    "s": "My school is next to the park.",
+    "cn": "紧挨着",
+    "en": "next to",
+    "ps": "nekst tu"
+  },
+  {
+    "m": true,
+    "s": "There are some apples in the box.",
+    "cn": "在里面",
+    "en": "in",
+    "ps": "ɪn"
+  },
+  {
+    "m": false,
+    "s": "The ball is under the bed.",
+    "cn": "在下面",
+    "en": "under",
+    "ps": "ˈʌndə(r)"
+  },
+  {
+    "m": false,
+    "s": "I have some red pens.",
+    "cn": "一些",
+    "en": "some",
+    "ps": "sʌm"
+  },
+  {
+    "m": false,
+    "s": "Please open your mouth.",
+    "cn": "嘴巴",
+    "en": "mouth",
+    "ps": "maʊθ"
+  },
+  {
+    "m": false,
+    "s": "This is my favorite toy car.",
+    "cn": "玩具",
+    "en": "toy",
+    "ps": "tɔɪ"
+  },
+  {
+    "m": false,
+    "s": "She has long black hair.",
+    "cn": "头发",
+    "en": "hair",
+    "ps": "heə(r)"
+  },
+  {
+    "m": false,
+    "s": "Let me try to ride the bike.",
+    "cn": "尝试",
+    "en": "try",
+    "ps": "traɪ"
+  },
+  {
+    "m": false,
+    "s": "I lost my eraser yesterday.",
+    "cn": "橡皮",
+    "en": "eraser",
+    "ps": "ɪˈreɪzə(r)"
+  },
+  {
+    "m": false,
+    "s": "The baby cat is very cute.",
+    "cn": "可爱的",
+    "en": "cute",
+    "ps": "kjuːt"
+  },
+  {
+    "m": false,
+    "s": "How old are you?",
+    "cn": "几岁",
+    "en": "how old",
+    "ps": "haʊ əʊld"
+  },
+  {
+    "m": false,
+    "s": "The dog has a cut on its paw.",
+    "cn": "爪子",
+    "en": "paw",
+    "ps": "pɔː"
+  },
+  {
+    "m": false,
+    "s": "I like apples and bananas.",
+    "cn": "和",
+    "en": "and",
+    "ps": "ənd"
+  },
+  {
+    "m": false,
+    "s": "I go to school with my friend.",
+    "cn": "和",
+    "en": "with",
+    "ps": "wɪð"
+  },
+  {
+    "m": false,
+    "s": "I want to drink some water.",
+    "cn": "一些",
+    "en": "some",
+    "ps": "sʌm"
+  },
+  {
+    "m": false,
+    "s": "There is a small boat on the lake.",
+    "cn": "小船",
+    "en": "boat",
+    "ps": "bəʊt"
+  },
+  {
+    "m": false,
+    "s": "The fish are swimming in the river.",
+    "cn": "河流",
+    "en": "river",
+    "ps": "ˈrɪvə(r)"
+  },
+  {
+    "m": false,
+    "s": "My bedroom is very small.",
+    "cn": "小的",
+    "en": "small",
+    "ps": "smɔːl"
+  },
+  {
+    "m": false,
+    "s": "The cat is sleeping under the table.",
+    "cn": "在下面",
+    "en": "under",
+    "ps": "ˈʌndə(r)"
+  },
+  {
+    "m": false,
+    "s": "It is very high to climb the mountain.",
+    "cn": "山",
+    "en": "mountain",
+    "ps": "ˈmaʊntən"
+  },
+  {
+    "m": false,
+    "s": "I have a new toy car.",
+    "cn": "玩具",
+    "en": "toy",
+    "ps": "tɔɪ"
+  },
+  {
+    "m": false,
+    "s": "I want to sleep, but I have to do my homework.",
+    "cn": "但是",
+    "en": "but",
+    "ps": "bʌt"
+  },
+  {
+    "m": false,
+    "s": "It is raining, so I take an umbrella.",
+    "cn": "所以",
+    "en": "so",
+    "ps": "səʊ"
+  }
+]

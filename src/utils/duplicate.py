@@ -1,6 +1,6 @@
 import json
 
-with open('src/mock/templates/1.json', 'r', encoding='utf-8') as f:
+with open('src/utils/test.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 seen = set()
